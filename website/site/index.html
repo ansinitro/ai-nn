@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-NN — Angsar Shaumen, Bekzat Sundetkhan | AITU</title>
+    <meta name="description" content="Artificial Intelligence and Neural Networks Course Assignments">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B0F1A;
+            --bg-card: #111827;
+            --bg-card-hover: #1F2937;
+            --text: #E5E7EB;
+            --text-muted: #9CA3AF;
+            --text-dim: #6B7280;
+            --accent: #3B82F6;
+            --accent-hover: #60A5FA;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --purple: #8B5CF6;
+            --green: #10B981;
+            --amber: #F59E0B;
+            --border: rgba(255, 255, 255, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-effects::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float1 20s ease-in-out infinite;
+        }
+
+        .bg-effects::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float2 25s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(80px, 60px);
+            }
+        }
+
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-60px, -40px);
+            }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+        }
+
+        .logo img {
+            height: 120px;
+            filter: brightness(1.1);
+        }
+
+        .logo-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* Header Socials */
+        .social-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .social-btn:hover {
+            color: var(--text);
+            border-color: rgba(59, 130, 246, 0.4);
+            background: var(--bg-card-hover);
+        }
+
+        .social-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 1rem 0 3rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: var(--accent-glow);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-hover);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.04em;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 2rem 0;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        /* NIRM Cards */
+        .nirm-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .nirm-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem 1.5rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nirm-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .nirm-card.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+        }
+
+        .nirm-card.locked {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .nirm-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .nirm-label.blue {
+            color: var(--accent);
+        }
+
+        .nirm-label.purple {
+            color: var(--purple);
+        }
+
+        .nirm-label.amber {
+            color: var(--amber);
+        }
+
+        .nirm-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.01em;
+        }
+
+        .nirm-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+        }
+
+        .nirm-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 50px;
+        }
+
+        .nirm-status.done {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--green);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .nirm-status.soon {
+            background: rgba(107, 114, 128, 0.1);
+            color: var(--text-dim);
+            border: 1px solid rgba(107, 114, 128, 0.15);
+        }
+
+        .nirm-status .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .nirm-status.done .dot {
+            background: var(--green);
+        }
+
+        .nirm-status.soon .dot {
+            background: var(--text-dim);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer p {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .nirm-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                gap: 1.2rem;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-effects"></div>
+
+    <div class="container">
+        <header>
+            <a href="/" class="logo">
+                <img src="/nirm1/report/AITU.png" alt="AITU">
+            </a>
+            <div class="social-links">
+                <a href="https://t.me/ansinitro" target="_blank" class="social-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z" />
+                    </svg>
+                    Telegram
+                </a>
+                <a href="https://linkedin.com/in/ansinitro" target="_blank" class="social-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                    </svg>
+                    LinkedIn
+                </a>
+                <a href="https://github.com/ansinitro/" target="_blank" class="social-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+        </header>
+
+        <section class="hero">
+            <div class="hero-badge">Course Assignments Repository · AAI-2501M</div>
+            <h1>Artificial Intelligence<br>and <span>Neural Networks</span></h1>
+            <p class="hero-subtitle">
+                Comprehensive collection of data processing pipelines, neural network architectures, and evaluation
+                metrics.
+            </p>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Students</div>
+                    <div class="info-value">Angsar Shaumen, Bekzat Sundetkhan</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Instructor</div>
+                    <div class="info-value">Akhmetova Zhanar</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Program</div>
+                    <div class="info-value">Applied Artificial Intelligence</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Group</div>
+                    <div class="info-value">AAI-2501M</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Year</div>
+                    <div class="info-value">2026</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <div class="section-title">Course Assignments</div>
+
+        <div class="nirm-grid">
+            <a href="/assignment_1/" class="nirm-card active">
+                <div class="nirm-label blue">Assignment 1</div>
+                <h3>Exploratory Data Analysis</h3>
+                <p>Data cleaning, outlier handling, feature engineering, and visualization of the Jena Weather Dataset.
+                </p>
+                <span class="nirm-status done">
+                    <span class="dot"></span> Completed
+                </span>
+            </a>
+
+            <div class="nirm-card locked">
+                <div class="nirm-label purple">Assignment 2</div>
+                <h3>Neural Network Models</h3>
+                <p>Implementation of deep learning models including RNNs and LSTMs for time-series forecasting.</p>
+                <span class="nirm-status soon">
+                    <span class="dot"></span> Coming Soon
+                </span>
+            </div>
+
+            <div class="nirm-card locked">
+                <div class="nirm-label amber">Assignment 3</div>
+                <h3>Final Project & Evaluation</h3>
+                <p>Advanced modeling techniques, hyperparameter tuning, and final metric evaluations.</p>
+                <span class="nirm-status soon">
+                    <span class="dot"></span> Coming Soon
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Angsar Shaumen, Bekzat Sundetkhan · Astana IT University</p>
+        </div>
+    </footer>
+</body>
+
+</html>

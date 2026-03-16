@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSRW Defense — Noise Filtering Methods for Stefan Problem Datasets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+    <style>
+        :root {
+            --bg-color: #F8FAFC;
+            --text-color: #1E293B;
+            --heading-color: #0F172A;
+            --accent-primary: #2563EB;
+            --accent-secondary: #4F46E5;
+            --accent-tertiary: #7C3AED;
+            --success: #059669;
+            --danger: #DC2626;
+            --warning: #D97706;
+            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-border: rgba(226, 232, 240, 0.6);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(124, 58, 237, 0.03) 0px, transparent 60%);
+        }
+
+        /* ===== SLIDES CONTAINER ===== */
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0.8rem 1.5rem;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            background: transparent;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            visibility: visible;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.8rem;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+            font-weight: 700;
+            border-bottom: 3px solid var(--accent-secondary);
+            display: inline-block;
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--accent-secondary);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        p,
+        li {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.4rem;
+            color: var(--text-color);
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0.5rem;
+        }
+
+        li::before {
+            content: "▸";
+            color: var(--accent-primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1.2em;
+            margin-left: -1.2em;
+        }
+
+        li.check::before {
+            content: "✅";
+            margin-left: -1.6em;
+            width: 1.6em;
+        }
+
+        li.progress::before {
+            content: "🔄";
+            margin-left: -1.6em;
+            width: 1.6em;
+        }
+
+        /* ===== CONTENT BOX ===== */
+        .content-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            box-shadow: var(--shadow);
+            max-width: 1500px;
+            width: 96%;
+            max-height: 92vh;
+            overflow-y: hidden;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .content-box.column-layout {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .content-box.top-align {
+            align-items: flex-start;
+        }
+
+        .half-width {
+            flex: 1;
+            text-align: left;
+        }
+
+        .image-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 0.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E2E8F0;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 48vh;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+
+        .img-caption {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.8rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            color: var(--accent-primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        td {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr.highlight-row {
+            background-color: #EFF6FF;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        tr.highlight-row td {
+            font-weight: 600;
+        }
+
+        /* ===== SPECIAL ELEMENTS ===== */
+        .tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
+        }
+
+        .tag-blue {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .tag-green {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .tag-purple {
+            background: #EDE9FE;
+            color: #5B21B6;
+        }
+
+        .tag-red {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .highlight {
+            color: var(--accent-secondary);
+            font-weight: 700;
+        }
+
+        .equation-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            margin: 0.5rem 0;
+            font-size: 0.92rem;
+            overflow-x: auto;
+        }
+
+        .hypothesis-box {
+            background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+            border: 2px solid #C7D2FE;
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            margin: 0.8rem auto;
+            max-width: 1000px;
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #312E81;
+            text-align: left;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 0.9rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748B;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .col-box {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 1rem;
+        }
+
+        .future-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            padding: 0.6rem;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .future-item:hover {
+            background: #F8FAFC;
+        }
+
+        .future-icon {
+            font-size: 1.3rem;
+            margin-top: 0.1rem;
+        }
+
+        .future-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .future-text strong {
+            color: var(--accent-primary);
+        }
+
+        /* ===== CONTROLS ===== */
+        .controls {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.8rem;
+            z-index: 100;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid #E2E8F0;
+            color: var(--text-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .top-controls {
+            position: fixed;
+            top: 1.2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.6rem;
+            z-index: 101;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94A3B8;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary));
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 100;
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            body {
+                overflow: visible;
+                height: auto;
+                width: auto;
+                background: white;
+                background-image: none;
+            }
+
+            .slides-container {
+                display: block;
+                position: static;
+            }
+
+            .slide {
+                position: static !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: none !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+                height: 100vh;
+                width: 100%;
+                padding: 1.5cm 2cm;
+                display: flex !important;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .slide:last-child {
+                page-break-after: auto;
+            }
+
+            .content-box {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .controls,
+            .top-controls,
+            .slide-counter,
+            .progress-bar {
+                display: none !important;
+            }
+
+            .stat-card:hover,
+            .future-item:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            .stat-number {
+                background: none !important;
+                -webkit-background-clip: unset !important;
+                -webkit-text-fill-color: var(--accent-primary) !important;
+                background-clip: unset !important;
+                color: var(--accent-primary) !important;
+            }
+
+            /* Fix gradient text anywhere (e.g. "Thank You" heading) */
+            [style*="background-clip"],
+            [style*="-webkit-background-clip"] {
+                background: none !important;
+                -webkit-background-clip: unset !important;
+                -webkit-text-fill-color: var(--accent-primary) !important;
+                background-clip: unset !important;
+                color: var(--accent-primary) !important;
+            }
+
+            /* Force browsers to print background colors (tags, cards, etc.) */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            .tag {
+                border: 1px solid currentColor !important;
+            }
+        }
+
+        @page {
+            size: landscape;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-controls">
+        <button class="btn" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+        <button class="btn" onclick="window.print()">🖨 Export PDF</button>
+    </div>
+
+    <div class="slides-container">
+
+        <!-- ==================== SLIDE 1: TITLE ==================== -->
+        <div class="slide active">
+            <div class="content-box column-layout">
+                <div style="margin-bottom: 0.5rem;">
+                    <img src="../report/AITU.png" alt="AITU Logo"
+                        style="height: 60px; max-height: 60px; margin-bottom: 0.5rem;">
+                </div>
+                <p
+                    style="text-transform: uppercase; letter-spacing: 3px; color: var(--accent-secondary); font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">
+                    Report on the Research Work of the Master's Student</p>
+                <h1 style="font-size: 2.4rem;">Noise Filtering Methods<br>for Stefan Problem Datasets</h1>
+                <p style="font-size: 1.15rem; max-width: 750px; margin: 0.5rem auto; color: #64748B;">
+                    Improving PINN accuracy for inverse Stefan problems through noise filtering preprocessing
+                </p>
+                <div style="margin-top: 1.5rem; color: var(--text-color); font-size: 1rem; line-height: 2;">
+                    <strong>Student:</strong> Shaumen Angsar<br>
+                    <strong>Supervisor:</strong> Kassabek Samat, PhD, Associate Professor<br>
+                    <strong>Program:</strong> 7M06108 Applied Artificial Intelligence &nbsp;
+                    <span class="tag tag-blue">AAI-2501M</span>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;">
+                    <span class="tag tag-purple">PINNs</span>
+                    <span class="tag tag-blue">Stefan Problem</span>
+                    <span class="tag tag-green">Noise Filtering</span>
+                </div>
+                <p style="margin-top: 1.2rem; color: #94A3B8; font-size: 0.85rem;">
+                    Astana IT University · Trimester 1, 2025–2026
+                </p>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 2: RELEVANCE ==================== -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Relevance & Problem</h2>
+                    <p>The <strong>Stefan problem</strong> describes phase-change phenomena — ice melting,
+                        metal solidification, crystal growth — where the boundary between two phases moves over time.
+                    </p>
+                    <ul>
+                        <li><strong>PINNs</strong> (Physics-Informed Neural Networks) solve these as a mesh-free
+                            alternative to classical methods</li>
+                        <li><strong>Problem:</strong> Real sensor data is always <span class="highlight">contaminated
+                                by noise</span>, degrading PINN accuracy</li>
+                        <li><strong>Gap:</strong> No prior work systematically evaluated <em>preprocessing</em>
+                            the data to reduce noise before PINN training</li>
+                    </ul>
+                    <div style="margin-top: 1rem;">
+                        <span class="tag tag-red">Research Gap Identified</span>
+                    </div>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="stat-card">
+                        <div class="stat-number">🏭</div>
+                        <div class="stat-label">Industrial Applications:<br>Metal casting, cryosurgery, thermal storage
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">📡</div>
+                        <div class="stat-label">Noisy sensor data degrades<br>PINN training → inaccurate solutions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="font-size: 1.4rem;">🔬</div>
+                        <div class="stat-label">Our approach: <strong>Clean data first</strong>,<br>then train PINN
+                            normally</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 3: HYPOTHESIS ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Hypothesis</h2>
+                <div class="hypothesis-box">
+                    Applying noise filtering techniques (Gaussian smoothing, Total Variation denoising,
+                    Wavelet thresholding, Non-Local Means, and ensemble methods) as a <strong>preprocessing
+                        step</strong>
+                    to noisy measurement data will <strong>significantly improve</strong> the accuracy of
+                    Physics-Informed Neural Network solutions for inverse Stefan problems,
+                    <strong>without requiring any modifications</strong> to the PINN architecture or training procedure.
+                </div>
+                <div style="margin-top: 1.5rem; text-align: left; max-width: 800px;">
+                    <h3>Reasoning</h3>
+                    <ul>
+                        <li><strong>Data loss term:</strong> $\mathcal{L}_{\text{data}} =
+                            \frac{1}{M}\sum_{i=1}^{M}(\hat{u}_i - \tilde{u}_i)^2$ — noisy $\tilde{u}_i$ forces the PINN
+                            to fit noise</li>
+                        <li><strong>Filtering cleans $\tilde{u}_i$</strong> before training → cleaner targets → better
+                            solutions</li>
+                        <li><strong>Different filters</strong> will be optimal at different noise levels</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 4: AIMS & OBJECTIVES ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout" style="text-align: left;">
+                <h2>Aims & Objectives</h2>
+                <p style="margin-bottom: 1rem;"><strong>Aim:</strong> Develop and evaluate a methodology for improving
+                    PINN accuracy for inverse Stefan problems through noise filtering preprocessing.</p>
+                <div class="two-col">
+                    <div class="col-box">
+                        <h3>Research Objectives</h3>
+                        <ul>
+                            <li class="check">Comprehensive literature review on Stefan problems, PINNs, and noise
+                                filtering</li>
+                            <li class="check">Reproduce Wang & Perdikaris PINN solver in PyTorch</li>
+                            <li class="check">Implement 6 noise filtering methods</li>
+                            <li class="check">Design & execute 210 independent training runs</li>
+                            <li class="check">Quantify improvement & provide practical guidelines</li>
+                            <li class="check">Prepare IEEE conference paper</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h3>Research Plan Status</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Stage</th>
+                                    <th>Planned</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>НИРМ 1 — Literature & Data</td>
+                                    <td>Sep–Dec 2025</td>
+                                    <td><span class="tag tag-green">Done</span></td>
+                                </tr>
+                                <tr>
+                                    <td>НИРМ 2 — Noise & Filters</td>
+                                    <td>Dec 2025–Feb 2026</td>
+                                    <td><span class="tag tag-green">Done</span></td>
+                                </tr>
+                                <tr>
+                                    <td>НИРМ 3 — PINN Model</td>
+                                    <td>Mar–May 2026</td>
+                                    <td><span class="tag tag-green">Done</span></td>
+                                </tr>
+                                <tr>
+                                    <td>НИРМ 4 — Advanced Filters</td>
+                                    <td>Sep–Nov 2026</td>
+                                    <td><span class="tag tag-green">Done</span></td>
+                                </tr>
+                                <tr>
+                                    <td>НИРМ 5 — Publications</td>
+                                    <td>Dec 2026–Feb 2027</td>
+                                    <td><span class="tag tag-blue">In Progress</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 5: MATHEMATICAL MODEL ==================== -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Mathematical Model</h2>
+                    <p>Two-phase Stefan problem on $x \in [0,1]$, $t \in [0,1]$:</p>
+                    <div class="equation-box">
+                        <strong>Phase 1:</strong>&ensp;
+                        $\frac{\partial u_1}{\partial t} = k_1 \frac{\partial^2 u_1}{\partial x^2}, \quad 0 < x < s(t)$
+                            </div>
+                            <div class="equation-box">
+                                <strong>Phase 2:</strong>&ensp;
+                                $\frac{\partial u_2}{\partial t} = k_2 \frac{\partial^2 u_2}{\partial x^2}, \quad s(t) <
+                                    x < 1$ </div>
+                                    <div class="equation-box">
+                                        <strong>Stefan condition:</strong>&ensp;
+                                        $\dot{s}(t) = k_1 \frac{\partial u_1}{\partial x}\Big|_{x=s(t)} - k_2
+                                        \frac{\partial u_2}{\partial x}\Big|_{x=s(t)}$
+                                    </div>
+                                    <p style="margin-top: 0.8rem; color: #64748B; font-size: 0.9rem;">
+                                        Thermal diffusivities: $k_1 = 2.0$, $k_2 = 1.0$. Exact solution via similarity
+                                        variables $\eta = x/\sqrt{t}$.
+                                    </p>
+                            </div>
+                            <div class="half-width">
+                                <h3>Noisy Data Model</h3>
+                                <div class="equation-box">
+                                    $\tilde{u}_i = u_{\text{exact}}(x_i, t_i) + \sigma \cdot \epsilon_i, \quad
+                                    \epsilon_i \sim \mathcal{N}(0,1)$
+                                </div>
+                                <div style="margin-top: 1rem;">
+                                    <h3>Noise Levels</h3>
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="tag tag-green">σ = 1%</span></td>
+                                                <td>Mild — high-precision lab sensors</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="tag tag-blue">σ = 5%</span></td>
+                                                <td>Moderate — industrial thermocouples</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="tag tag-red">σ = 10%</span></td>
+                                                <td>Severe — harsh environments</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 6: PINN ARCHITECTURE ==================== -->
+                <div class="slide">
+                    <div class="content-box">
+                        <div class="half-width">
+                            <h2>PINN Architecture</h2>
+                            <h3>Neural Networks</h3>
+                            <ul>
+                                <li><strong>Temperature net</strong> $u_\theta(x,t) \to (u_1, u_2)$:<br>
+                                    $[2, 100, 100, 100, 2]$ with $\tanh$ activation</li>
+                                <li><strong>Boundary net</strong> $s_\beta(t) \to s$:<br>
+                                    $[1, 100, 100, 100, 1]$ with $\tanh$ activation</li>
+                            </ul>
+                            <h3 style="margin-top: 1.2rem;">Composite Loss</h3>
+                            <div class="equation-box">
+                                $\mathcal{L} = \mathcal{L}_{\text{PDE}} + c_{\text{data}} \cdot
+                                \mathcal{L}_{\text{data}} + \mathcal{L}_{\text{Stefan}}$
+                            </div>
+                            <ul style="margin-top: 0.8rem;">
+                                <li><strong>M1:</strong> Fixed $c_{\text{data}} = 1.0$</li>
+                                <li><strong>M2:</strong> Adaptive $c_{\text{data}}$ via NTK gradient balancing</li>
+                            </ul>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                            <div class="col-box" style="text-align: center;">
+                                <h3>Software & Hardware</h3>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Language</strong></td>
+                                            <td>Python 3.10</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Framework</strong></td>
+                                            <td>PyTorch 2.x + CUDA</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Libraries</strong></td>
+                                            <td>NumPy, SciPy, PyWavelets, scikit-image</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>GPU</strong></td>
+                                            <td>NVIDIA RTX 2060</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Optimizer</strong></td>
+                                            <td>Adam (lr=10⁻³, γ=0.9)</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Training</strong></td>
+                                            <td>40,000 iterations per run</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 7: NOISE FILTERING METHODS ==================== -->
+                <div class="slide">
+                    <div class="content-box column-layout" style="align-items: flex-start; text-align: left;">
+                        <h2>Noise Filtering Methods</h2>
+                        <p>Six methods implemented + NoFilter baseline. The core idea: <strong>clean the data before
+                                PINN training</strong>.</p>
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Filter</th>
+                                    <th>Type</th>
+                                    <th>Key Parameters</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><strong>Gaussian Smoothing</strong></td>
+                                    <td>Classical</td>
+                                    <td>$\sigma_{\text{kern}} = \max(0.5, 2\sigma_{\text{noise}})$</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td><strong>Total Variation (TV)</strong></td>
+                                    <td>Edge-preserving</td>
+                                    <td>Chambolle algorithm, $\lambda_{\text{TV}} = 0.1 \cdot \sigma_{\text{noise}}$
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td><strong>Wavelet Thresholding</strong></td>
+                                    <td>Multi-scale</td>
+                                    <td>Daubechies-4 (db4), BayesShrink soft thresholding</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td><strong>Non-Local Means (NLM)</strong></td>
+                                    <td>Patch-based</td>
+                                    <td>Patch size & search window adapted to $\sigma_{\text{noise}}$</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td><strong>PhysDnCNN</strong></td>
+                                    <td>Deep Learning</td>
+                                    <td>Self-supervised DnCNN (Noise2Self approach)</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td>6</td>
+                                    <td><strong>Ensemble</strong></td>
+                                    <td>Hybrid</td>
+                                    <td>$0.4 \cdot u_{\text{NLM}} + 0.3 \cdot u_{\text{Gauss}} + 0.3 \cdot
+                                        u_{\text{Wavelet}}$</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 8: EXPERIMENTAL DESIGN ==================== -->
+                <div class="slide">
+                    <div class="content-box column-layout">
+                        <h2>Experimental Design</h2>
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">A rigorous, systematic evaluation across
+                            <strong>210 independent training runs</strong>.
+                        </p>
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">2</div>
+                                <div class="stat-label">Grid Resolutions<br>(M = 50, M = 100)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">3</div>
+                                <div class="stat-label">Noise Levels<br>(σ = 1%, 5%, 10%)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">7</div>
+                                <div class="stat-label">Configurations<br>(6 filters + NoFilter)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">5</div>
+                                <div class="stat-label">Random Seeds<br>(statistical robustness)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">210</div>
+                                <div class="stat-label">Total Training Runs<br>(2 × 3 × 7 × 5)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">~37h</div>
+                                <div class="stat-label">Total Computation<br>Time on RTX 2060</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <span class="tag tag-purple">40,000 iterations per run</span>
+                            <span class="tag tag-blue" style="margin-left: 0.5rem;">Relative L₂ error metric</span>
+                            <span class="tag tag-green" style="margin-left: 0.5rem;">Method M2 (adaptive weights)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 9: DIRECT PROBLEM VERIFICATION ==================== -->
+                <div class="slide">
+                    <div class="content-box">
+                        <div class="half-width">
+                            <h2>Verification: Direct Problem</h2>
+                            <p>Forward Stefan problem solved to validate the PINN implementation against known
+                                analytical solutions.</p>
+                            <ul>
+                                <li>All boundary conditions and material parameters known</li>
+                                <li>PINN learns temperature field from physics alone</li>
+                            </ul>
+                            <div
+                                style="margin-top: 1.5rem; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 1rem 1.2rem;">
+                                <p style="font-weight: 700; color: #065F46; margin-bottom: 0.3rem;">✅ Implementation
+                                    Verified</p>
+                                <p style="font-size: 0.95rem; margin: 0;">
+                                    <strong>L₂(u) = 3.12 × 10⁻³</strong> for temperature<br>
+                                    <strong>L₂(s) = 1.85 × 10⁻³</strong> for moving boundary<br>
+                                    <span style="color: #64748B;">Matching results from Wang & Perdikaris (2021)</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="image-container">
+                            <img src="../report/fig_01_direct_temperature.png" alt="Direct Problem Temperature Field">
+                            <p class="img-caption">Predicted temperature field u(x,t) with moving boundary</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 10: INVERSE PROBLEM ==================== -->
+                <div class="slide">
+                    <div class="content-box">
+                        <div class="half-width">
+                            <h2>Inverse Problem</h2>
+                            <p>Unknown boundary conditions recovered from <strong>M noisy measurements</strong>. Tested
+                                with M1 and M2 across noise levels.</p>
+                            <ul>
+                                <li><strong>Method M2</strong> (adaptive weighting) consistently outperforms M1</li>
+                                <li>Error increases monotonically with noise level</li>
+                                <li>Results reproduce trends from the reference paper</li>
+                            </ul>
+                            <div style="margin-top: 1rem;">
+                                <h3>Parameter Discovery</h3>
+                                <p style="font-size: 0.95rem;">
+                                    The PINN recovers unknown thermal diffusivities:<br>
+                                    $k_1 = 1.997$ (true: 2.0) and $k_2 = 1.002$ (true: 1.0)<br>
+                                    <span class="tag tag-green">Within 0.2% of true values</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="image-container">
+                            <img src="../report/fig_02_inverse_II_temperature.png" alt="Inverse Problem Temperature">
+                            <p class="img-caption">Reconstructed temperature from noisy measurements (M2)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 11: MAIN RESULTS TABLE ==================== -->
+                <div class="slide">
+                    <div class="content-box column-layout" style="align-items: flex-start; text-align: left;">
+                        <h2>Core Results: Filtering Study</h2>
+                        <div class="two-col">
+                            <div>
+                                <h3>Mean L₂(u) Error (%) on M = 100 Grid</h3>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Filter</th>
+                                            <th>σ = 1%</th>
+                                            <th>σ = 5%</th>
+                                            <th>σ = 10%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>NoFilter</td>
+                                            <td>0.227</td>
+                                            <td>0.982</td>
+                                            <td>2.043</td>
+                                        </tr>
+                                        <tr class="highlight-row">
+                                            <td><strong>Gaussian</strong></td>
+                                            <td><strong>0.142 ★</strong></td>
+                                            <td>0.602</td>
+                                            <td>1.181</td>
+                                        </tr>
+                                        <tr>
+                                            <td>TV</td>
+                                            <td>0.953</td>
+                                            <td>0.822</td>
+                                            <td><strong>0.786 ★</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Wavelet</td>
+                                            <td>0.208</td>
+                                            <td>0.664</td>
+                                            <td>0.978</td>
+                                        </tr>
+                                        <tr>
+                                            <td>NLM</td>
+                                            <td>0.161</td>
+                                            <td>0.549</td>
+                                            <td>0.917</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PhysDnCNN</td>
+                                            <td>0.324</td>
+                                            <td>0.977</td>
+                                            <td>2.039</td>
+                                        </tr>
+                                        <tr class="highlight-row">
+                                            <td><strong>Ensemble</strong></td>
+                                            <td>0.288</td>
+                                            <td><strong>0.476 ★</strong></td>
+                                            <td>0.789</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p style="font-size: 0.8rem; color: #64748B; margin-top: 0.4rem;">★ = best per noise
+                                    level</p>
+                            </div>
+                            <div>
+                                <h3>Key Findings</h3>
+                                <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 0.5rem;">
+                                    <div
+                                        style="background: #F0FDF4; border-radius: 10px; padding: 0.8rem; border-left: 4px solid #059669;">
+                                        <p style="font-weight: 700; color: #065F46; margin: 0;">σ = 1%: Gaussian → 37.4%
+                                            improvement</p>
+                                    </div>
+                                    <div
+                                        style="background: #EFF6FF; border-radius: 10px; padding: 0.8rem; border-left: 4px solid #2563EB;">
+                                        <p style="font-weight: 700; color: #1E40AF; margin: 0;">σ = 5%: Ensemble → 51.5%
+                                            improvement</p>
+                                    </div>
+                                    <div
+                                        style="background: #FEF2F2; border-radius: 10px; padding: 0.8rem; border-left: 4px solid #DC2626;">
+                                        <p style="font-weight: 700; color: #991B1B; margin: 0;">σ = 10%: TV & Ensemble →
+                                            ~61.5% improvement</p>
+                                    </div>
+                                    <div
+                                        style="background: #FEF3C7; border-radius: 10px; padding: 0.8rem; border-left: 4px solid #D97706;">
+                                        <p style="font-weight: 600; color: #92400E; margin: 0;">PhysDnCNN: <1%
+                                                improvement at all levels<br>
+                                                <span style="font-weight: 400; font-size: 0.85rem;">Insufficient data
+                                                    for self-supervised learning</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 12: IMPROVEMENT VISUALIZATION ==================== -->
+                <div class="slide">
+                    <div class="content-box">
+                        <div class="half-width">
+                            <h2>Improvement Analysis</h2>
+                            <p>Percentage improvement in L₂(u) error relative to the NoFilter baseline across all
+                                configurations.</p>
+                            <ul>
+                                <li><strong>5 out of 6 filters</strong> reduce error vs. baseline</li>
+                                <li><strong>Classical methods</strong> consistently outperform the deep learning
+                                    denoiser</li>
+                                <li>Finer grids (M=100) benefit <em>more</em> from filtering than coarser grids (M=50)
+                                </li>
+                                <li><strong>Ensemble</strong> provides the most robust improvement across all regimes
+                                </li>
+                            </ul>
+                            <div
+                                style="margin-top: 1rem; background: #EEF2FF; border-radius: 10px; padding: 0.8rem; border: 1px solid #C7D2FE;">
+                                <p style="font-size: 0.95rem; color: #312E81; margin: 0;">
+                                    <strong>Key Insight:</strong> Simple classical signal processing outperforms deep
+                                    learning
+                                    denoisers for small scientific datasets.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="image-container" style="flex: 1.3;">
+                            <img src="../report/fig_05_publication_improvement.png" alt="Improvement Chart">
+                            <p class="img-caption">Improvement in L₂(u) error relative to NoFilter baseline</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 13: PRACTICAL RECOMMENDATIONS ==================== -->
+                <div class="slide">
+                    <div class="content-box column-layout" style="text-align: left;">
+                        <h2>Practical Recommendations</h2>
+                        <p style="text-align: center; margin-bottom: 1.5rem;">Guidelines for practitioners working with
+                            noisy Stefan problem data:</p>
+                        <table style="max-width: 900px; margin: 0 auto;">
+                            <thead>
+                                <tr>
+                                    <th>Noise Level</th>
+                                    <th>Recommended Filter</th>
+                                    <th>Expected Improvement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="tag tag-green">Low (σ ≤ 1%)</span></td>
+                                    <td><strong>Gaussian Smoothing</strong></td>
+                                    <td>~37% error reduction</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="tag tag-blue">Moderate (σ ≈ 5%)</span></td>
+                                    <td><strong>Ensemble</strong> (NLM + Gauss + Wavelet)</td>
+                                    <td>~52% error reduction</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="tag tag-red">High (σ ≥ 10%)</span></td>
+                                    <td><strong>TV or Ensemble</strong></td>
+                                    <td>~61% error reduction</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td><span class="tag tag-purple">Unknown</span></td>
+                                    <td><strong>Ensemble (default choice)</strong></td>
+                                    <td>Robust across all regimes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div
+                            style="margin-top: 1.5rem; background: linear-gradient(135deg, #EEF2FF, #F5F3FF); border-radius: 14px; padding: 1.2rem 1.5rem; border: 1px solid #C7D2FE; max-width: 900px; margin-left: auto; margin-right: auto;">
+                            <p style="font-size: 1rem; color: #312E81; margin: 0; text-align: center;">
+                                💡 <strong>For practitioners without time to tune filter parameters:</strong><br>
+                                The <strong>Ensemble filter</strong> is recommended as the <strong>default
+                                    choice</strong> —
+                                consistently strong across all noise levels without requiring prior noise knowledge.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 14: APPROBATION ==================== -->
+                <div class="slide">
+                    <div class="content-box column-layout" style="text-align: left;">
+                        <h2>Approbation of Results</h2>
+                        <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="stat-card" style="text-align: left; padding: 1.5rem;">
+                                <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📄</div>
+                                <h3 style="margin-bottom: 0.5rem;">IEEE Conference Paper</h3>
+                                <p style="font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                                    <em>"Evaluating Noise Filtering Techniques for PINN-Based Solutions of Inverse
+                                        Stefan Problems"</em><br><br>
+                                    Prepared for <strong>IEEE SIST 2026</strong><br>
+                                    <span style="color: #64748B;">May 13–15, 2026, Astana, Kazakhstan</span>
+                                </p>
+                            </div>
+                            <div class="stat-card" style="text-align: left; padding: 1.5rem;">
+                                <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📚</div>
+                                <h3 style="margin-bottom: 0.5rem;">Master's Thesis Draft</h3>
+                                <p style="font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                                    First complete draft prepared:<br><br>
+                                    <strong>32 pages</strong> with all chapters<br>
+                                    <strong>24 references</strong> cited<br>
+                                    All figures, tables, and appendices included
+                                </p>
+                            </div>
+                            <div class="stat-card" style="text-align: left; padding: 1.5rem;">
+                                <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">💻</div>
+                                <h3 style="margin-bottom: 0.5rem;">Code Repository</h3>
+                                <p style="font-size: 0.9rem; line-height: 1.5; margin: 0;">
+                                    Full implementation on <strong>GitHub</strong>:<br><br>
+                                    5 reproducible Jupyter notebooks<br>
+                                    Core PINN implementation (PyTorch)<br>
+                                    All 6 filter implementations
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 15: CONCLUSION & FUTURE WORK ==================== -->
+                <div class="slide">
+                    <div class="content-box column-layout" style="text-align: left;">
+                        <h2>Conclusion & Future Work</h2>
+                        <div class="two-col">
+                            <div>
+                                <div
+                                    style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 1.2rem; margin-bottom: 1rem;">
+                                    <h3 style="color: #065F46;">✅ Hypothesis Confirmed</h3>
+                                    <p style="font-size: 0.95rem; margin: 0.3rem 0 0 0;">
+                                        5 out of 6 filters reduced PINN errors.<br>
+                                        Maximum improvement: <strong>61.5%</strong> at σ = 10%.
+                                    </p>
+                                </div>
+                                <h3>Key Scientific Findings</h3>
+                                <ul style="font-size: 0.92rem;">
+                                    <li>PINN Stefan solver successfully reproduced in PyTorch</li>
+                                    <li>6 filtering methods systematically evaluated across <strong>210 runs</strong>
+                                    </li>
+                                    <li>Classical methods outperform deep learning denoiser for small datasets</li>
+                                    <li><strong>Ensemble filter</strong> provides the most robust improvement (37–61%)
+                                    </li>
+                                    <li>Finer grids (M=100) benefit more from filtering than coarser grids</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3>Future Directions</h3>
+                                <div class="future-item">
+                                    <span class="future-icon">🌐</span>
+                                    <div class="future-text"><strong>2D & 3D Stefan problems</strong> — test scalability
+                                        to higher dimensions</div>
+                                </div>
+                                <div class="future-item">
+                                    <span class="future-icon">🔬</span>
+                                    <div class="future-text"><strong>Real sensor data</strong> — validate with
+                                        thermocouple measurements from metal casting</div>
+                                </div>
+                                <div class="future-item">
+                                    <span class="future-icon">🤖</span>
+                                    <div class="future-text"><strong>Adaptive filter selection</strong> — auto-select
+                                        optimal filter based on estimated noise</div>
+                                </div>
+                                <div class="future-item">
+                                    <span class="future-icon">🧠</span>
+                                    <div class="future-text"><strong>Improved deep denoiser</strong> — transfer learning
+                                        from pre-trained models</div>
+                                </div>
+                                <div class="future-item">
+                                    <span class="future-icon">📐</span>
+                                    <div class="future-text"><strong>Other PDE types</strong> — Navier-Stokes, wave
+                                        equation, Schrödinger</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SLIDE 16: THANK YOU ==================== -->
+                <div class="slide">
+                    <div class="content-box column-layout">
+                        <p
+                            style="text-transform: uppercase; letter-spacing: 3px; color: var(--accent-secondary); font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                            Master's Student Research Work · НИРМ 1</p>
+                        <h1
+                            style="font-size: 3rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                            Thank You
+                        </h1>
+                        <p style="font-size: 1.3rem; color: #64748B; margin-top: 0.5rem;">Questions & Discussion</p>
+                        <div style="margin-top: 2rem; display: flex; gap: 2rem;">
+                            <div class="stat-card" style="min-width: 180px;">
+                                <div class="stat-number" style="font-size: 1.5rem;">210</div>
+                                <div class="stat-label">Training Runs</div>
+                            </div>
+                            <div class="stat-card" style="min-width: 180px;">
+                                <div class="stat-number" style="font-size: 1.5rem;">61.5%</div>
+                                <div class="stat-label">Max Improvement</div>
+                            </div>
+                            <div class="stat-card" style="min-width: 180px;">
+                                <div class="stat-number" style="font-size: 1.5rem;">6</div>
+                                <div class="stat-label">Filters Evaluated</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 2rem; color: var(--text-color); font-size: 0.95rem;">
+                            <strong>Shaumen Angsar</strong><br>
+                            <span style="color: #64748B;">Supervised by Dr. Kassabek Samat · Astana IT University</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ===== CONTROLS ===== -->
+            <div class="controls">
+                <button class="btn" onclick="prevSlide()">← Prev</button>
+                <button class="btn" onclick="nextSlide()">Next →</button>
+            </div>
+
+            <div class="slide-counter" id="slideCounter">1 / 16</div>
+            <div class="progress-bar" id="progress"></div>
+
+            <script>
+                let currentSlide = 0;
+                const slides = document.querySelectorAll('.slide');
+                const progressBar = document.getElementById('progress');
+                const slideCounter = document.getElementById('slideCounter');
+
+                function updateSlide() {
+                    slides.forEach((slide, index) => {
+                        slide.classList.remove('active');
+                        if (index === currentSlide) {
+                            slide.classList.add('active');
+                        }
+                    });
+                    const progress = ((currentSlide + 1) / slides.length) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+                }
+
+                function nextSlide() {
+                    if (currentSlide < slides.length - 1) {
+                        currentSlide++;
+                        updateSlide();
+                    }
+                }
+
+                function prevSlide() {
+                    if (currentSlide > 0) {
+                        currentSlide--;
+                        updateSlide();
+                    }
+                }
+
+                function toggleFullScreen() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(err => {
+                            alert(`Full-screen error: ${err.message}`);
+                        });
+                    } else {
+                        document.exitFullscreen();
+                    }
+                }
+
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        nextSlide();
+                    }
+                    if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        prevSlide();
+                    }
+                    if (e.key === 'Home') {
+                        e.preventDefault();
+                        currentSlide = 0;
+                        updateSlide();
+                    }
+                    if (e.key === 'End') {
+                        e.preventDefault();
+                        currentSlide = slides.length - 1;
+                        updateSlide();
+                    }
+                    if (e.key === 'f' || e.key === 'F') {
+                        toggleFullScreen();
+                    }
+                });
+
+                // Touch/swipe support
+                let touchStartX = 0;
+                document.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                });
+                document.addEventListener('touchend', (e) => {
+                    const diff = touchStartX - e.changedTouches[0].screenX;
+                    if (Math.abs(diff) > 50) {
+                        diff > 0 ? nextSlide() : prevSlide();
+                    }
+                });
+
+                // Initialize
+                updateSlide();
+            </script>
+</body>
+
+</html>

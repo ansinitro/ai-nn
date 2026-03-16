@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>НИРМ 1 — Noise Filtering for Stefan Problem Datasets</title>
+    <meta name="description"
+        content="NIRM 1 deliverables: Report and Defense Presentation for Noise Filtering Methods for Stefan Problem Datasets">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B0F1A;
+            --bg-card: #111827;
+            --bg-card-hover: #1F2937;
+            --text: #E5E7EB;
+            --text-muted: #9CA3AF;
+            --text-dim: #6B7280;
+            --accent: #3B82F6;
+            --accent-hover: #60A5FA;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --purple: #8B5CF6;
+            --green: #10B981;
+            --border: rgba(255, 255, 255, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background */
+        .bg-effects {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-effects::before {
+            content: '';
+            position: absolute;
+            top: -15%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.07) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--accent-hover);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .stage-badge {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.9rem;
+            background: var(--accent-glow);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 50px;
+            color: var(--accent-hover);
+            font-weight: 600;
+        }
+
+        /* Page Hero */
+        .page-hero {
+            padding: 3rem 0 2rem;
+        }
+
+        .page-hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.6rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-hero p {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 1.5rem 0 2rem;
+        }
+
+        /* Stats */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+            margin-top: 0.3rem;
+        }
+
+        /* Section */
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+        }
+
+        /* Deliverables */
+        .deliverables {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .deliverable-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deliverable-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(59, 130, 246, 0.25);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .deliverable-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .deliverable-card.report::before {
+            background: linear-gradient(90deg, var(--accent), #06B6D4);
+        }
+
+        .deliverable-card.presentation::before {
+            background: linear-gradient(90deg, var(--purple), #EC4899);
+        }
+
+        .deliverable-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .deliverable-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .deliverable-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+        }
+
+        .deliverable-meta {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-tag {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .open-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.4rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .open-btn.blue {
+            background: var(--accent);
+            color: white;
+        }
+
+        .open-btn.blue:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .open-btn.purple {
+            background: var(--purple);
+            color: white;
+        }
+
+        .open-btn.purple:hover {
+            background: #A78BFA;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .open-btn.green {
+            background: #10B981;
+            color: white;
+        }
+
+        .open-btn.green:hover {
+            background: #34D399;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .open-btn.amber {
+            background: #F59E0B;
+            color: white;
+        }
+
+        .open-btn.amber:hover {
+            background: #FBBF24;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .deliverable-card.thesis::before {
+            background: linear-gradient(90deg, #10B981, #06B6D4);
+        }
+
+        .deliverable-card.paper::before {
+            background: linear-gradient(90deg, #F59E0B, #EF4444);
+        }
+
+        /* Objectives */
+        .objectives {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .objectives h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .obj-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem 2rem;
+        }
+
+        .obj-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .obj-list li .check {
+            color: var(--green);
+            font-size: 0.9rem;
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border);
+        }
+
+        footer p {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--accent-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .deliverables {
+                grid-template-columns: 1fr;
+            }
+
+            .obj-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-effects"></div>
+
+    <div class="container">
+        <header>
+            <a href="/" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Back to Home
+            </a>
+            <span class="stage-badge">НИРМ 1</span>
+        </header>
+
+        <section class="page-hero">
+            <h1>Research Work — Stage 1</h1>
+            <p>Literature review, PINN implementation, noise filtering comparative study,
+                and preparation of publications. All planned objectives completed ahead of schedule.</p>
+        </section>
+
+        <div class="divider"></div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-num">210</div>
+                <div class="stat-label">Training Runs</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">61.5%</div>
+                <div class="stat-label">Max Improvement</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">6</div>
+                <div class="stat-label">Filters Evaluated</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num">~37h</div>
+                <div class="stat-label">GPU Compute Time</div>
+            </div>
+        </div>
+
+        <div class="section-title">Deliverables</div>
+
+        <div class="deliverables">
+            <div class="deliverable-card report">
+                <div class="deliverable-icon">📄</div>
+                <h3>MSRW Report</h3>
+                <p>Full report on the research work including literature review, methodology,
+                    experimental results across 210 training runs, and practical recommendations.</p>
+                <div class="deliverable-meta">
+                    <span class="meta-tag">PDF</span>
+                    <span class="meta-tag">21 pages</span>
+                    <span class="meta-tag">24 references</span>
+                </div>
+                <a href="/nirm1/report/msrw_report.pdf" class="open-btn blue" target="_blank">
+                    📥 Open Report
+                </a>
+            </div>
+
+            <div class="deliverable-card presentation">
+                <div class="deliverable-icon">🎯</div>
+                <h3>Defense Presentation</h3>
+                <p>Interactive 16-slide presentation with math formulas, data visualizations,
+                    key findings, and practical filter selection recommendations.</p>
+                <div class="deliverable-meta">
+                    <span class="meta-tag">HTML Interactive</span>
+                    <span class="meta-tag">16 slides</span>
+                    <span class="meta-tag">KaTeX Math</span>
+                </div>
+                <a href="/nirm1/presentation/defense_presentation.html" class="open-btn purple" target="_blank">
+                    🖥 Open Presentation
+                </a>
+            </div>
+
+            <div class="deliverable-card thesis">
+                <div class="deliverable-icon">📚</div>
+                <h3>Thesis Draft</h3>
+                <p>Complete 32-page master's thesis covering literature review, methodology,
+                    all experimental results, discussion, and conclusions.</p>
+                <div class="deliverable-meta">
+                    <span class="meta-tag">PDF</span>
+                    <span class="meta-tag">32 pages</span>
+                    <span class="meta-tag">3 chapters</span>
+                </div>
+                <a href="/nirm1/report/memoirthesis.pdf" class="open-btn green" target="_blank">
+                    📥 Open Thesis
+                </a>
+            </div>
+
+            <div class="deliverable-card paper">
+                <div class="deliverable-icon">📝</div>
+                <h3>IEEE Research Paper</h3>
+                <p>Publication-ready conference paper: "Evaluating Noise Filtering Techniques
+                    for PINN-Based Solutions of Inverse Stefan Problems."</p>
+                <div class="deliverable-meta">
+                    <span class="meta-tag">PDF</span>
+                    <span class="meta-tag">IEEE Format</span>
+                    <span class="meta-tag">Prepared for SIST 2026</span>
+                </div>
+                <a href="/nirm1/report/paper.pdf" class="open-btn amber" target="_blank">
+                    📥 Open Paper
+                </a>
+            </div>
+        </div>
+
+        <div class="section-title">Completed Objectives</div>
+
+        <div class="objectives">
+            <h3>All 6 Research Objectives Achieved ✅</h3>
+            <ul class="obj-list">
+                <li>
+                    <span class="check">✓</span>
+                    Comprehensive literature review — 24+ sources across Stefan problems, PINNs, and denoising
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    PINN Stefan solver reproduced in PyTorch — L₂ error matching Wang & Perdikaris (2021)
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    6 noise filtering methods implemented — Gaussian, TV, Wavelet, NLM, PhysDnCNN, Ensemble
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    210 independent training runs executed — 2 grids × 3 noise levels × 7 configs × 5 seeds
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    Practical guidelines provided — filter selection table by noise regime
+                </li>
+                <li>
+                    <span class="check">✓</span>
+                    IEEE SIST 2026 paper prepared & 32-page thesis draft completed
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p><a href="/">nirm.kampuz.kz</a> · Shaumen Angsar · Astana IT University · 2025–2026</p>
+        </div>
+    </footer>
+</body>
+
+</html>
