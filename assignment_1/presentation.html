@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense: Assignment 1 (Jena Weather EDA)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+    <style>
+        :root {
+            --bg-color: #F8FAFC;
+            --text-color: #1E293B;
+            --heading-color: #0F172A;
+            --accent-primary: #2563EB;
+            --accent-secondary: #4F46E5;
+            --accent-tertiary: #7C3AED;
+            --success: #059669;
+            --danger: #DC2626;
+            --warning: #D97706;
+            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-border: rgba(226, 232, 240, 0.6);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(124, 58, 237, 0.03) 0px, transparent 60%);
+        }
+
+        /* ===== SLIDES CONTAINER ===== */
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0.8rem 1.5rem;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            background: transparent;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            visibility: visible;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.8rem;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+            font-weight: 700;
+            border-bottom: 3px solid var(--accent-secondary);
+            display: inline-block;
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--accent-secondary);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        p,
+        li {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.4rem;
+            color: var(--text-color);
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0.5rem;
+        }
+
+        li::before {
+            content: "▸";
+            color: var(--accent-primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1.2em;
+            margin-left: -1.2em;
+        }
+
+        li.check::before {
+            content: "✅";
+            margin-left: -1.6em;
+            width: 1.6em;
+        }
+
+        li.warn::before {
+            content: "⚠️";
+            margin-left: -1.6em;
+            width: 1.6em;
+        }
+
+        /* ===== CONTENT BOX ===== */
+        .content-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            box-shadow: var(--shadow);
+            max-width: 1500px;
+            width: 96%;
+            max-height: 92vh;
+            overflow-y: hidden;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .content-box.column-layout {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .content-box.top-align {
+            align-items: flex-start;
+        }
+
+        .half-width {
+            flex: 1;
+            text-align: left;
+        }
+
+        .image-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 0.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E2E8F0;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 55vh;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+
+        .img-caption {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.8rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            color: var(--accent-primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        td {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr.highlight-row {
+            background-color: #EFF6FF;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        tr.highlight-row td {
+            font-weight: 600;
+        }
+
+        /* ===== SPECIAL ELEMENTS ===== */
+        .tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
+        }
+
+        .tag-blue {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .tag-green {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .tag-purple {
+            background: #EDE9FE;
+            color: #5B21B6;
+        }
+
+        .tag-red {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .tag-orange {
+            background: #FFEDD5;
+            color: #C2410C;
+        }
+
+        .highlight {
+            color: var(--accent-secondary);
+            font-weight: 700;
+        }
+
+        .equation-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            margin: 0.5rem 0;
+            font-size: 0.92rem;
+            overflow-x: auto;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 0.9rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748B;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .col-box {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 1rem;
+        }
+
+        /* ===== CONTROLS ===== */
+        .controls {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.8rem;
+            z-index: 100;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid #E2E8F0;
+            color: var(--text-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .top-controls {
+            position: fixed;
+            top: 1.2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.6rem;
+            z-index: 101;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94A3B8;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary));
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 100;
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            body {
+                overflow: visible;
+                height: auto;
+                width: auto;
+                background: white;
+                background-image: none;
+            }
+
+            .slides-container {
+                display: block;
+                position: static;
+            }
+
+            .slide {
+                position: static !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: none !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+                height: 100vh;
+                width: 100%;
+                padding: 1.5cm 2cm;
+                display: flex !important;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .slide:last-child {
+                page-break-after: auto;
+            }
+
+            .content-box {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .controls,
+            .top-controls,
+            .slide-counter,
+            .progress-bar {
+                display: none !important;
+            }
+
+            .stat-card:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            .stat-number {
+                background: none !important;
+                -webkit-background-clip: unset !important;
+                -webkit-text-fill-color: var(--accent-primary) !important;
+                background-clip: unset !important;
+                color: var(--accent-primary) !important;
+            }
+
+            [style*="background-clip"],
+            [style*="-webkit-background-clip"] {
+                background: none !important;
+                -webkit-background-clip: unset !important;
+                -webkit-text-fill-color: var(--accent-primary) !important;
+                background-clip: unset !important;
+                color: var(--accent-primary) !important;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            .tag {
+                border: 1px solid currentColor !important;
+            }
+        }
+
+        @page {
+            size: landscape;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-controls">
+        <button class="btn" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+        <button class="btn" onclick="window.print()">🖨 Export PDF</button>
+    </div>
+
+    <div class="slides-container">
+
+        <!-- ==================== SLIDE 1: TITLE ==================== -->
+        <div class="slide active">
+            <div class="content-box column-layout">
+                <p
+                    style="text-transform: uppercase; letter-spacing: 3px; color: var(--accent-secondary); font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">
+                    Assignment 1: Exploratory Data Analysis (EDA)
+                </p>
+                <h1 style="font-size: 2.3rem;">Data Analysis & Feature Engineering<br>Jena Weather Dataset</h1>
+                <p style="font-size: 1.15rem; max-width: 750px; margin: 0.5rem auto; color: #64748B;">
+                    Comprehensive preparation of multi-dimensional meteorological data for time-series forecasting via
+                    Neural Networks.
+                </p>
+                <div style="margin-top: 1.5rem; color: var(--text-color); font-size: 1rem; line-height: 2;">
+                    <strong>Students:</strong> Angsar Shaumen, Bekzat Sundetkhan<br>
+                    <strong>Discipline:</strong> Artificial Intelligence and Neural Networks<br>
+                    <strong>Instructor:</strong> Akhmetova Zhanar
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;">
+                    <span class="tag tag-purple">EDA</span>
+                    <span class="tag tag-blue">Feature Engineering</span>
+                    <span class="tag tag-green">Time Series</span>
+                    <span class="tag tag-orange">Scikit-Learn</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 2: TASK & DATASET ==================== -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Problem Statement & Data Overview</h2>
+                    <p>The goal is to conduct an exploratory data analysis on the <strong>Jena Climate
+                            (2009–2016)</strong> dataset and meticulously prepare it for deep learning predictive
+                        modeling <em>(RNN/LSTM)</em>.</p>
+
+                    <h3 style="margin-top: 1rem;">Dataset Specifications</h3>
+                    <ul>
+                        <li><strong>Source:</strong> Max Planck Institute for Biogeochemistry (Jena, Germany)</li>
+                        <li><strong>Time Span:</strong> 8 years (January 2009 – December 2016)</li>
+                        <li><strong>Sampling Frequency:</strong> 1 record every 10 minutes</li>
+                        <li><strong>Features:</strong> 14 meteorological variables (e.g., Temperature, Pressure,
+                            Humidity, Air Density)</li>
+                    </ul>
+
+                    <h3 style="margin-top: 1rem;">Target Variable Setup</h3>
+                    <p>The primary forecasting target for subsequent Neural Network tasks is <strong>T (degC)</strong>
+                        (Air Temperature).</p>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="stat-card">
+                        <div class="stat-number">420,551</div>
+                        <div class="stat-label">Total Observations (Rows)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Missing Values detected natively</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF);">
+                        <div class="stat-number"
+                            style="background: none; -webkit-text-fill-color: var(--accent-primary); color: var(--accent-primary);">
+                            100%</div>
+                        <div class="stat-label" style="color: var(--accent-secondary); font-weight: 600;">Completion
+                            rating focused</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 3: DISTRIBUTIONS ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Feature Distributions Profiling</h2>
+                <div class="two-col" style="align-items: center">
+                    <div class="image-container" style="box-shadow: none; border: none; padding: 0;">
+                        <img src="./figures/03_histograms_all_features.png" style="max-height: 48vh"
+                            alt="All Features Histograms">
+                    </div>
+                    <div style="text-align: left; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem">Distribution Characteristics</h3>
+                        <p>We visually inspected all 14 variables to evaluate data scaling requirements.</p>
+                        <ul>
+                            <li><strong>Normal/Gaussian Trends:</strong> Target temperature `T (degC)`, Air Pressure `p
+                                (mbar)`, and Air Density `rho` show bell-shaped curves.</li>
+                            <li><strong>Skewed Features:</strong> Wind velocities (`wv` and `max. wv`) possess strong
+                                right skews typical for wind events.</li>
+                            <li class="warn">Distinct anomalous tails (outliers) noticed, requiring targeted handling
+                                before modeling.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 4: MULTIVARIATE CORRELATIONS ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Multivariate Correlation Matrix</h2>
+                <div class="two-col" style="align-items: center">
+                    <div style="text-align: left; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem">Pearson Correlation Heatmap</h3>
+                        <p>The correlation matrix pinpoints multicollinearity among physical parameters.</p>
+                        <ul>
+                            <li>Highly correlated feature clusters exist, indicating underlying physical dependencies
+                                (e.g., various Pressure metrics: `VPmax`, `VPact`).</li>
+                            <li>The target `T (degC)` shows extremely potent correlations with a subset of predictors,
+                                providing clear signals for ML models.</li>
+                        </ul>
+                    </div>
+                    <div class="image-container" style="box-shadow: none; border: none; padding: 0;">
+                        <img src="./figures/01_correlation_matrix.png" style="max-height: 55vh"
+                            alt="Full Correlation Matrix Heatmap">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 5: TARGET CORRELATIONS ==================== -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Target Feature Correlations</h2>
+                    <p>Focusing purely on the predictive strength regarding <strong>T (degC)</strong>.</p>
+
+                    <h3 style="margin-top: 1rem;">Top Positive Influences</h3>
+                    <ul>
+                        <li><span class="tag tag-green">Tpot (K)</span> <strong style="color:var(--success)">r =
+                                +0.99</strong> (Potential Temperature)</li>
+                        <li><span class="tag tag-green">VPmax (mbar)</span> <strong style="color:var(--success)">r =
+                                +0.95</strong> (Saturation Vapor Pressure)</li>
+                        <li><span class="tag tag-green">Tdew (degC)</span> <strong style="color:var(--success)">r =
+                                +0.89</strong> (Dew Point)</li>
+                    </ul>
+
+                    <h3 style="margin-top: 1.5rem;">Top Negative Influences</h3>
+                    <ul>
+                        <li><span class="tag tag-red">rho (g/m³)</span> <strong style="color:var(--danger)">r =
+                                -0.96</strong> (Air Density inversely follows Temp)</li>
+                        <li><span class="tag tag-red">rh (%)</span> <strong style="color:var(--danger)">r =
+                                -0.57</strong> (Relative Humidity)</li>
+                    </ul>
+                </div>
+                <div class="image-container" style="flex: 1.2;">
+                    <img src="./figures/02_target_correlations.png" alt="Target Correlations Barplot">
+                    <p class="img-caption">Sorted correlations relative to the Target Output</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 6: OUTLIER HANDLING ==================== -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Anomaly Detection & Outlier Handling</h2>
+                    <p>Rigorous filtering is essential for stability in Neural Networks without compromising time-series
+                        continuity.</p>
+
+                    <h3 style="margin-top: 1rem;">Strategic Procedure</h3>
+                    <ul>
+                        <li>Deployed <strong>Z-score methodology</strong> with a strict <strong>$4\sigma$
+                                Threshold</strong>.</li>
+                        <li>A 4$\sigma$ span ensures we trap true sensor failures (e.g., wind readings spiking to
+                            ungodly levels or extreme impossible drops) but retain realistic weather phenomenons.</li>
+                    </ul>
+
+                    <div class="equation-box" style="margin-top: 1rem; border-color: var(--accent-secondary)">
+                        <strong>Data Preservation Rule:</strong> Row deletion (`dropna`) is forbidden. Deletions destroy
+                        the perfect 10-minute step frequency mandated by sequence models (RNN/LSTM).
+                    </div>
+                    <ul>
+                        <li class="check">Outliers flagged with <code>NaN</code>.</li>
+                        <li class="check">Reconstructed via <code>.interpolate(method='time')</code> to respect the
+                            timestamp sequence elegantly.</li>
+                    </ul>
+                </div>
+                <div class="image-container">
+                    <img src="./figures/07_boxplots_before_outliers.png" alt="Boxplots Before Outliers">
+                    <p class="img-caption">Boxplots visually distinguishing extreme sensor spikes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 7: GLOBAL TIME SERIES ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Global Temporal Trends (Seasonality)</h2>
+                <div class="two-col" style="align-items: center">
+                    <div class="image-container" style="box-shadow: none; border: none; padding: 0; flex: 1.5;">
+                        <img src="./figures/04_time_series_full.png" style="max-height: 40vh; width: 100%"
+                            alt="Full Time Series Plot">
+                    </div>
+                    <div style="text-align: left; padding: 1rem; flex: 1;">
+                        <h3 style="margin-bottom: 0.5rem">Macro Validation</h3>
+                        <p>Plotting the entire 8-year span corroborates data integrity and cyclic stability.</p>
+                        <ul>
+                            <li><strong>Annual Seasonality:</strong> Unmistakable repeating wave pattern representing
+                                summer heat peaks (~37°C) and winter freezes (-23°C).</li>
+                            <li><strong>Trend Analysis:</strong> Added a 1-week and 1-day rolling mean overlay to smooth
+                                out micro-fluctuations and reveal the core climatic trajectory.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 8: LOCAL TEMPORAL PATTERNS ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Micro Temporal Dependencies (Diurnal Cycles)</h2>
+                <div class="two-col" style="align-items: center; margin-bottom: 1rem">
+                    <div style="text-align: left; padding: 1rem; flex: 1">
+                        <p>Extracting insights at the granular level supports creating better temporal features.</p>
+                        <ul>
+                            <li><strong>By Hour (Diurnal):</strong> An evident parabolic daily curve. Temps steadily
+                                rise from 6 AM, hitting equilibrium highs between 2 PM - 3 PM, then cooling off
+                                gracefully.</li>
+                            <li><strong>By Day of Week:</strong> Uniform horizontal line. The variance across
+                                Monday-Sunday is statistically insignificant. Weather does not follow a human workweek
+                                schedule.</li>
+                        </ul>
+                    </div>
+                    <div class="image-container" style="box-shadow: none; border: none; padding: 0; flex: 1">
+                        <img src="./figures/05_mean_by_hour_and_day.png" style="max-height: 25vh"
+                            alt="Mean By Hour and Day">
+                    </div>
+                </div>
+                <div class="image-container" style="box-shadow: none; border: none; padding: 0;">
+                    <img src="./figures/06_boxplot_hour_and_day.png" style="max-height: 25vh"
+                        alt="Boxplots Diurnal Cycles">
+                    <p class="img-caption">Variance validation showing stable medians over weekdays vs curved variance
+                        over hours</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 9: FEATURE ENGINEERING 1 ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout" style="text-align: left;">
+                <h2>Feature Engineering: Sequence Context</h2>
+                <p>Pure raw states are suboptimal for sequence prediction. We mathematically embed historical context
+                    into each row so the model perceives <em>momentum</em>.</p>
+
+                <div class="two-col" style="margin-top: 1.5rem">
+                    <div class="col-box">
+                        <h3>1. Historical Lags (Shift)</h3>
+                        <p>Given 10-minute intervals, 1 chronological hour evaluates to exactly 6 steps backwards.</p>
+                        <table style="margin-top: 0.5rem">
+                            <thead>
+                                <tr>
+                                    <th>Feature Name</th>
+                                    <th>Meaning</th>
+                                    <th>Implementation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>lag_1</code></td>
+                                    <td>Temp 1 Hour prior</td>
+                                    <td><code>shift(6)</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>lag_2</code></td>
+                                    <td>Temp 2 Hours prior</td>
+                                    <td><code>shift(12)</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>lag_3</code></td>
+                                    <td>Temp 3 Hours prior</td>
+                                    <td><code>shift(18)</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-box">
+                        <h3>2. Moving Averages (Rolling)</h3>
+                        <p>Filters instantaneous noise (like a sudden gust of wind cooling a sensor globally).</p>
+                        <table style="margin-top: 0.5rem">
+                            <thead>
+                                <tr>
+                                    <th>Feature Name</th>
+                                    <th>Window Space</th>
+                                    <th>Implementation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>roll_30m</code></td>
+                                    <td>30 Minutes</td>
+                                    <td><code>rolling(3).mean()</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>roll_60m</code></td>
+                                    <td>60 Minutes</td>
+                                    <td><code>rolling(6).mean()</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>roll_120m</code></td>
+                                    <td>120 Minutes</td>
+                                    <td><code>rolling(12).mean()</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p class="warn" style="font-size: 0.85rem; color: #64748B; margin-top: 1rem; text-align: center;">Note:
+                    The first 18 rows generated `NaN` due to missing history bounds. These 18 rows (representing 0.004%
+                    of total data) were safely dropped to prevent downstream ML poisoning.</p>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 10: FEATURE ENGINEERING 2 ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout" style="text-align: left;">
+                <h2>Feature Engineering: Encoding & Normalization</h2>
+                <p>Ensuring data formats map effortlessly into deep space learning spaces (TensorFlow/Keras
+                    architectures).</p>
+
+                <div class="two-col" style="margin-top: 1.5rem">
+                    <div class="col-box">
+                        <h3 style="color: var(--accent-tertiary)">3. Categorical Structuring</h3>
+                        <p>Extracted `hour` integers were mapped to abstract states ('Morning', 'Day', 'Evening',
+                            'Night').</p>
+                        <ul>
+                            <li>Label encoding (0,1,2,3) was rejected because it implies false ordinal magnitude to
+                                Neural Networks.</li>
+                            <li class="check"><strong>One-Hot Encoding (OHE)</strong> was applied directly.
+                                `tod_Morning`, `tod_Night` acting as independent binary triggers.</li>
+                        </ul>
+                    </div>
+                    <div class="col-box" style="background: #EEF2FF; border-color: #C7D2FE;">
+                        <h3 style="color: #312E81">4. Feature Normalization (Scikit-Learn)</h3>
+                        <p>Activation functions like Sigmoid / Tanh saturate and gradient descent slows dramatically on
+                            non-standard numeric widths.</p>
+                        <ul>
+                            <li>Deployed Sklearn's <code>MinMaxScaler()</code> to crush all absolute metrics strictly
+                                inside <strong>[0, 1]</strong> boundaries.</li>
+                            <li>(Future state: Fitted mapping must be exclusively fit on Train split to circumvent Data
+                                Leakage).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 11: CONCLUSIONS ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h1
+                    style="font-size: 2.8rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    Final Export & Verification
+                </h1>
+
+                <div style="margin-top: 2rem; display: flex; gap: 2rem;">
+                    <div class="stat-card"
+                        style="min-width: 280px; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="stat-number" style="font-size: 1.6rem;">processed_data.csv</div>
+                        <div class="stat-label">Final Production Matrix Saved</div>
+                        <div style="margin-top: 0.8rem; font-size: 0.9rem; color: #1E293B; font-weight: 600;">Shape:
+                            420,533 records × 28 Columns</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">~80 MB On-Disk</div>
+                    </div>
+                    <div class="stat-card" style="flex: 1; text-align: left; padding: 1.5rem">
+                        <h3 style="margin-bottom: 0.5rem; border-bottom: none">✅ Assignment 1 Objectives Achieved:</h3>
+                        <ul style="font-size: 0.95rem">
+                            <li class="check">Outliers surgically resolved leaving the 10-minute rhythmic pulse fully
+                                intact.</li>
+                            <li class="check">New features (14 variables included Lags, Means, OHEs) inject historical
+                                knowledge.</li>
+                            <li class="check">Robust scaling foundations prepared preventing model collapse.</li>
+                            <li class="check"><strong>100% Prepared</strong> for loading into deep sequence models in
+                                Assignment 2.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 12: Q&A ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h1
+                    style="font-size: 3.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    Thank You
+                </h1>
+                <p style="font-size: 1.3rem; color: #64748B; margin-top: 0.5rem;">Defense Prepared & Ready For Questions
+                </p>
+                <div style="margin-top: 3rem; color: var(--text-color); font-size: 1rem;">
+                    <strong>Angsar Shaumen, Bekzat Sundetkhan</strong><br>
+                    <span style="color: #64748B;">Artificial Intelligence and Neural Networks</span><br>
+                    <span style="color: #64748B;">Instructor: Akhmetova Zhanar</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== CONTROLS ===== -->
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()">← Prev</button>
+        <button class="btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <div class="slide-counter" id="slideCounter">1 / 12</div>
+    <div class="progress-bar" id="progress"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress');
+        const slideCounter = document.getElementById('slideCounter');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Full-screen error: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                nextSlide();
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                prevSlide();
+            }
+            if (e.key === 'Home') {
+                e.preventDefault();
+                currentSlide = 0;
+                updateSlide();
+            }
+            if (e.key === 'End') {
+                e.preventDefault();
+                currentSlide = slides.length - 1;
+                updateSlide();
+            }
+            if (e.key === 'f' || e.key === 'F') {
+                toggleFullScreen();
+            }
+        });
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        document.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) {
+                diff > 0 ? nextSlide() : prevSlide();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+
+</html>
