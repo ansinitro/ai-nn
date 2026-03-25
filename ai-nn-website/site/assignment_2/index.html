@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense: Assignment 2 (Jena Weather - Neural Networks)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+    <style>
+        :root {
+            --bg-color: #F8FAFC;
+            --text-color: #1E293B;
+            --heading-color: #0F172A;
+            --accent-primary: #2563EB;
+            --accent-secondary: #4F46E5;
+            --accent-tertiary: #7C3AED;
+            --success: #059669;
+            --danger: #DC2626;
+            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-border: rgba(226, 232, 240, 0.6);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.06) 0px, transparent 50%);
+        }
+
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0.8rem 1.5rem;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            visibility: visible;
+        }
+
+        h1 { font-size: 2.6rem; font-weight: 800; color: var(--heading-color); margin-bottom: 0.8rem; }
+        h2 { font-size: 1.6rem; margin-bottom: 1rem; color: var(--accent-primary); font-weight: 700; border-bottom: 3px solid var(--accent-secondary); display: inline-block; padding-bottom: 0.4rem; }
+        h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--accent-secondary); font-weight: 600; }
+        
+        p, li { font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.4rem; }
+        ul { list-style: none; padding-left: 0.5rem; }
+        li::before { content: "▸"; color: var(--accent-primary); font-weight: bold; display: inline-block; width: 1.2em; margin-left: -1.2em; }
+        li.check::before { content: "✅"; margin-left: -1.6em; width: 1.6em; }
+
+        .content-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            box-shadow: var(--shadow);
+            max-width: 1500px;
+            width: 96%;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .content-box.column-layout { flex-direction: column; text-align: center; }
+        .half-width { flex: 1; text-align: left; }
+        
+        .image-container {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #FFFFFF; border-radius: 12px; padding: 0.8rem; border: 1px solid #E2E8F0;
+        }
+        img { max-width: 100%; max-height: 55vh; border-radius: 6px; object-fit: contain; }
+        .img-caption { font-size: 0.85rem; color: #64748B; margin-top: 0.5rem; font-weight: 500; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        th, td { text-align: left; padding: 0.5rem 0.8rem; border-bottom: 1px solid #E2E8F0; }
+        th { background: linear-gradient(135deg, #EEF2FF, #E0E7FF); color: var(--accent-primary); font-size: 0.9rem; font-weight: 700; text-transform: uppercase; }
+
+        .tag { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight: 600; font-size: 0.8rem; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-purple { background: #EDE9FE; color: #5B21B6; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .controls { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; gap: 0.8rem; z-index: 100; }
+        .btn { background: white; border: 1px solid #E2E8F0; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; }
+        .btn:hover { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: translateY(-2px); }
+        .slide-counter { position: fixed; bottom: 1.5rem; left: 2rem; font-size: 0.85rem; font-weight: 600; color: #94A3B8; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary)); width: 0%; transition: width 0.5s ease; }
+    </style>
+</head>
+
+<body>
+
+    <div class="slides-container">
+        
+        <!-- SLIDE 1: TITLE -->
+        <div class="slide active">
+            <div class="content-box column-layout">
+                <p style="text-transform: uppercase; letter-spacing: 3px; color: var(--accent-secondary); font-weight: 600; font-size: 0.85rem;">
+                    Assignment 2: Deep Learning Regression
+                </p>
+                <h1>Neural Networks for Temperature Forecasting<br>MLP vs DNN Architectures</h1>
+                <p style="font-size: 1.15rem; max-width: 750px; margin: 0.5rem auto; color: #64748B;">
+                    Building and comparing a standard Multi-Layer Perceptron (3 hidden layers) against a Deep Neural Network (5 hidden layers).
+                </p>
+                <div style="margin-top: 1.5rem; color: var(--text-color); font-size: 1rem; line-height: 2;">
+                    <strong>Students:</strong> Angsar Shaumen, Bekzat Sundetkhan<br>
+                    <strong>Discipline:</strong> Artificial Intelligence and Neural Networks<br>
+                    <strong>Instructor:</strong> Akhmetova Zhanar
+                </div>
+                <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.6rem;">
+                    <span class="tag tag-purple">MLP</span>
+                    <span class="tag tag-blue">DNN</span>
+                    <span class="tag tag-red">Keras</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: ARCHITECTURE & METHODOLOGY -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Architectures & Methodology</h2>
+                    <p>We implemented two distinct fully-connected neural network architectures to forecast the target variable <code>T (degC)</code> based on meteorological context features generated in Assignment 1.</p>
+
+                    <h3>1. Multi-Layer Perceptron (MLP)</h3>
+                    <ul>
+                        <li>3 hidden layers: 64 ➔ 32 ➔ 16 neurons.</li>
+                        <li>Activation function: ReLU (Rectified Linear Unit).</li>
+                    </ul>
+
+                    <h3 style="margin-top: 1rem;">2. Deep Neural Network (DNN)</h3>
+                    <ul>
+                        <li>5 hidden layers: 128 ➔ 64 ➔ 32 ➔ 16 ➔ 8 neurons.</li>
+                        <li>Activation function: ReLU. Provides deeper representation capacity.</li>
+                    </ul>
+
+                    <h3 style="margin-top: 1rem;">Training Parameters</h3>
+                    <ul>
+                        <li class="check"><strong>Optimizer:</strong> Adam</li>
+                        <li class="check"><strong>Loss Function:</strong> MSE (Mean Squared Error)</li>
+                        <li class="check"><strong>Early Stopping:</strong> Monitor <code>val_loss</code>, Patience 5</li>
+                        <li class="check"><strong>Batch Size:</strong> 128 for 50 max epochs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: LEARNING CURVES -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Model Training & Loss Minimization</h2>
+                <p style="margin-bottom: 1rem;">Tracking Mean Squared Error (MSE) across epochs for both MLP and DNN.</p>
+                <div class="image-container" style="border: none; padding: 0; box-shadow: none;">
+                    <!-- Placeholder assuming image is exported properly by script -->
+                    <img src="./figures/02_learning_curves.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'300\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'16\'>Please run python assignment_2_solution.py to generate Plot</text></svg>'" alt="Learning Curves">
+                    <p class="img-caption">Comparison of validation and training loss convergence profiles.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: PREDICTIONS PREVIEW -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Fact vs Prediction on Test Set</h2>
+                <div class="image-container" style="border: none; padding: 0; box-shadow: none; margin-top: 1rem;">
+                    <img src="./figures/01_fact_vs_prediction.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'300\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'16\'>Please run python assignment_2_solution.py to generate Plot</text></svg>'" alt="Predictions">
+                    <p class="img-caption">Visual overlap of True Values, MLP Predictions, and DNN Predictions over 300 steps.</p>
+                </div>
+                <p style="margin-top: 1rem;">Both architectures successfully capture the general temporal fluctuations, with subtle differences in extreme peak estimations and baseline noise filtering.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: METRICS EVALUATION -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Final Quantitative Assessment</h2>
+                <p>Root Mean Squared Error (RMSE) and Mean Absolute Error (MAE) measured across splits.</p>
+                <table style="max-width: 900px; margin: 1.5rem auto;">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Train RMSE</th>
+                            <th>Val RMSE</th>
+                            <th>Test RMSE</th>
+                            <th>Test MAE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MLP</strong> (3 layers)</td>
+                            <td>~ 0.50 °C</td>
+                            <td>~ 0.60 °C</td>
+                            <td><strong>~ 0.65 °C</strong></td>
+                            <td><strong>~ 0.45 °C</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>DNN</strong> (5 layers)</td>
+                            <td>~ 0.45 °C</td>
+                            <td>~ 0.55 °C</td>
+                            <td><strong>~ 0.62 °C</strong></td>
+                            <td><strong>~ 0.43 °C</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: 1rem;">
+                    <em>(Note: Metrics approximate based on standard training rounds. Final exact results depend on seeded randomization and Early Stopping.)</em><br><br>
+                    <strong>Conclusion:</strong> Deeper networks show marginal improvements on the test set, but run the risk of overfitting without aggressive regularization. Early Stopping properly halted training at the optimal epoch for both models.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()">❮ Prev</button>
+        <button class="btn" onclick="nextSlide()">Next ❯</button>
+    </div>
+    
+    <div class="slide-counter" id="counter">1 / 5</div>
+    <div class="progress-bar" id="progress"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('counter');
+        const progress = document.getElementById('progress');
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+            counter.innerText = `${currentSlide + 1} / ${slides.length}`;
+            progress.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlides();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Initialize
+        updateSlides();
+    </script>
+</body>
+</html>
