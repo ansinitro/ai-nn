@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense: Assignment 3 (LSTM Weather Forecasting)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+    <style>
+        :root {
+            --bg-color: #F8FAFC;
+            --text-color: #1E293B;
+            --heading-color: #0F172A;
+            --accent-primary: #2563EB;
+            --accent-secondary: #4F46E5;
+            --accent-tertiary: #7C3AED;
+            --success: #059669;
+            --danger: #DC2626;
+            --warning: #D97706;
+            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-border: rgba(226, 232, 240, 0.6);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(124, 58, 237, 0.03) 0px, transparent 60%);
+        }
+
+        /* ===== SLIDES CONTAINER ===== */
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0.8rem 1.5rem;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            background: transparent;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            visibility: visible;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 0.8rem;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+            font-weight: 700;
+            border-bottom: 3px solid var(--accent-secondary);
+            display: inline-block;
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--accent-secondary);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        p,
+        li {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.4rem;
+            color: var(--text-color);
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0.5rem;
+        }
+
+        li::before {
+            content: "▸";
+            color: var(--accent-primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1.2em;
+            margin-left: -1.2em;
+        }
+
+        li.check::before {
+            content: "✅";
+            margin-left: -1.6em;
+            width: 1.6em;
+        }
+
+        li.warn::before {
+            content: "⚠️";
+            margin-left: -1.6em;
+            width: 1.6em;
+        }
+
+        /* ===== CONTENT BOX ===== */
+        .content-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            box-shadow: var(--shadow);
+            max-width: 1500px;
+            width: 96%;
+            max-height: 92vh;
+            overflow-y: hidden;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .content-box.column-layout {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .content-box.top-align {
+            align-items: flex-start;
+        }
+
+        .half-width {
+            flex: 1;
+            text-align: left;
+        }
+
+        .image-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 0.8rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E2E8F0;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 55vh;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+
+        .img-caption {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.8rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            color: var(--accent-primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        td {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr.highlight-row {
+            background-color: #EFF6FF;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        tr.highlight-row td {
+            font-weight: 600;
+        }
+
+        /* ===== SPECIAL ELEMENTS ===== */
+        .tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
+        }
+
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-green { background: #D1FAE5; color: #065F46; }
+        .tag-purple { background: #EDE9FE; color: #5B21B6; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+        .tag-orange { background: #FFEDD5; color: #C2410C; }
+
+        .equation-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            margin: 0.5rem 0;
+            font-size: 0.92rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 0.9rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748B;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .col-box {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 1rem;
+        }
+
+        /* ===== CONTROLS ===== */
+        .controls {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.8rem;
+            z-index: 100;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid #E2E8F0;
+            color: var(--text-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .top-controls {
+            position: fixed;
+            top: 1.2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.6rem;
+            z-index: 101;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94A3B8;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary));
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-controls">
+        <button class="btn" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+        <button class="btn" onclick="window.print()">🖨 Export PDF</button>
+    </div>
+
+    <div class="slides-container">
+
+        <!-- ==================== SLIDE 1: TOP BUN ==================== -->
+        <div class="slide active">
+            <div class="content-box column-layout">
+                <p style="text-transform: uppercase; letter-spacing: 3px; color: var(--accent-secondary); font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">
+                    Assignment 3: RNN & LSTM Forecasting
+                </p>
+                <h1 style="font-size: 2.3rem;">Time-Series Prediction via<br>LSTM Recurrent Neural Networks</h1>
+                <p style="font-size: 1.15rem; max-width: 750px; margin: 0.5rem auto; color: #64748B;">
+                    Transforming tabular meteorological data into 3D Temporal Sequences and executing comparative Deep Learning modeling.
+                </p>
+                <div style="margin-top: 1.5rem; color: var(--text-color); font-size: 1rem; line-height: 2;">
+                    <strong>Students:</strong> Angsar Shaumen, Bekzat Sundetkhan<br>
+                    <strong>Discipline:</strong> Artificial Intelligence and Neural Networks<br>
+                    <strong>Instructor:</strong> Akhmetova Zhanar
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;">
+                    <span class="tag tag-purple">Deep Learning</span>
+                    <span class="tag tag-blue">LSTM</span>
+                    <span class="tag tag-green">TensorFlow 2</span>
+                    <span class="tag tag-orange">Keras</span>
+                    <span class="tag tag-red">Time-Series</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 2: THE LETTUCE ==================== -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>The Theoretical Task & Challenge</h2>
+                    <p>In Assignment 2, we predicted Temperature using Multi-Layer Perceptrons (MLP). However, MLPs struggle with temporal data because they lack <em>memory</em>—each row is treated as an isolated independent event.</p>
+
+                    <h3 style="margin-top: 1rem;">LSTM Paradigm Shift</h3>
+                    <ul>
+                        <li><strong>Recurrent State:</strong> RNNs natively pass their hidden state $h_t$ continuously across time, remembering what happened hours ago.</li>
+                        <li><strong>Gate Mechanisms:</strong> Long Short-Term Memory cells specifically utilize Forget, Input, and Output gates to filter out noise while preserving distinct seasonal trends.</li>
+                    </ul>
+
+                    <h3 style="margin-top: 1rem;">Objectives: </h3>
+                    <ul>
+                        <li class="check">Construct 3D input sequences `(samples, timesteps, features)` natively.</li>
+                        <li class="check">Train a deep architecture utilizing `EarlyStopping`.</li>
+                        <li class="check">Conduct a Hyperparameter Experiment observing 3 "Window" lengths.</li>
+                        <li class="check">Compare the mathematical stability heavily against the Stage 2 MLP.</li>
+                    </ul>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="stat-card">
+                        <div class="stat-number">400,000+</div>
+                        <div class="stat-label">Sequence Generations using Numpy Sub-arrays</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">History Window Lengths Evaluated (12, 24, 48)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 3: THE MEAT (ARCHITECTURE) ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Architecture & Computational Strategy</h2>
+                <div class="two-col" style="align-items: center">
+                    <div style="text-align: left; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem">Optimal Hyperparameter Choice</h3>
+                        <p>We avoided blindly stacking 256 units. Model complexity must align tightly with signal clarity.</p>
+                        <ul>
+                            <li><strong>LSTM(64):</strong> Weather signals display diurnal (daily) cyclical rhythm. 64 units natively acts as a temporal compression chamber, powerful enough to recognize heat spikes but constrained enough not to overfit standard statistical noise.</li>
+                            <li><strong>Dense(32) Adapter:</strong> Translates the raw latent dimension generated by our LSTM cell into an explicit, deterministic physical value.</li>
+                            <li><strong>Linear Activation:</strong> Directly mapped to degrees Celsius output.</li>
+                        </ul>
+                    </div>
+                    <div class="col-box" style="text-align: left; background: #F1F5F9; border-left: 4px solid var(--accent-secondary)">
+                        <pre style="font-family: monospace; font-size: 0.95rem; color: #334155; margin: 0;">
+# The Defined Keras Core Architecture
+model = Sequential([
+   Input(shape=(timesteps, features)),
+   LSTM(64, return_sequences=False),
+   Dense(32, activation='relu'),
+   Dense(1, activation='linear')
+])
+
+model.compile(optimizer='adam', loss='mse')</pre>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #64748B;">
+                            <strong>Note:</strong> We implemented the crucial <code>EarlyStopping(patience=3)</code> callback monitoring <code>val_loss</code> to cleanly shut down training preventing memory-memorization over 15 Epochs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 4: THE CHEESE (LEARNING CURVES) ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Experiment: Neural Iterative Descent (Learning Curves)</h2>
+                <div class="two-col" style="align-items: center">
+                    <div class="image-container" style="box-shadow: none; border: none; padding: 0;">
+                        <img src="./figures/02_lstm_learning_curves.png" style="max-height: 48vh"
+                            alt="LSTM Epoch Iterations">
+                    </div>
+                    <div style="text-align: left; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem">Epoch-by-Epoch Analysis</h3>
+                        <p>During the iteration phase tracking Mean Squared Error ($MSE$):</p>
+                        <ul>
+                            <li><strong>Rapid Initial Freefall:</strong> Epoch 1 & 2 exhibit a massive reduction in error mapping, meaning the LSTM instantaneously grasps the fundamental circadian macro-trend.</li>
+                            <li><strong>Smooth Convergence:</strong> Unlike MLPs which often violently spike during validation, the LSTM validation loss hugs the train curve smoothly due to its recurrent memory gating (Forget Gates mathematically ignoring anomalous storms).</li>
+                            <li class="check"><strong>Early Stopping Initiated:</strong> Testing gracefully halts when the margin stops fundamentally improving, automatically restoring the best tensor weights.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 5: THE SAUCE (FACT VS PREDICTION) ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Forecasting Fidelity: Fact vs LSTM Prediction</h2>
+                <div class="image-container" style="width: 100%; box-shadow: none; border: none; padding: 0;">
+                    <img src="./figures/01_lstm_fact_vs_prediction.png" style="max-height: 45vh; width: 100%"
+                        alt="Fact vs Prediction Overlay">
+                    <p class="img-caption" style="margin-top: 1rem; font-size: 1rem">
+                        Visually zooming into a 500-step sub-sample. Look at the Red Dashed line successfully tracking the Black Ground Truth!
+                    </p>
+                </div>
+                <div style="text-align: center; margin-top: -1rem; max-width: 900px;">
+                    <p>
+                        The most visually striking achievement of the LSTM is its exact timing calculation. It doesn't merely guess the average; it expertly calculates the crests of the parabolic daily heating cycles precisely when they naturally peak.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 6: SECOND PATTY (WINDOW SIZE IMPACT) ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Hyperparameter Test: The Length of History</h2>
+                <p>How far back should an AI look? Comparing 12, 24, and 48 timestep "Memory Windows".</p>
+                <div class="two-col" style="align-items: center; margin-top: 1rem">
+                    <div class="image-container" style="box-shadow: none; border: none; padding: 0;">
+                        <img src="./figures/03_window_length_comparison.png" style="max-height: 40vh"
+                            alt="Window Evaluation Results">
+                    </div>
+                    <div style="text-align: left; padding: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem">Empirical Results</h3>
+                        <ul>
+                            <li><strong>Window = 12 (2 hours):</strong> Near-term precision is good but occasionally lacks the full context of whether it's dawn or dusk.</li>
+                            <li><strong>Window = 24 (4 hours):</strong> The Sweet Spot. Provides the exact context the network needs to calculate heating/cooling inertia without dragging obsolete noise.</li>
+                            <li class="warn"><strong>Window = 48 (8 hours):</strong> Slight performance degradation and immensely slower memory processing! Storing data across an entire shift injects irrelevant old noise that the "Forget" gate has to work harder to ignore.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SLIDE 7: BOTTOM BUN (CONCLUSION) ==================== -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h1 style="font-size: 2.2rem; color: var(--accent-primary)">Final Conclusion: LSTM vs MLP Baseline</h1>
+                
+                <div class="two-col" style="margin-top: 1.5rem">
+                    <div class="col-box" style="text-align:left">
+                        <h3>Why the LSTM is Superior</h3>
+                        <p><strong>1. Eradication of Manual "Lags":</strong></p>
+                        <p style="font-size: 0.85rem">In Stage 2 (MLP), we were forced to inject arbitrary artificial `lag_1` and `lag_2` columns. LSTMs generate sequential embeddings strictly naturally via 3D `(samples, time, features)` representations.</p>
+                        
+                        <p style="margin-top: 1rem"><strong>2. Sequential Prowess:</strong></p>
+                        <p style="font-size: 0.85rem">The LSTM's RMSE dropped aggressively closer to absolute zero mapping limits compared to standard MLPs. Time is inherently structured, and LSTMs mathematically observe Time.</p>
+
+                    </div>
+                    <div class="col-box" style="display:flex; flex-direction:column; justify-content:center; align-items:center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary)); color: white;">
+                        <h2 style="color: white; border-bottom: none">Defense Complete</h2>
+                        <ul style="color: white; font-size: 1.1rem; line-height: 1.8; opacity: 0.95; list-style: none; padding: 0;">
+                            <li class="check" style="color: white">Successfully Implemented Sequences</li>
+                            <li class="check" style="color: white">Justified `LSTM(64)` Hyperparameters</li>
+                            <li class="check" style="color: white">Proven Optimal Window Length (24)</li>
+                            <li class="check" style="color: white">Drawn Clear Distinctions vs MLPs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== CONTROLS ===== -->
+    <div class="slide-counter"><span id="current">1</span> / <span id="total">7</span></div>
+    <div class="progress-bar" id="progress"></div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" onclick="prevSlide()" disabled>← Prev</button>
+        <button class="btn" id="nextBtn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSpan = document.getElementById('current');
+        const totalSpan = document.getElementById('total');
+        const progress = document.getElementById('progress');
+
+        totalSpan.textContent = slides.length;
+        updateUI();
+
+        function updateUI() {
+            slides.forEach((s, i) => {
+                if (i === currentSlideIndex) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+
+            currentSpan.textContent = currentSlideIndex + 1;
+            prevBtn.disabled = currentSlideIndex === 0;
+            nextBtn.disabled = currentSlideIndex === slides.length - 1;
+
+            const progressPercent = ((currentSlideIndex) / (slides.length - 1)) * 100;
+            progress.style.width = progressPercent + '%';
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                updateUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                updateUI();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
