@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense: Assignment 3 (LSTM — Recurrent Neural Networks)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+    <style>
+        :root {
+            --bg-color: #F8FAFC;
+            --text-color: #1E293B;
+            --heading-color: #0F172A;
+            --accent-primary: #0EA5E9;
+            --accent-secondary: #6366F1;
+            --accent-tertiary: #8B5CF6;
+            --success: #059669;
+            --danger: #DC2626;
+            --glass-bg: rgba(255, 255, 255, 0.88);
+            --glass-border: rgba(226, 232, 240, 0.6);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.07) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.07) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.04) 0px, transparent 70%);
+        }
+
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0.8rem 1.5rem;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            visibility: visible;
+        }
+
+        h1 { font-size: 2.5rem; font-weight: 800; color: var(--heading-color); margin-bottom: 0.8rem; line-height: 1.2; }
+        h2 { font-size: 1.6rem; margin-bottom: 1rem; color: var(--accent-primary); font-weight: 700; border-bottom: 3px solid var(--accent-secondary); display: inline-block; padding-bottom: 0.4rem; }
+        h3 { font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent-secondary); font-weight: 600; }
+
+        p, li { font-size: 0.95rem; line-height: 1.55; margin-bottom: 0.35rem; }
+        ul { list-style: none; padding-left: 0.5rem; }
+        li::before { content: "▸"; color: var(--accent-primary); font-weight: bold; display: inline-block; width: 1.2em; margin-left: -1.2em; }
+        li.check::before { content: "✅"; margin-left: -1.6em; width: 1.6em; }
+        li.star::before { content: "⭐"; margin-left: -1.6em; width: 1.6em; }
+
+        .content-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            box-shadow: var(--shadow);
+            max-width: 1500px;
+            width: 96%;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .content-box.column-layout { flex-direction: column; text-align: center; }
+        .half-width { flex: 1; text-align: left; }
+
+        .image-container {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #FFFFFF; border-radius: 12px; padding: 0.8rem; border: 1px solid #E2E8F0;
+        }
+        img { max-width: 100%; max-height: 55vh; border-radius: 6px; object-fit: contain; }
+        .img-caption { font-size: 0.85rem; color: #64748B; margin-top: 0.5rem; font-weight: 500; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        th, td { text-align: left; padding: 0.55rem 0.9rem; border-bottom: 1px solid #E2E8F0; }
+        th { background: linear-gradient(135deg, #EEF2FF, #E0E7FF); color: var(--accent-secondary); font-size: 0.88rem; font-weight: 700; text-transform: uppercase; }
+        td { font-size: 0.92rem; }
+
+        .tag { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight: 600; font-size: 0.8rem; }
+        .tag-blue { background: #DBEAFE; color: #1E40AF; }
+        .tag-purple { background: #EDE9FE; color: #5B21B6; }
+        .tag-cyan { background: #CFFAFE; color: #0E7490; }
+        .tag-green { background: #D1FAE5; color: #065F46; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #EEF2FF, #F0F9FF);
+            border: 1px solid #C7D2FE;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-top: 0.8rem;
+        }
+
+        code {
+            background: #F1F5F9;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.88rem;
+            color: var(--accent-secondary);
+        }
+
+        .controls { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; gap: 0.8rem; z-index: 100; }
+        .btn { background: white; border: 1px solid #E2E8F0; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; }
+        .btn:hover { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: translateY(-2px); }
+        .slide-counter { position: fixed; bottom: 1.5rem; left: 2rem; font-size: 0.85rem; font-weight: 600; color: #94A3B8; }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary)); width: 0%; transition: width 0.5s ease; }
+
+        .arch-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .arch-block {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: white;
+            text-align: center;
+            min-width: 80px;
+        }
+        .arch-arrow { font-size: 1.4rem; color: #94A3B8; }
+    </style>
+</head>
+
+<body>
+
+    <div class="slides-container">
+
+        <!-- SLIDE 1: TITLE -->
+        <div class="slide active">
+            <div class="content-box column-layout">
+                <p style="text-transform: uppercase; letter-spacing: 3px; color: var(--accent-secondary); font-weight: 600; font-size: 0.85rem;">
+                    Assignment 3: Recurrent Neural Networks
+                </p>
+                <h1>LSTM для прогнозирования<br>температуры</h1>
+                <p style="font-size: 1.1rem; max-width: 800px; margin: 0.5rem auto; color: #64748B;">
+                    Построение и обучение рекуррентной нейросети с долгой краткосрочной памятью (LSTM) для учёта временной структуры данных. Сравнение с полносвязными моделями из этапа 2.
+                </p>
+                <div style="margin-top: 1.5rem; color: var(--text-color); font-size: 1rem; line-height: 2;">
+                    <strong>Students:</strong> Angsar Shaumen, Bekzat Sundetkhan<br>
+                    <strong>Discipline:</strong> Artificial Intelligence and Neural Networks<br>
+                    <strong>Instructor:</strong> Akhmetova Zhanar
+                </div>
+                <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.6rem;">
+                    <span class="tag tag-cyan">LSTM</span>
+                    <span class="tag tag-purple">RNN</span>
+                    <span class="tag tag-blue">Keras</span>
+                    <span class="tag tag-green">Time Series</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: DATA PREPARATION -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Подготовка последовательностей</h2>
+                    <p>Данные Jena Weather преобразованы в формат supervised learning с использованием скользящего окна.</p>
+
+                    <h3 style="margin-top: 1rem;">Формирование окон</h3>
+                    <ul>
+                        <li>Для каждого временного шага <code>t</code> создаётся окно из <strong>24 предыдущих наблюдений</strong> (4 часа при интервале 10 мин).</li>
+                        <li>Целевая переменная — <code>T(degC)</code> на шаг <code>t</code>.</li>
+                        <li>Итоговый массив X имеет размерность <code>(samples, 24, features)</code>.</li>
+                    </ul>
+
+                    <h3 style="margin-top: 1rem;">Разделение данных</h3>
+                    <ul>
+                        <li class="check"><strong>Train:</strong> 70% (первые ~294 тыс. записей)</li>
+                        <li class="check"><strong>Validation:</strong> 15% (~63 тыс. записей)</li>
+                        <li class="check"><strong>Test:</strong> 15% (~63 тыс. записей)</li>
+                        <li class="check">Хронологический порядок сохранён</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <strong>Стандартизация:</strong> StandardScaler обучен только на тренировочной выборке, затем применён ко всем split'ам.
+                    </div>
+                </div>
+                <div class="half-width" style="text-align: center;">
+                    <div style="background: #F8FAFC; border-radius: 16px; padding: 1.5rem; border: 2px dashed #C7D2FE;">
+                        <h3 style="color: var(--accent-primary); margin-bottom: 1rem;">Схема формирования окна</h3>
+                        <div style="font-family: monospace; font-size: 0.82rem; line-height: 2; text-align: left; background: white; padding: 1rem; border-radius: 8px;">
+                            <div style="color: #94A3B8;">t-24 → [x₁, x₂, ..., xₙ]</div>
+                            <div style="color: #94A3B8;">t-23 → [x₁, x₂, ..., xₙ]</div>
+                            <div style="color: #94A3B8;">  ...  ⋮</div>
+                            <div style="color: var(--accent-secondary); font-weight: 600;">t-1  → [x₁, x₂, ..., xₙ]</div>
+                            <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 2px solid var(--accent-primary); color: var(--accent-primary); font-weight: 700;">
+                                t    →  ŷ = T(degC) ← prediction target
+                            </div>
+                        </div>
+                        <p style="margin-top: 1rem; font-size: 0.85rem; color: #64748B;">
+                            Каждый sample = матрица <strong>24 × N_features</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: LSTM ARCHITECTURE -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Архитектура LSTM</h2>
+                    <p>Двухслойная LSTM-модель с полносвязным выходным слоем.</p>
+
+                    <div class="arch-diagram">
+                        <div class="arch-block" style="background: linear-gradient(135deg, #0EA5E9, #06B6D4);">Input<br><small>(24, N)</small></div>
+                        <span class="arch-arrow">→</span>
+                        <div class="arch-block" style="background: linear-gradient(135deg, #6366F1, #8B5CF6);">LSTM<br><small>64 units</small></div>
+                        <span class="arch-arrow">→</span>
+                        <div class="arch-block" style="background: linear-gradient(135deg, #8B5CF6, #A855F7);">LSTM<br><small>32 units</small></div>
+                        <span class="arch-arrow">→</span>
+                        <div class="arch-block" style="background: linear-gradient(135deg, #059669, #10B981);">Dense(1)<br><small>linear</small></div>
+                    </div>
+
+                    <h3 style="margin-top: 1.2rem;">Гиперпараметры</h3>
+                    <ul>
+                        <li class="check"><strong>LSTM-1:</strong> 64 юнита, return_sequences=True</li>
+                        <li class="check"><strong>LSTM-2:</strong> 32 юнита, return_sequences=False</li>
+                        <li class="check"><strong>Выход:</strong> Dense(1) с линейной активацией</li>
+                        <li class="check"><strong>Optimizer:</strong> Adam (lr=0.001)</li>
+                        <li class="check"><strong>Loss:</strong> MSE</li>
+                        <li class="check"><strong>Batch Size:</strong> 256</li>
+                        <li class="check"><strong>EarlyStopping:</strong> patience=5, restore_best_weights</li>
+                    </ul>
+
+                    <div class="highlight-box" style="margin-top: 1rem;">
+                        <strong>Почему LSTM?</strong> В отличие от MLP, LSTM обрабатывает данные последовательно, запоминая долгосрочные зависимости через механизм ячеек памяти (forget, input, output gates).
+                    </div>
+                </div>
+                <div class="half-width" style="text-align: center;">
+                    <div style="background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid #E2E8F0;">
+                        <h3 style="color: var(--accent-primary); margin-bottom: 1rem;">LSTM Cell Architecture</h3>
+                        <div style="font-size: 0.9rem; line-height: 1.8; text-align: left; padding: 0.5rem;">
+                            <div style="margin-bottom: 0.8rem;">
+                                <strong style="color: #DC2626;">Forget Gate:</strong><br>
+                                $f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$
+                            </div>
+                            <div style="margin-bottom: 0.8rem;">
+                                <strong style="color: #2563EB;">Input Gate:</strong><br>
+                                $i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$<br>
+                                $\tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C)$
+                            </div>
+                            <div style="margin-bottom: 0.8rem;">
+                                <strong style="color: #059669;">Cell Update:</strong><br>
+                                $C_t = f_t \ast C_{t-1} + i_t \ast \tilde{C}_t$
+                            </div>
+                            <div>
+                                <strong style="color: #7C3AED;">Output Gate:</strong><br>
+                                $o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)$<br>
+                                $h_t = o_t \ast \tanh(C_t)$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: LEARNING CURVES -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Обучение LSTM — Кривые потерь</h2>
+                <p style="margin-bottom: 1rem;">Мониторинг MSE на обучающей и валидационной выборках. EarlyStopping остановил обучение при стабилизации val_loss примерно на <strong>22-й эпохе</strong>. Потери резко упали с ~12.5 (эпоха 0) до ~0 уже к 3-й эпохе.</p>
+                <div class="image-container" style="border: none; padding: 0; box-shadow: none;">
+                    <img src="./figures/01_lstm_learning_curves.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'300\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'16\'>Please run python assignment_3_solution.py to generate plot</text></svg>'" alt="LSTM Learning Curves">
+                    <p class="img-caption">Train Loss vs Validation Loss по эпохам обучения.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: PREDICTIONS -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Факт vs LSTM-предсказание</h2>
+                <div class="image-container" style="border: none; padding: 0; box-shadow: none; margin-top: 0.5rem;">
+                    <img src="./figures/02_fact_vs_lstm_prediction.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'300\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'16\'>Please run python assignment_3_solution.py to generate plot</text></svg>'" alt="Fact vs LSTM Prediction">
+                    <p class="img-caption">Сравнение истинных и предсказанных значений температуры на тестовой выборке (первые 500 шагов).</p>
+                </div>
+                <p style="margin-top: 0.8rem;">LSTM точно воспроизводит суточные и многочасовые колебания температуры, улавливая как тренды, так и локальные экстремумы.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: MODEL COMPARISON -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Сравнение: MLP vs DNN vs LSTM</h2>
+                    <p>Количественное сравнение трёх архитектур на тестовой выборке.</p>
+
+                    <table style="margin-top: 1.5rem;">
+                        <thead>
+                            <tr>
+                                <th>Модель</th>
+                                <th>Архитектура</th>
+                                <th>Test RMSE</th>
+                                <th>Test MAE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>MLP</strong></td>
+                                <td>3 скрытых слоя (64→32→16)</td>
+                                <td>0.650 °C</td>
+                                <td>0.450 °C</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNN</strong></td>
+                                <td>5 скрытых слоёв (128→64→32→16→8)</td>
+                                <td>0.620 °C</td>
+                                <td>0.430 °C</td>
+                            </tr>
+                            <tr style="background: linear-gradient(90deg, #F0F9FF, #EEF2FF);">
+                                <td><strong style="color: var(--accent-primary);">LSTM</strong></td>
+                                <td>2 слоя LSTM (64→32) + Dense(1)</td>
+                                <td><strong style="color: var(--success);">0.186 °C</strong></td>
+                                <td><strong style="color: var(--success);">0.121 °C</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box" style="margin-top: 1rem;">
+                        <strong>Ключевое преимущество LSTM:</strong> Модель явно учитывает порядок наблюдений и долгосрочные зависимости, в то время как MLP/DNN обрабатывают каждое наблюдение независимо.
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="./figures/03_model_comparison.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'300\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'16\'>Please run python assignment_3_solution.py to generate plot</text></svg>'" alt="Model Comparison">
+                    <p class="img-caption">Сравнение Test RMSE и Test MAE для трёх архитектур.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: WINDOW SIZE ANALYSIS -->
+        <div class="slide">
+            <div class="content-box">
+                <div class="half-width">
+                    <h2>Анализ длины окна</h2>
+                    <p>Эксперимент с тремя длинами окна истории для оценки влияния на точность прогноза LSTM.</p>
+
+                    <table style="margin-top: 1rem;">
+                        <thead>
+                            <tr>
+                                <th>Окно</th>
+                                <th>Время</th>
+                                <th>Test RMSE</th>
+                                <th>Test MAE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>12 шагов</strong></td>
+                                <td>2 часа</td>
+                                <td>0.1873 °C</td>
+                                <td>0.1252 °C</td>
+                            </tr>
+                            <tr style="background: linear-gradient(90deg, #F0F9FF, #EEF2FF);">
+                                <td><strong>24 шага</strong></td>
+                                <td>4 часа</td>
+                                <td>0.1892 °C</td>
+                                <td>0.1242 °C</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--success);">48 шагов ✓</strong></td>
+                                <td>8 часов</td>
+                                <td><strong style="color: var(--success);">0.1838 °C</strong></td>
+                                <td><strong style="color: var(--success);">0.1214 °C</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box" style="margin-top: 1rem;">
+                        <strong>Вывод:</strong> Окно 48 шагов (8 часов) показало наилучшие результаты — RMSE=0.1838 и MAE=0.1214. Разница между окнами невелика (~0.3%), что говорит об устойчивости LSTM к длине контекста в данной задаче.
+                    </div>
+                </div>
+                <div class="image-container">
+                    <img src="./figures/04_window_size_analysis.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'300\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'16\'>Please run python assignment_3_solution.py to generate plot</text></svg>'" alt="Window Size Analysis">
+                    <p class="img-caption">Влияние длины окна на RMSE и MAE на тестовой выборке.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: CONCLUSIONS -->
+        <div class="slide">
+            <div class="content-box column-layout">
+                <h2>Выводы и заключение</h2>
+                <div style="max-width: 1000px; text-align: left; margin: 0 auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                        <div style="background: linear-gradient(135deg, #F0F9FF, #E0F2FE); border-radius: 16px; padding: 1.2rem 1.5rem; border: 1px solid #BAE6FD;">
+                            <h3 style="color: #0284C7;">✅ Модель LSTM</h3>
+                            <ul>
+                                <li>Двухслойная LSTM (64 + 32 юнита) успешно обучена</li>
+                                <li>EarlyStopping предотвратил переобучение</li>
+                                <li>Модель сохранена как <code>lstm_best.h5</code></li>
+                            </ul>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF); border-radius: 16px; padding: 1.2rem 1.5rem; border: 1px solid #C7D2FE;">
+                            <h3 style="color: #4F46E5;">📊 Сравнение с MLP/DNN</h3>
+                            <ul>
+                                <li>LSTM учитывает временную структуру</li>
+                                <li>RMSE улучшен с 0.620 до <strong>0.186 °C</strong></li>
+                                <li>MAE улучшен с 0.430 до <strong>0.121 °C</strong> (↓72%)</li>
+                            </ul>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #F0FDF4, #DCFCE7); border-radius: 16px; padding: 1.2rem 1.5rem; border: 1px solid #BBF7D0;">
+                            <h3 style="color: #059669;">🔍 Длина окна</h3>
+                            <ul>
+                                <li>Протестированы окна: 12, 24 и 48 шагов</li>
+                                <li>Лучшее: 48 шагов (RMSE=0.1838, MAE=0.1214)</li>
+                                <li>Разница между окнами &lt; 0.3% — LSTM устойчив</li>
+                            </ul>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #FDF4FF, #FAE8FF); border-radius: 16px; padding: 1.2rem 1.5rem; border: 1px solid #F0ABFC;">
+                            <h3 style="color: #9333EA;">🚀 Перспективы</h3>
+                            <ul>
+                                <li>Bidirectional LSTM для улучшения</li>
+                                <li>Attention-механизм (Transformer)</li>
+                                <li>Multi-step прогнозирование</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p style="text-align: center; margin-top: 1.5rem; font-size: 1.05rem; color: #64748B;">
+                        <strong>Итог:</strong> LSTM (RMSE=0.186 °C, MAE=0.121 °C) превзошёл MLP и DNN более чем в 3 раза, эффективно моделируя временные ряды метеоданных за счёт механизма памяти и последовательной обработки.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()">❮ Prev</button>
+        <button class="btn" onclick="nextSlide()">Next ❯</button>
+    </div>
+
+    <div class="slide-counter" id="counter">1 / 8</div>
+    <div class="progress-bar" id="progress"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('counter');
+        const progress = document.getElementById('progress');
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+            counter.innerText = `${currentSlide + 1} / ${slides.length}`;
+            progress.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlides();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        updateSlides();
+    </script>
+</body>
+</html>
