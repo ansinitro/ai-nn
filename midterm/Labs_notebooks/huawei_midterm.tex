@@ -1,0 +1,97 @@
+\documentclass[a4paper,12pt,oneside,openbib,oldfontcommands]{memoir}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+\floatplacement{figure}{H}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10},
+    keywordstyle=\color{blue},
+    commentstyle=\color{red!50!black},
+    stringstyle=\color{green!50!black}
+}
+
+\newcommand{\passthrough}[1]{#1}
+
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>0.85\linewidth0.85\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>0.45\textheight0.45\textheight\else\Gin@nat@height\fi}
+\makeatother
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+
+\geometry{
+    a4paper,
+    top=3cm,
+    bottom=3cm,
+    left=3cm,
+    right=3cm
+}
+
+% Fix Pandoc tighter lists and other dependencies
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Ensure hyperref doesn't break boxed text
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Huawei Midterm Report},
+    pdfpagemode=FullScreen,
+}
+
+\begin{document}
+
+\begin{titlingpage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        % Logo integration
+        \includegraphics[width=0.5\textwidth]{/home/ansinitro/desertation/thesis/logos/AITU.png}
+        
+        \vspace{2.5cm}
+        
+        {\Huge \textbf{Deep Learning and AI Frameworks}\par}
+        \vspace{0.5cm}
+        {\Large \textbf{Huawei HCIA-AI V3.5 Midterm Implementation Report}\par}
+        
+        \vspace{3cm}
+        
+        {\Large \textbf{Author:} Angsar Shaumen\par}
+        
+        \vspace{1cm}
+        
+        {\Large \textbf{Instructor:} Akhmetova Zhanar\par}
+        {\Large \textbf{Subject:} Artificial Intelligence and Neural Networks\par}
+        
+        \vfill
+        
+        Astana IT University\\
+        \today
+        
+    \end{center}
+\end{titlingpage}
+
+\tableofcontents
+\newpage
+
+\chapter{Python Programming \& Applied Foundations}
+\input{chapter1.tex}
+
+\chapter{Machine Learning Engineering \& Statistical Validation}
+\input{chapter2.tex}
+
+\chapter{Deep Learning \& MindSpore Framework Architecture}
+\input{chapter3.tex}
+
+\end{document}
