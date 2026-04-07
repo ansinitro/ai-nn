@@ -16,3 +16,9 @@ __pycache__/
 **/data/data/
 **/data/*.pos
 **/data/*.neg
+
+# Latex generated files
+**/*.aux
+**/*.log
+**/*.out
+**/*.toc
