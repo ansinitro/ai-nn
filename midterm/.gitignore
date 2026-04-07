@@ -9,6 +9,8 @@ __pycache__/
 **/MNIST/
 **/*.ckpt
 **/*.pb
+**/*.meta
+**/ckpt/
 **/model_resnet/
 **/data/TextCNN.zip
 **/data/data/
