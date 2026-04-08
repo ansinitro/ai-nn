@@ -1,0 +1,1035 @@
+# ===============================================================================================
+# The following shows the last analyze fail log message.
+# ===============================================================================================
+
+----------------------------------------------------
+- Caught exception:
+----------------------------------------------------
+For 'MatMul' the input dimensions must be equal, but got 'x1_col': 3 and 'x2_row': 288.
+
+----------------------------------------------------
+- C++ Call Stack: (For framework developers)
+----------------------------------------------------
+mindspore/ops/infer/ops_func_impl//matmul.cc:78 InferShape2D
+
+----------------------------------------------------
+- The Traceback of Net Construct Code:
+----------------------------------------------------
+# 0 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:424~425, 8~46
+        if not self.sense_flag:
+# 1 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:425, 19~46
+            return self._no_sens_impl(*inputs)
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 2 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:445~446, 8~95
+        if self.use_graceful_exit:
+# 3 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:448~452, 8~45
+        if self.return_grad:
+# 4 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:442, 15~36
+        loss = self.network(*inputs)
+               ^~~~~~~~~~~~~~~~~~~~~
+# 5 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:122, 14~34
+        out = self._backbone(data)
+              ^~~~~~~~~~~~~~~~~~~~
+# 6 In file /tmp/ipykernel_75820/3343516439.py:52, 16~26
+# 7 In file /tmp/ipykernel_75820/3343516439.py:52, 16~23
+# 8 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:795~796, 8~43
+        if self.has_bias:
+# 9 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:796, 12~43
+            x = self.bias_add(x, self.bias)
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 10 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:797~798, 8~34
+        if self.activation_flag:
+# 11 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799~801, 8~42
+        if len(x_shape) != 2:
+# 12 In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:794, 12~39
+        x = self.matmul(x, self.weight)
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ===============================================================================================
+# The following shows the IR when the function graphs evaluation fails to help locate the problem.
+# You can search the last ------------------------> to the node which is evaluated failure.
+# Refer to https://www.mindspore.cn/search?inputValue=analyze_fail.ir to get more instructions.
+# ===============================================================================================
+
+# IR entry: @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_22
+# Total subgraphs: 0
+
+# Attrs:
+compile_phase: train.1775176277688731136.138311146188016.0...0
+training: 1
+
+# Total params: 10
+# Params:
+%para1_inputs0: <null>
+%para2_inputs1: <null>
+%para3_embedding.embedding_table: <Ref[Tensor[Float32]], (18245, 40), ref_key=embedding.embedding_table, is_parameter>  :  has_default
+%para4_layer1.0.weight: <Ref[Tensor[Float32]], (96, 1, 3, 40), ref_key=layer1.0.weight, is_parameter>  :  has_default
+%para5_layer1.0.bias: <Ref[Tensor[Float32]], (96), ref_key=layer1.0.bias, is_parameter>  :  has_default
+%para6_layer2.0.weight: <Ref[Tensor[Float32]], (96, 1, 4, 40), ref_key=layer2.0.weight, is_parameter>  :  has_default
+%para7_layer2.0.bias: <Ref[Tensor[Float32]], (96), ref_key=layer2.0.bias, is_parameter>  :  has_default
+%para8_layer3.0.weight: <Ref[Tensor[Float32]], (96, 1, 5, 40), ref_key=layer3.0.weight, is_parameter>  :  has_default
+%para9_layer3.0.bias: <Ref[Tensor[Float32]], (96), ref_key=layer3.0.bias, is_parameter>  :  has_default
+%para10_fc.weight: <Ref[Tensor[Float32]], (2, 288), ref_key=fc.weight, is_parameter>  :  has_default
+
+subgraph attr:
+compile_phase: train.1775176277688731136.138311146188016.0...0
+training: 1
+subgraph instance: mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_22 : 0x3a795d00
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:423~438, 4~19/    def construct(self, *inputs):/
+subgraph @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_22() {
+  %0(CNode_48) = resolve(NameSpace[Entry: 'mindspore.nn.wrap.cell_wrapper.TrainOneStepCell.construct'], mindspore.nn.wrap.cell_wrapper.TrainOneStepCell.construct)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default)
+  %1(CNode_49) = MakeTuple(%para1_inputs0, %para2_inputs1)
+      : (<Tensor[Int32], (64, 51)>, <Tensor[Int32], (64)>) -> (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>)
+      #scope: (Default)
+
+#------------------------> 0
+  %2(CNode_50) = DoUnpackCall(%0, %1)
+      : (<Func, NoShape>, <Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>) -> (<null>)
+      #scope: (Default)
+  Return(%2)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:424~425, 8~46/        if not self.sense_flag:/
+}
+# Order:
+#   1: @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_22:CNode_48{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> Entry: 'mindspore.nn.wrap.cell_wrapper.TrainOneStepCell.construct', [2]: ValueNode<Symbol> mindspore.nn.wrap.cell_wrapper.TrainOneStepCell.construct}
+#   2: @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_22:CNode_50{[0]: ValueNode<Primitive> DoUnpackCall, [1]: CNode_48, [2]: CNode_49}
+#   3: @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_22:CNode_51{[0]: ValueNode<Primitive> Return, [1]: CNode_50}
+
+
+subgraph attr:
+core: 1
+subgraph instance: UnpackCall_23 : 0x3a7c0430
+
+subgraph @UnpackCall_23(%para0_Parameter_24, %para0_Parameter_25) {
+  %0(CNode_52) = TupleGetItem(%para0_Parameter_25, I64(0))
+      : (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>, <Int64, NoShape>) -> (<Tensor[Int32], (64, 51)>)
+      #scope: (Default)
+  %1(CNode_53) = TupleGetItem(%para0_Parameter_25, I64(1))
+      : (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>, <Int64, NoShape>) -> (<Tensor[Int32], (64)>)
+      #scope: (Default)
+
+#------------------------> 1
+  %2(CNode_54) = Parameter_24(%0, %1)
+      : (<Tensor[Int32], (64, 51)>, <Tensor[Int32], (64)>) -> (<null>)
+      #scope: (Default)
+  Return(%2)
+      : (<null>)
+      #scope: (Default)
+}
+# Order:
+#   1: @UnpackCall_23:CNode_54{[0]: param_Parameter_24, [1]: CNode_52, [2]: CNode_53}
+#   2: @UnpackCall_23:CNode_55{[0]: ValueNode<Primitive> Return, [1]: CNode_54}
+
+
+subgraph attr:
+compile_phase: train.1775176277688731136.138311146188016.0...0
+training: 1
+subgraph instance: mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_26 : 0x3a7c4510
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:423~438, 4~19/    def construct(self, *inputs):/
+subgraph @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_26(%para0_inputs0, %para0_inputs1) {
+
+#------------------------> 2
+  %0(CNode_56) = call @✓mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_27()
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:424~425, 8~46/        if not self.sense_flag:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:424~425, 8~46/        if not self.sense_flag:/
+}
+# Order:
+#   1: @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_26:CNode_56{[0]: ValueNode<FuncGraph> ✓mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_27}
+#   2: @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_26:CNode_57{[0]: ValueNode<Primitive> Return, [1]: CNode_56}
+#   3: @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_26:CNode_58{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>', [2]: ValueNode<Symbol> _no_sens_impl}
+
+
+subgraph attr:
+training: 1
+subgraph instance: ✓mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_27 : 0x3a7c5a00
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:423~438, 4~19/    def construct(self, *inputs):/
+subgraph @✓mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_27 parent: [subgraph @mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_26]() {
+  %0(CNode_58) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>'], _no_sens_impl)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:425, 19~37/            return self._no_sens_impl(*inputs)/
+  %1(CNode_59) = MakeTuple(%para0_inputs0, %para0_inputs1)
+      : (<Tensor[Int32], (64, 51)>, <Tensor[Int32], (64)>) -> (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:423, 25~31/    def construct(self, *inputs):/
+
+#------------------------> 3
+  %2(CNode_60) = DoUnpackCall(%0, %1)
+      : (<Func, NoShape>, <Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:425, 19~46/            return self._no_sens_impl(*inputs)/
+  Return(%2)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:425, 12~46/            return self._no_sens_impl(*inputs)/
+}
+# Order:
+#   1: @✓mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_27:CNode_60{[0]: ValueNode<Primitive> DoUnpackCall, [1]: CNode_58, [2]: CNode_59}
+#   2: @✓mindspore_nn_wrap_cell_wrapper_TrainOneStepCell_construct_27:CNode_61{[0]: ValueNode<Primitive> Return, [1]: CNode_60}
+
+
+subgraph attr:
+core: 1
+subgraph instance: UnpackCall_28 : 0x3a7cacd0
+
+subgraph @UnpackCall_28(%para0_Parameter_29, %para0_Parameter_30) {
+  %0(CNode_62) = TupleGetItem(%para0_Parameter_30, I64(0))
+      : (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>, <Int64, NoShape>) -> (<Tensor[Int32], (64, 51)>)
+      #scope: (Default)
+  %1(CNode_63) = TupleGetItem(%para0_Parameter_30, I64(1))
+      : (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>, <Int64, NoShape>) -> (<Tensor[Int32], (64)>)
+      #scope: (Default)
+
+#------------------------> 4
+  %2(CNode_64) = Parameter_29(%0, %1)
+      : (<Tensor[Int32], (64, 51)>, <Tensor[Int32], (64)>) -> (<null>)
+      #scope: (Default)
+  Return(%2)
+      : (<null>)
+      #scope: (Default)
+}
+# Order:
+#   1: @UnpackCall_28:CNode_64{[0]: param_Parameter_29, [1]: CNode_62, [2]: CNode_63}
+#   2: @UnpackCall_28:CNode_65{[0]: ValueNode<Primitive> Return, [1]: CNode_64}
+
+
+subgraph attr:
+training: 1
+subgraph instance: _no_sens_impl_31 : 0x3a7c2fe0
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:440~453, 4~19/    def _no_sens_impl(self, *inputs):/
+subgraph @_no_sens_impl_31(%para0_inputs0, %para0_inputs1) {
+
+#------------------------> 5
+  %0(CNode_66) = call @✗_no_sens_impl_32()
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:445~446, 8~95/        if self.use_graceful_exit:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:445~446, 8~95/        if self.use_graceful_exit:/
+}
+# Order:
+#   1: @_no_sens_impl_31:CNode_67{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>', [2]: ValueNode<Symbol> network}
+#   2: @_no_sens_impl_31:loss{[0]: ValueNode<Primitive> DoUnpackCall, [1]: CNode_67, [2]: CNode_68}
+#   3: @_no_sens_impl_31:CNode_69{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>', [2]: ValueNode<Symbol> grad_no_sens}
+#   4: @_no_sens_impl_31:CNode_70{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>', [2]: ValueNode<Symbol> network}
+#   5: @_no_sens_impl_31:CNode_71{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>', [2]: ValueNode<Symbol> weights}
+#   6: @_no_sens_impl_72:CNode_73{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   7: @_no_sens_impl_31:CNode_74{[0]: CNode_69, [1]: CNode_70, [2]: CNode_71}
+#   8: @_no_sens_impl_31:grads{[0]: ValueNode<Primitive> DoUnpackCall, [1]: CNode_74, [2]: CNode_68}
+#   9: @_no_sens_impl_31:CNode_75{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>', [2]: ValueNode<Symbol> grad_reducer}
+#  10: @_no_sens_impl_72:CNode_76{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  11: @_no_sens_impl_31:grads{[0]: CNode_75, [1]: grads}
+#  12: @_no_sens_impl_31:CNode_66{[0]: ValueNode<FuncGraph> ✗_no_sens_impl_32}
+#  13: @_no_sens_impl_31:CNode_77{[0]: ValueNode<Primitive> Return, [1]: CNode_66}
+#  14: @_no_sens_impl_31:CNode_78{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> SymbolStr: 'Namespace:mindspore.nn.wrap.cell_wrapper', [2]: ValueNode<Symbol> ops}
+
+
+subgraph attr:
+training: 1
+subgraph instance: ✗_no_sens_impl_32 : 0x3a7f20e0
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:440~453, 4~19/    def _no_sens_impl(self, *inputs):/
+subgraph @✗_no_sens_impl_32 parent: [subgraph @_no_sens_impl_31]() {
+
+#------------------------> 6
+  %0(CNode_79) = call @↓_no_sens_impl_33()
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:445~446, 8~95/        if self.use_graceful_exit:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:445~446, 8~95/        if self.use_graceful_exit:/
+}
+# Order:
+#   1: @✗_no_sens_impl_32:CNode_79{[0]: ValueNode<FuncGraph> ↓_no_sens_impl_33}
+#   2: @✗_no_sens_impl_32:CNode_80{[0]: ValueNode<Primitive> Return, [1]: CNode_79}
+
+
+subgraph attr:
+training: 1
+subgraph instance: ↓_no_sens_impl_33 : 0x3a7f3010
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:440~453, 4~19/    def _no_sens_impl(self, *inputs):/
+subgraph @↓_no_sens_impl_33 parent: [subgraph @_no_sens_impl_31]() {
+
+#------------------------> 7
+  %0(CNode_81) = call @✗↓_no_sens_impl_34()
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:448~452, 8~45/        if self.return_grad:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:448~452, 8~45/        if self.return_grad:/
+}
+# Order:
+#   1: @↓_no_sens_impl_33:CNode_82{[0]: ValueNode<Primitive> getattr, [1]: CNode_78, [2]: ValueNode<StringImm> depend}
+#   2: @↓_no_sens_impl_33:CNode_83{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>', [2]: ValueNode<Symbol> optimizer}
+#   3: @↓_no_sens_impl_84:CNode_85{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   4: @↓_no_sens_impl_33:CNode_86{[0]: CNode_83, [1]: grads}
+#   5: @↓_no_sens_impl_84:CNode_87{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   6: @↓_no_sens_impl_33:loss{[0]: CNode_82, [1]: loss, [2]: CNode_86}
+#   7: @↓_no_sens_impl_33:CNode_81{[0]: ValueNode<FuncGraph> ✗↓_no_sens_impl_34}
+#   8: @↓_no_sens_impl_33:CNode_88{[0]: ValueNode<Primitive> Return, [1]: CNode_81}
+
+
+subgraph attr:
+training: 1
+subgraph instance: ✗↓_no_sens_impl_34 : 0x3a7f54b0
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:440~453, 4~19/    def _no_sens_impl(self, *inputs):/
+subgraph @✗↓_no_sens_impl_34 parent: [subgraph @↓_no_sens_impl_33]() {
+
+#------------------------> 8
+  %0(CNode_89) = call @2↓_no_sens_impl_35()
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:448~452, 8~45/        if self.return_grad:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:448~452, 8~45/        if self.return_grad:/
+}
+# Order:
+#   1: @✗↓_no_sens_impl_34:CNode_89{[0]: ValueNode<FuncGraph> 2↓_no_sens_impl_35}
+#   2: @✗↓_no_sens_impl_34:CNode_90{[0]: ValueNode<Primitive> Return, [1]: CNode_89}
+
+
+subgraph attr:
+training: 1
+subgraph instance: 2↓_no_sens_impl_35 : 0x3a7f7250
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:440~453, 4~19/    def _no_sens_impl(self, *inputs):/
+subgraph @2↓_no_sens_impl_35 parent: [subgraph @↓_no_sens_impl_33]() {
+  %0(CNode_78) = resolve(NameSpace[SymbolStr: 'Namespace:mindspore.nn.wrap.cell_wrapper'], ops)
+      : (<External, NoShape>, <External, NoShape>) -> (<External, NoShape>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:447, 15~18/        loss = ops.depend(loss, self.optimizer(grads))/
+  %1(CNode_82) = getattr(%0, "depend")
+      : (<External, NoShape>, <String, NoShape>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:447, 15~25/        loss = ops.depend(loss, self.optimizer(grads))/
+  %2(CNode_67) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>'], network)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:442, 15~27/        loss = self.network(*inputs)/
+  %3(CNode_68) = MakeTuple(%para0_inputs0, %para0_inputs1)
+      : (<Tensor[Int32], (64, 51)>, <Tensor[Int32], (64)>) -> (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:440, 29~35/    def _no_sens_impl(self, *inputs):/
+
+#------------------------> 9
+  %4(loss) = DoUnpackCall(%2, %3)
+      : (<Func, NoShape>, <Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:442, 15~36/        loss = self.network(*inputs)/
+  %5(CNode_83) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>'], optimizer)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:447, 32~46/        loss = ops.depend(loss, self.optimizer(grads))/
+  %6(CNode_75) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>'], grad_reducer)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:444, 16~33/        grads = self.grad_reducer(grads)/
+  %7(CNode_69) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>'], grad_no_sens)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:443, 16~33/        grads = self.grad_no_sens(self.network, self.weights)(*inputs)/
+  %8(CNode_70) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>'], network)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:443, 34~46/        grads = self.grad_no_sens(self.network, self.weights)(*inputs)/
+  %9(CNode_71) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<TrainOneStepCell::138311146188016>'], weights)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:443, 48~60/        grads = self.grad_no_sens(self.network, self.weights)(*inputs)/
+  %10(CNode_74) = %7(%8, %9)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:443, 16~61/        grads = self.grad_no_sens(self.network, self.weights)(*inputs)/
+  %11(grads) = DoUnpackCall(%10, %3)
+      : (<null>, <Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:443, 16~70/        grads = self.grad_no_sens(self.network, self.weights)(*inputs)/
+  %12(grads) = %6(%11)
+      : (<null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:444, 16~40/        grads = self.grad_reducer(grads)/
+  %13(CNode_86) = %5(%12)
+      : (<null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:447, 32~53/        loss = ops.depend(loss, self.optimizer(grads))/
+  %14(loss) = %1(%4, %13)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:447, 15~54/        loss = ops.depend(loss, self.optimizer(grads))/
+  Return(%14)
+      : (<null>)
+      #scope: (Default)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:453, 8~19/        return loss/
+}
+# Order:
+#   1: @2↓_no_sens_impl_35:CNode_91{[0]: ValueNode<Primitive> Return, [1]: loss}
+
+
+subgraph attr:
+core: 1
+subgraph instance: UnpackCall_36 : 0x3a80fe10
+
+subgraph @UnpackCall_36(%para0_Parameter_37, %para0_Parameter_38) {
+  %0(CNode_92) = TupleGetItem(%para0_Parameter_38, I64(0))
+      : (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>, <Int64, NoShape>) -> (<Tensor[Int32], (64, 51)>)
+      #scope: (Default)
+  %1(CNode_93) = TupleGetItem(%para0_Parameter_38, I64(1))
+      : (<Tuple[Tensor[Int32]*2], TupleShape((64, 51), (64))>, <Int64, NoShape>) -> (<Tensor[Int32], (64)>)
+      #scope: (Default)
+
+#------------------------> 10
+  %2(CNode_94) = Parameter_37(%0, %1)
+      : (<Tensor[Int32], (64, 51)>, <Tensor[Int32], (64)>) -> (<null>)
+      #scope: (Default)
+  Return(%2)
+      : (<null>)
+      #scope: (Default)
+}
+# Order:
+#   1: @UnpackCall_36:CNode_94{[0]: param_Parameter_37, [1]: CNode_92, [2]: CNode_93}
+#   2: @UnpackCall_36:CNode_95{[0]: ValueNode<Primitive> Return, [1]: CNode_94}
+
+
+subgraph attr:
+training: 1
+subgraph instance: mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39 : 0x3a805090
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:121~123, 4~40/    def construct(self, data, label):/
+subgraph @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39(%para0_data, %para0_label) {
+  %0(CNode_96) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<WithLossCell::138311146187920>'], _loss_fn)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:123, 15~28/        return self._loss_fn(out, label)/
+  %1(CNode_97) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<WithLossCell::138311146187920>'], _backbone)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:122, 14~28/        out = self._backbone(data)/
+
+#------------------------> 11
+  %2(out) = %1(%para0_data)
+      : (<Tensor[Int32], (64, 51)>) -> (<null>)
+      #scope: (Default/network-WithLossCell)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:122, 14~34/        out = self._backbone(data)/
+  %3(CNode_98) = %0(%2, %para0_label)
+      : (<null>, <Tensor[Int32], (64)>) -> (<null>)
+      #scope: (Default/network-WithLossCell)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:123, 15~40/        return self._loss_fn(out, label)/
+  Return(%3)
+      : (<null>)
+      #scope: (Default/network-WithLossCell)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/wrap/cell_wrapper.py:123, 8~40/        return self._loss_fn(out, label)/
+}
+# Order:
+#   1: @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39:CNode_97{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<WithLossCell::138311146187920>', [2]: ValueNode<Symbol> _backbone}
+#   2: @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39:CNode_99{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   4: @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39:out{[0]: CNode_97, [1]: param_data}
+#   5: @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39:CNode_96{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.wrap.cell_wrapper..<WithLossCell::138311146187920>', [2]: ValueNode<Symbol> _loss_fn}
+#   6: @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39:CNode_100{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   8: @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39:CNode_98{[0]: CNode_96, [1]: out, [2]: param_label}
+#   9: @mindspore_nn_wrap_cell_wrapper_WithLossCell_construct_39:CNode_101{[0]: ValueNode<Primitive> Return, [1]: CNode_98}
+
+
+subgraph attr:
+training: 1
+subgraph instance: __main___TextCNN_construct_40 : 0x3a826a70
+# In file /tmp/ipykernel_75820/3343516439.py:37~53, 8~20/
+subgraph @__main___TextCNN_construct_40(%para0_x) {
+  %0(CNode_102) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], fc)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:52, 16~23/
+  %1(CNode_103) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], drop)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:51, 16~25/
+  %2(CNode_104) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], concat)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:50, 16~27/
+  %3(CNode_105) = resolve(NameSpace[CommonOPS: 'Namespace:mindspore._extends.parse.trope'], MakeTuple)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:50, 28~40/
+  %4(CNode_106) = resolve(NameSpace[SymbolStr: 'Namespace:__main__'], ops)
+      : (<External, NoShape>, <External, NoShape>) -> (<External, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:46, 17~20/
+  %5(CNode_107) = getattr(%4, "Squeeze")
+      : (<External, NoShape>, <String, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:46, 17~28/
+  %6(CNode_108) = %5(I64(2))
+      : (<Int64, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:46, 17~31/
+  %7(CNode_109) = getattr(%4, "Squeeze")
+      : (<External, NoShape>, <String, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:46, 32~43/
+  %8(CNode_110) = %7(I64(3))
+      : (<Int64, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:46, 32~46/
+  %9(CNode_111) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], layer1)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:41, 17~28/
+  %10(CNode_112) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], unsqueeze)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:39, 16~30/
+  %11(CNode_113) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], embedding)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:38, 16~30/
+  %12(x) = %11(%para0_x)
+      : (<Tensor[Int32], (64, 51)>) -> (<Tensor[Float32], (64, 51, 40)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:38, 16~33/
+  %13(x) = %10(%12, I64(1))
+      : (<Tensor[Float32], (64, 51, 40)>, <Int64, NoShape>) -> (<Tensor[Float32], (64, 1, 51, 40)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:39, 16~36/
+  %14(x1) = %9(%13)
+      : (<Tensor[Float32], (64, 1, 51, 40)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:41, 17~31/
+  %15(CNode_114) = %8(%14)
+      : (<Tensor[Float32], (64, 96, 3, 3)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:46, 32~50/
+  %16(x1) = %6(%15)
+      : (<Tensor[Float32], (64, 96, 3, 3)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:46, 17~51/
+  %17(CNode_115) = getattr(%4, "Squeeze")
+      : (<External, NoShape>, <String, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:47, 17~28/
+  %18(CNode_116) = %17(I64(2))
+      : (<Int64, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:47, 17~31/
+  %19(CNode_117) = getattr(%4, "Squeeze")
+      : (<External, NoShape>, <String, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:47, 32~43/
+  %20(CNode_118) = %19(I64(3))
+      : (<Int64, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:47, 32~46/
+  %21(CNode_119) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], layer2)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:42, 17~28/
+  %22(x2) = %21(%13)
+      : (<Tensor[Float32], (64, 1, 51, 40)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:42, 17~31/
+  %23(CNode_120) = %20(%22)
+      : (<Tensor[Float32], (64, 96, 3, 3)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:47, 32~50/
+  %24(x2) = %18(%23)
+      : (<Tensor[Float32], (64, 96, 3, 3)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:47, 17~51/
+  %25(CNode_121) = getattr(%4, "Squeeze")
+      : (<External, NoShape>, <String, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:48, 17~28/
+  %26(CNode_122) = %25(I64(2))
+      : (<Int64, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:48, 17~31/
+  %27(CNode_123) = getattr(%4, "Squeeze")
+      : (<External, NoShape>, <String, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:48, 32~43/
+  %28(CNode_124) = %27(I64(3))
+      : (<Int64, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:48, 32~46/
+  %29(CNode_125) = resolve(NameSpace[ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>'], layer3)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:43, 17~28/
+  %30(x3) = %29(%13)
+      : (<Tensor[Float32], (64, 1, 51, 40)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:43, 17~31/
+  %31(CNode_126) = %28(%30)
+      : (<Tensor[Float32], (64, 96, 3, 3)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:48, 32~50/
+  %32(x3) = %26(%31)
+      : (<Tensor[Float32], (64, 96, 3, 3)>) -> (<Tensor[Float32], (64, 96, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:48, 17~51/
+  %33(CNode_127) = %3(%16, %24, %32)
+      : (<Tensor[Float32], (64, 96, 3, 3)>, <Tensor[Float32], (64, 96, 3, 3)>, <Tensor[Float32], (64, 96, 3, 3)>) -> (<Tuple[Tensor[Float32]*3], TupleShape((64, 96, 3, 3), (64, 96, 3, 3), (64, 96, 3, 3))>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:50, 28~40/
+  %34(x) = %2(%33)
+      : (<Tuple[Tensor[Float32]*3], TupleShape((64, 96, 3, 3), (64, 96, 3, 3), (64, 96, 3, 3))>) -> (<Tensor[Float32], (64, 288, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:50, 16~41/
+  %35(x) = %1(%34)
+      : (<Tensor[Float32], (64, 288, 3, 3)>) -> (<Tensor[Float32], (64, 288, 3, 3)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:51, 16~28/
+
+#------------------------> 12
+  %36(x) = %0(%35)
+      : (<Tensor[Float32], (64, 288, 3, 3)>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:52, 16~26/
+  Return(%36)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:53, 12~20/
+}
+# Order:
+#   1: @__main___TextCNN_construct_40:CNode_113{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> embedding}
+#   2: @__main___TextCNN_construct_40:CNode_128{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   4: @__main___TextCNN_construct_40:x{[0]: CNode_113, [1]: param_x}
+#   5: @__main___TextCNN_construct_40:CNode_112{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> unsqueeze}
+#   6: @__main___TextCNN_construct_40:CNode_129{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   8: @__main___TextCNN_construct_40:x{[0]: CNode_112, [1]: x, [2]: ValueNode<Int64Imm> 1}
+#   9: @__main___TextCNN_construct_40:CNode_111{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> layer1}
+#  10: @__main___TextCNN_construct_40:CNode_130{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  12: @__main___TextCNN_construct_40:x1{[0]: CNode_111, [1]: x}
+#  13: @__main___TextCNN_construct_40:CNode_119{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> layer2}
+#  14: @__main___TextCNN_construct_40:CNode_131{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  16: @__main___TextCNN_construct_40:x2{[0]: CNode_119, [1]: x}
+#  17: @__main___TextCNN_construct_40:CNode_125{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> layer3}
+#  18: @__main___TextCNN_construct_40:CNode_132{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  20: @__main___TextCNN_construct_40:x3{[0]: CNode_125, [1]: x}
+#  21: @__main___TextCNN_construct_40:CNode_106{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> SymbolStr: 'Namespace:__main__', [2]: ValueNode<Symbol> ops}
+#  22: @__main___TextCNN_construct_40:CNode_107{[0]: ValueNode<Primitive> getattr, [1]: CNode_106, [2]: ValueNode<StringImm> Squeeze}
+#  23: @__main___TextCNN_construct_40:CNode_133{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  25: @__main___TextCNN_construct_40:CNode_108{[0]: CNode_107, [1]: ValueNode<Int64Imm> 2}
+#  26: @__main___TextCNN_construct_40:CNode_109{[0]: ValueNode<Primitive> getattr, [1]: CNode_106, [2]: ValueNode<StringImm> Squeeze}
+#  27: @__main___TextCNN_construct_40:CNode_134{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  29: @__main___TextCNN_construct_40:CNode_110{[0]: CNode_109, [1]: ValueNode<Int64Imm> 3}
+#  30: @__main___TextCNN_construct_40:CNode_135{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  32: @__main___TextCNN_construct_40:CNode_114{[0]: CNode_110, [1]: x1}
+#  33: @__main___TextCNN_construct_40:CNode_136{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  35: @__main___TextCNN_construct_40:x1{[0]: CNode_108, [1]: CNode_114}
+#  36: @__main___TextCNN_construct_40:CNode_115{[0]: ValueNode<Primitive> getattr, [1]: CNode_106, [2]: ValueNode<StringImm> Squeeze}
+#  37: @__main___TextCNN_construct_40:CNode_137{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  39: @__main___TextCNN_construct_40:CNode_116{[0]: CNode_115, [1]: ValueNode<Int64Imm> 2}
+#  40: @__main___TextCNN_construct_40:CNode_117{[0]: ValueNode<Primitive> getattr, [1]: CNode_106, [2]: ValueNode<StringImm> Squeeze}
+#  41: @__main___TextCNN_construct_40:CNode_138{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  43: @__main___TextCNN_construct_40:CNode_118{[0]: CNode_117, [1]: ValueNode<Int64Imm> 3}
+#  44: @__main___TextCNN_construct_40:CNode_139{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  46: @__main___TextCNN_construct_40:CNode_120{[0]: CNode_118, [1]: x2}
+#  47: @__main___TextCNN_construct_40:CNode_140{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  49: @__main___TextCNN_construct_40:x2{[0]: CNode_116, [1]: CNode_120}
+#  50: @__main___TextCNN_construct_40:CNode_121{[0]: ValueNode<Primitive> getattr, [1]: CNode_106, [2]: ValueNode<StringImm> Squeeze}
+#  51: @__main___TextCNN_construct_40:CNode_141{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  53: @__main___TextCNN_construct_40:CNode_122{[0]: CNode_121, [1]: ValueNode<Int64Imm> 2}
+#  54: @__main___TextCNN_construct_40:CNode_123{[0]: ValueNode<Primitive> getattr, [1]: CNode_106, [2]: ValueNode<StringImm> Squeeze}
+#  55: @__main___TextCNN_construct_40:CNode_142{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  57: @__main___TextCNN_construct_40:CNode_124{[0]: CNode_123, [1]: ValueNode<Int64Imm> 3}
+#  58: @__main___TextCNN_construct_40:CNode_143{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  60: @__main___TextCNN_construct_40:CNode_126{[0]: CNode_124, [1]: x3}
+#  61: @__main___TextCNN_construct_40:CNode_144{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  63: @__main___TextCNN_construct_40:x3{[0]: CNode_122, [1]: CNode_126}
+#  64: @__main___TextCNN_construct_40:CNode_104{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> concat}
+#  65: @__main___TextCNN_construct_40:CNode_105{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  66: @__main___TextCNN_construct_40:CNode_127{[0]: CNode_105, [1]: x1, [2]: x2, [3]: x3}
+#  67: @__main___TextCNN_construct_40:CNode_145{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  69: @__main___TextCNN_construct_40:x{[0]: CNode_104, [1]: CNode_127}
+#  70: @__main___TextCNN_construct_40:CNode_103{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> drop}
+#  71: @__main___TextCNN_construct_40:CNode_146{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  73: @__main___TextCNN_construct_40:x{[0]: CNode_103, [1]: x}
+#  74: @__main___TextCNN_construct_40:CNode_102{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:__main__..<TextCNN::138311150363920>', [2]: ValueNode<Symbol> fc}
+#  75: @__main___TextCNN_construct_40:CNode_147{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  77: @__main___TextCNN_construct_40:x{[0]: CNode_102, [1]: x}
+#  78: @__main___TextCNN_construct_40:CNode_148{[0]: ValueNode<Primitive> Return, [1]: x}
+
+
+subgraph attr:
+training: 1
+subgraph instance: mindspore_nn_layer_basic_Dense_construct_41 : 0x3a860140
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:790~802, 4~16/    def construct(self, x):/
+subgraph @mindspore_nn_layer_basic_Dense_construct_41(%para0_x) {
+  %0(CNode_149) = resolve(NameSpace[Ast: 'Namespace:mindspore._extends.parse.trope'], ne)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792, 11~28/        if len(x_shape) != 2:/
+  %1(CNode_150) = resolve(NameSpace[SymbolStr: 'Namespace:mindspore.nn.layer.basic'], len)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792, 11~14/        if len(x_shape) != 2:/
+  %2(CNode_151) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], shape_op)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:791, 18~31/        x_shape = self.shape_op(x)/
+  %3(x_shape) = %2(%para0_x)
+      : (<Tensor[Float32], (64, 288, 3, 3)>) -> (<Tuple[Int64*4], TupleShape(NoShape, NoShape, NoShape, NoShape)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:791, 18~34/        x_shape = self.shape_op(x)/
+  %4(CNode_152) = %1(%3)
+      : (<Tuple[Int64*4], TupleShape(NoShape, NoShape, NoShape, NoShape)>) -> (<Int64, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792, 11~23/        if len(x_shape) != 2:/
+  %5(CNode_153) = %0(%4, I64(2))
+      : (<Int64, NoShape>, <Int64, NoShape>) -> (<Bool, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792, 11~28/        if len(x_shape) != 2:/
+  %6(CNode_154) = Cond(%5, Bool(0))
+      : (<Bool, NoShape>, <Bool, NoShape>) -> (<Bool, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792~793, 8~50/        if len(x_shape) != 2:/
+  %7(CNode_155) = Switch(%6, @✓mindspore_nn_layer_basic_Dense_construct_156, @✗mindspore_nn_layer_basic_Dense_construct_157)
+      : (<Bool, NoShape>, <Func, NoShape>, <Func, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792~793, 8~50/        if len(x_shape) != 2:/
+  %8(CNode_158) = %7()
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792~793, 8~50/        if len(x_shape) != 2:/
+
+#------------------------> 13
+  %9(CNode_159) = call @↓mindspore_nn_layer_basic_Dense_construct_42(%8)
+      : (<Tensor[Float32], (55296, 3)>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:52, 16~23/
+  Return(%9)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792~793, 8~50/        if len(x_shape) != 2:/
+}
+# Order:
+#   1: @mindspore_nn_layer_basic_Dense_construct_41:CNode_151{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>', [2]: ValueNode<Symbol> shape_op}
+#   2: @mindspore_nn_layer_basic_Dense_construct_41:CNode_160{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   4: @mindspore_nn_layer_basic_Dense_construct_41:x_shape{[0]: CNode_151, [1]: param_x}
+#   5: @mindspore_nn_layer_basic_Dense_construct_41:CNode_150{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> SymbolStr: 'Namespace:mindspore.nn.layer.basic', [2]: ValueNode<Symbol> len}
+#   6: @mindspore_nn_layer_basic_Dense_construct_41:CNode_161{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   8: @mindspore_nn_layer_basic_Dense_construct_41:CNode_152{[0]: CNode_150, [1]: x_shape}
+#   9: @mindspore_nn_layer_basic_Dense_construct_41:CNode_149{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> Ast: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> ne}
+#  10: @mindspore_nn_layer_basic_Dense_construct_41:CNode_153{[0]: CNode_149, [1]: CNode_152, [2]: ValueNode<Int64Imm> 2}
+#  11: @mindspore_nn_layer_basic_Dense_construct_41:CNode_154{[0]: ValueNode<Primitive> Cond, [1]: CNode_153, [2]: ValueNode<BoolImm> false}
+#  12: @mindspore_nn_layer_basic_Dense_construct_41:CNode_155{[0]: ValueNode<Primitive> Switch, [1]: CNode_154, [2]: ValueNode<FuncGraph> ✓mindspore_nn_layer_basic_Dense_construct_156, [3]: ValueNode<FuncGraph> ✗mindspore_nn_layer_basic_Dense_construct_157}
+#  13: @mindspore_nn_layer_basic_Dense_construct_41:CNode_158{[0]: CNode_155}
+#  14: @mindspore_nn_layer_basic_Dense_construct_41:CNode_159{[0]: ValueNode<FuncGraph> ↓mindspore_nn_layer_basic_Dense_construct_42, [1]: CNode_158}
+#  15: @mindspore_nn_layer_basic_Dense_construct_41:CNode_162{[0]: ValueNode<Primitive> Return, [1]: CNode_159}
+#  16: @mindspore_nn_layer_basic_Dense_construct_41:CNode_163{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>', [2]: ValueNode<Symbol> weight}
+#  17: @mindspore_nn_layer_basic_Dense_construct_41:CNode_164{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>', [2]: ValueNode<Symbol> bias}
+#  18: @mindspore_nn_layer_basic_Dense_construct_41:CNode_165{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> SymbolStr: 'Namespace:mindspore.nn.layer.basic', [2]: ValueNode<Symbol> ops}
+
+
+subgraph attr:
+after_block: 1
+training: 1
+subgraph instance: ↓mindspore_nn_layer_basic_Dense_construct_42 : 0x3a865920
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:790~802, 4~16/    def construct(self, x):/
+subgraph @↓mindspore_nn_layer_basic_Dense_construct_42 parent: [subgraph @mindspore_nn_layer_basic_Dense_construct_41](%para0_фx) {
+
+#------------------------> 14
+  %0(CNode_166) = call @✓↓mindspore_nn_layer_basic_Dense_construct_43()
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:795~796, 8~43/        if self.has_bias:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:795~796, 8~43/        if self.has_bias:/
+}
+# Order:
+#   1: @↓mindspore_nn_layer_basic_Dense_construct_42:CNode_167{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>', [2]: ValueNode<Symbol> matmul}
+#   3: @↓mindspore_nn_layer_basic_Dense_construct_42:CNode_168{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   5: @↓mindspore_nn_layer_basic_Dense_construct_42:x{[0]: CNode_167, [1]: param_фx, [2]: CNode_163}
+#   6: @↓mindspore_nn_layer_basic_Dense_construct_42:CNode_166{[0]: ValueNode<FuncGraph> ✓↓mindspore_nn_layer_basic_Dense_construct_43}
+#   7: @↓mindspore_nn_layer_basic_Dense_construct_42:CNode_169{[0]: ValueNode<Primitive> Return, [1]: CNode_166}
+
+
+subgraph attr:
+training: 1
+subgraph instance: ✓↓mindspore_nn_layer_basic_Dense_construct_43 : 0x3a875730
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:790~802, 4~16/    def construct(self, x):/
+subgraph @✓↓mindspore_nn_layer_basic_Dense_construct_43 parent: [subgraph @↓mindspore_nn_layer_basic_Dense_construct_42]() {
+
+#------------------------> 15
+  %0(CNode_170) = call @2↓mindspore_nn_layer_basic_Dense_construct_44()
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:796, 12~43/            x = self.bias_add(x, self.bias)/
+  Return(%0)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:796, 12~43/            x = self.bias_add(x, self.bias)/
+}
+# Order:
+#   1: @✓↓mindspore_nn_layer_basic_Dense_construct_43:CNode_171{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>', [2]: ValueNode<Symbol> bias_add}
+#   2: @✓↓mindspore_nn_layer_basic_Dense_construct_43:CNode_172{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   4: @✓↓mindspore_nn_layer_basic_Dense_construct_43:x{[0]: CNode_171, [1]: x, [2]: CNode_164}
+#   5: @✓↓mindspore_nn_layer_basic_Dense_construct_43:CNode_170{[0]: ValueNode<FuncGraph> 2↓mindspore_nn_layer_basic_Dense_construct_44}
+#   6: @✓↓mindspore_nn_layer_basic_Dense_construct_43:CNode_173{[0]: ValueNode<Primitive> Return, [1]: CNode_170}
+
+
+subgraph attr:
+training: 1
+subgraph instance: 2↓mindspore_nn_layer_basic_Dense_construct_44 : 0x3a876be0
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:790~802, 4~16/    def construct(self, x):/
+subgraph @2↓mindspore_nn_layer_basic_Dense_construct_44 parent: [subgraph @✓↓mindspore_nn_layer_basic_Dense_construct_43]() {
+
+#------------------------> 16
+  %0(CNode_174) = call @✗2↓mindspore_nn_layer_basic_Dense_construct_45()
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:797~798, 8~34/        if self.activation_flag:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:797~798, 8~34/        if self.activation_flag:/
+}
+# Order:
+#   1: @2↓mindspore_nn_layer_basic_Dense_construct_44:CNode_174{[0]: ValueNode<FuncGraph> ✗2↓mindspore_nn_layer_basic_Dense_construct_45}
+#   2: @2↓mindspore_nn_layer_basic_Dense_construct_44:CNode_175{[0]: ValueNode<Primitive> Return, [1]: CNode_174}
+
+
+subgraph attr:
+training: 1
+subgraph instance: ✗2↓mindspore_nn_layer_basic_Dense_construct_45 : 0x3a87d640
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:790~802, 4~16/    def construct(self, x):/
+subgraph @✗2↓mindspore_nn_layer_basic_Dense_construct_45 parent: [subgraph @✓↓mindspore_nn_layer_basic_Dense_construct_43]() {
+
+#------------------------> 17
+  %0(CNode_176) = call @3↓mindspore_nn_layer_basic_Dense_construct_46()
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:797~798, 8~34/        if self.activation_flag:/
+  Return(%0)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:797~798, 8~34/        if self.activation_flag:/
+}
+# Order:
+#   1: @✗2↓mindspore_nn_layer_basic_Dense_construct_45:CNode_176{[0]: ValueNode<FuncGraph> 3↓mindspore_nn_layer_basic_Dense_construct_46}
+#   2: @✗2↓mindspore_nn_layer_basic_Dense_construct_45:CNode_177{[0]: ValueNode<Primitive> Return, [1]: CNode_176}
+
+
+subgraph attr:
+training: 1
+subgraph instance: 3↓mindspore_nn_layer_basic_Dense_construct_46 : 0x3a87eb30
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:790~802, 4~16/    def construct(self, x):/
+subgraph @3↓mindspore_nn_layer_basic_Dense_construct_46 parent: [subgraph @✓↓mindspore_nn_layer_basic_Dense_construct_43]() {
+  %0(CNode_178) = resolve(NameSpace[Ast: 'Namespace:mindspore._extends.parse.trope'], ne)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799, 11~28/        if len(x_shape) != 2:/
+  %1(CNode_150) = resolve(NameSpace[SymbolStr: 'Namespace:mindspore.nn.layer.basic'], len)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:792, 11~14/        if len(x_shape) != 2:/
+  %2(CNode_151) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], shape_op)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:791, 18~31/        x_shape = self.shape_op(x)/
+  %3(x_shape) = %2(%para0_x)
+      : (<Tensor[Float32], (64, 288, 3, 3)>) -> (<Tuple[Int64*4], TupleShape(NoShape, NoShape, NoShape, NoShape)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:791, 18~34/        x_shape = self.shape_op(x)/
+  %4(CNode_179) = %1(%3)
+      : (<Tuple[Int64*4], TupleShape(NoShape, NoShape, NoShape, NoShape)>) -> (<Int64, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799, 11~23/        if len(x_shape) != 2:/
+  %5(CNode_180) = %0(%4, I64(2))
+      : (<Int64, NoShape>, <Int64, NoShape>) -> (<Bool, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799, 11~28/        if len(x_shape) != 2:/
+  %6(CNode_181) = Cond(%5, Bool(0))
+      : (<Bool, NoShape>, <Bool, NoShape>) -> (<Bool, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799~801, 8~42/        if len(x_shape) != 2:/
+  %7(CNode_182) = Switch(%6, @✓3↓mindspore_nn_layer_basic_Dense_construct_47, @✗3↓mindspore_nn_layer_basic_Dense_construct_183)
+      : (<Bool, NoShape>, <Func, NoShape>, <Func, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799~801, 8~42/        if len(x_shape) != 2:/
+
+#------------------------> 18
+  %8(CNode_184) = %7()
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799~801, 8~42/        if len(x_shape) != 2:/
+  %9(CNode_185) = call @4↓mindspore_nn_layer_basic_Dense_construct_186(%8)
+      : (<null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN)
+      # In file /tmp/ipykernel_75820/3343516439.py:52, 16~23/
+  Return(%9)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:799~801, 8~42/        if len(x_shape) != 2:/
+}
+# Order:
+#   1: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_187{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   3: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_179{[0]: CNode_150, [1]: x_shape}
+#   4: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_178{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> Ast: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> ne}
+#   5: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_180{[0]: CNode_178, [1]: CNode_179, [2]: ValueNode<Int64Imm> 2}
+#   6: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_181{[0]: ValueNode<Primitive> Cond, [1]: CNode_180, [2]: ValueNode<BoolImm> false}
+#   7: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_182{[0]: ValueNode<Primitive> Switch, [1]: CNode_181, [2]: ValueNode<FuncGraph> ✓3↓mindspore_nn_layer_basic_Dense_construct_47, [3]: ValueNode<FuncGraph> ✗3↓mindspore_nn_layer_basic_Dense_construct_183}
+#   8: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_184{[0]: CNode_182}
+#   9: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_185{[0]: ValueNode<FuncGraph> 4↓mindspore_nn_layer_basic_Dense_construct_186, [1]: CNode_184}
+#  10: @3↓mindspore_nn_layer_basic_Dense_construct_46:CNode_188{[0]: ValueNode<Primitive> Return, [1]: CNode_185}
+
+
+subgraph attr:
+training: 1
+subgraph instance: ✓3↓mindspore_nn_layer_basic_Dense_construct_47 : 0x3a885bf0
+# In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:790~802, 4~16/    def construct(self, x):/
+subgraph @✓3↓mindspore_nn_layer_basic_Dense_construct_47 parent: [subgraph @✓↓mindspore_nn_layer_basic_Dense_construct_43]() {
+  %0(CNode_189) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], reshape)
+      : (<External, NoShape>, <External, NoShape>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:801, 16~28/            x = self.reshape(x, out_shape)/
+  %1(CNode_171) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], bias_add)
+      : (<External, NoShape>, <External, NoShape>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:796, 16~29/            x = self.bias_add(x, self.bias)/
+  %2(CNode_167) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], matmul)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:794, 12~23/        x = self.matmul(x, self.weight)/
+  %3(CNode_163) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], weight)
+      : (<External, NoShape>, <External, NoShape>) -> (<Ref[Tensor[Float32]], (2, 288)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:794, 27~38/        x = self.matmul(x, self.weight)/
+
+#------------------------> 19
+  %4(x) = %2(%para0_фx, %3)
+      : (<Tensor[Float32], (55296, 3)>, <Ref[Tensor[Float32]], (2, 288)>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:794, 12~39/        x = self.matmul(x, self.weight)/
+  %5(CNode_164) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], bias)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:796, 33~42/            x = self.bias_add(x, self.bias)/
+  %6(x) = %1(%4, %5)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:796, 16~43/            x = self.bias_add(x, self.bias)/
+  %7(CNode_190) = resolve(NameSpace[Ast: 'Namespace:mindspore._extends.parse.trope'], add)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 24~58/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %8(CNode_191) = resolve(NameSpace[CommonOPS: 'Namespace:mindspore._extends.parse.trope'], getitem)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 24~36/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %9(CNode_151) = resolve(NameSpace[ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>'], shape_op)
+      : (<External, NoShape>, <External, NoShape>) -> (<Func, NoShape>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:791, 18~31/        x_shape = self.shape_op(x)/
+  %10(x_shape) = %9(%para0_x)
+      : (<Tensor[Float32], (64, 288, 3, 3)>) -> (<Tuple[Int64*4], TupleShape(NoShape, NoShape, NoShape, NoShape)>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:791, 18~34/        x_shape = self.shape_op(x)/
+  %11(CNode_192) = resolve(NameSpace[CommonOPS: 'Namespace:mindspore._extends.parse.trope'], make_slice)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 32~35/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %12(CNode_193) = resolve(NameSpace[Ast: 'Namespace:mindspore._extends.parse.trope'], neg)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 33~35/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %13(CNode_194) = %12(I64(1))
+      : (<null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 33~35/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %14(CNode_195) = %11(None, %13, None)
+      : (<null>, <null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 32~35/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %15(CNode_196) = %8(%10, %14)
+      : (<Tuple[Int64*4], TupleShape(NoShape, NoShape, NoShape, NoShape)>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 24~36/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %16(CNode_197) = resolve(NameSpace[CommonOPS: 'Namespace:mindspore._extends.parse.trope'], MakeTuple)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 39~58/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %17(CNode_198) = resolve(NameSpace[CommonOPS: 'Namespace:mindspore._extends.parse.trope'], getitem)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 40~56/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %18(CNode_165) = resolve(NameSpace[SymbolStr: 'Namespace:mindspore.nn.layer.basic'], ops)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 40~43/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %19(CNode_199) = getattr(%18, "shape")
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 40~49/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %20(CNode_200) = %19(%6)
+      : (<null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 40~52/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %21(CNode_201) = resolve(NameSpace[Ast: 'Namespace:mindspore._extends.parse.trope'], neg)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 53~55/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %22(CNode_202) = %21(I64(1))
+      : (<null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 53~55/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %23(CNode_203) = %17(%20, %22)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 40~56/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %24(CNode_204) = %16(%23)
+      : (<null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 39~58/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %25(out_shape) = %7(%15, %24)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800, 24~58/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+  %26(x) = %0(%6, %25)
+      : (<null>, <null>) -> (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:801, 16~42/            x = self.reshape(x, out_shape)/
+  Return(%26)
+      : (<null>)
+      #scope: (Default/network-WithLossCell/_backbone-TextCNN/fc-Dense)
+      # In file /home/ansinitro/AITU/ai-nn/midterm/.venv/lib/python3.12/site-packages/mindspore/nn/layer/basic.py:800~801, 12~42/            out_shape = x_shape[:-1] + (ops.shape(x)[-1],)/
+}
+# Order:
+#   1: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_191{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> getitem}
+#   2: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_192{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> make_slice}
+#   3: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_193{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> Ast: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> neg}
+#   4: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_194{[0]: CNode_193, [1]: ValueNode<Int64Imm> 1}
+#   5: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_195{[0]: CNode_192, [1]: ValueNode<None> None, [2]: CNode_194, [3]: ValueNode<None> None}
+#   6: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_196{[0]: CNode_191, [1]: x_shape, [2]: CNode_195}
+#   7: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_197{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#   8: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_198{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> getitem}
+#   9: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_199{[0]: ValueNode<Primitive> getattr, [1]: CNode_165, [2]: ValueNode<StringImm> shape}
+#  10: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_205{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  12: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_200{[0]: CNode_199, [1]: x}
+#  13: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_201{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> Ast: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> neg}
+#  14: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_202{[0]: CNode_201, [1]: ValueNode<Int64Imm> 1}
+#  15: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_203{[0]: CNode_198, [1]: CNode_200, [2]: CNode_202}
+#  16: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_204{[0]: CNode_197, [1]: CNode_203}
+#  17: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_190{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> Ast: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> add}
+#  18: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:out_shape{[0]: CNode_190, [1]: CNode_196, [2]: CNode_204}
+#  19: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_189{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> ClassMember: 'Namespace:mindspore.nn.layer.basic..<Dense::138311146178608>', [2]: ValueNode<Symbol> reshape}
+#  20: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_206{[0]: ValueNode<Primitive> resolve, [1]: ValueNode<NameSpace> CommonOPS: 'Namespace:mindspore._extends.parse.trope', [2]: ValueNode<Symbol> MakeTuple}
+#  22: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:x{[0]: CNode_189, [1]: x, [2]: out_shape}
+#  23: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_207{[0]: ValueNode<FuncGraph> 4↓mindspore_nn_layer_basic_Dense_construct_186, [1]: x}
+#  24: @✓3↓mindspore_nn_layer_basic_Dense_construct_47:CNode_208{[0]: ValueNode<Primitive> Return, [1]: x}
+
+
+# ===============================================================================================
+# The total of function graphs in evaluation stack: 20/25 (Ignored 5 internal frames).
+# ===============================================================================================
+
+
+# ===============================================================================================
+# The rest function graphs are the following:
+# ===============================================================================================
+No more function graphs.
+
