@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense: Assignment 4 (1D CNN Classification)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --text: #1f2937;
+            --heading: #0f172a;
+            --accent: #0f766e;
+            --accent-2: #2563eb;
+            --accent-3: #ea580c;
+            --glass: rgba(255, 255, 255, 0.9);
+            --border: rgba(148, 163, 184, 0.28);
+            --shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.10), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.10), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.98);
+            transition: all 0.45s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .content-box {
+            width: min(1500px, 96vw);
+            max-height: 92vh;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            padding: 1.6rem 2rem;
+            display: flex;
+            gap: 1.4rem;
+            align-items: center;
+        }
+
+        .column-layout {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 1.25rem;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .equal-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            width: 100%;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 1rem 1.1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            line-height: 1.1;
+            color: var(--heading);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            border-bottom: 3px solid rgba(15, 118, 110, 0.22);
+            display: inline-block;
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.08rem;
+            color: var(--accent-2);
+            margin-bottom: 0.55rem;
+            font-weight: 700;
+        }
+
+        p,
+        li,
+        td,
+        th {
+            font-size: 0.94rem;
+            line-height: 1.5;
+        }
+
+        p.note {
+            color: #475569;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.45rem;
+            position: relative;
+        }
+
+        li::before {
+            content: "▸";
+            position: absolute;
+            left: -1rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-teal {
+            background: #ccfbf1;
+            color: #115e59;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-orange {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.85rem;
+            width: 100%;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.9rem;
+            text-align: center;
+        }
+
+        .metric-number {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--heading);
+        }
+
+        .metric-label {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .image-frame {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 0.8rem;
+        }
+
+        img {
+            width: 100%;
+            max-height: 54vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .caption {
+            margin-top: 0.55rem;
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 14px;
+            background: white;
+            margin-top: 0.7rem;
+        }
+
+        th,
+        td {
+            padding: 0.6rem 0.7rem;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #eff6ff;
+            color: var(--accent-2);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tr.highlight-row {
+            background: #ecfeff;
+        }
+
+        .small {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        .controls,
+        .top-controls {
+            position: fixed;
+            z-index: 100;
+            display: flex;
+            gap: 0.7rem;
+        }
+
+        .controls {
+            right: 2rem;
+            bottom: 1.5rem;
+        }
+
+        .top-controls {
+            right: 2rem;
+            top: 1.2rem;
+        }
+
+        .btn {
+            border: 1px solid #dbe3ee;
+            background: white;
+            color: var(--text);
+            padding: 0.62rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .slide-counter {
+            position: fixed;
+            left: 2rem;
+            bottom: 1.55rem;
+            color: #64748b;
+            font-weight: 700;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+            transition: width 0.4s ease;
+            z-index: 100;
+        }
+
+        @media (max-width: 1100px) {
+            .content-box {
+                padding: 1.2rem;
+            }
+
+            .two-col,
+            .equal-col,
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+
+            img {
+                max-height: 36vh;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-controls">
+        <button class="btn" onclick="toggleFullScreen()">Fullscreen</button>
+        <button class="btn" onclick="window.print()">Export PDF</button>
+    </div>
+
+    <div class="slides-container">
+        <section class="slide active">
+            <div class="content-box column-layout">
+                <p style="text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent); font-weight: 700; font-size: 0.82rem;">
+                    Assignment 4: 1D CNN Classification
+                </p>
+                <h1>Binary Time-Series Classification<br>with 1D Convolutional Neural Networks</h1>
+                <p class="note" style="max-width: 900px; font-size: 1.05rem; margin-top: 0.8rem;">
+                    Reframing the sequence forecasting pipeline from assignments 2 and 3 into a binary decision task and comparing a CNN classifier against a baseline logistic model and previous neural-network results.
+                </p>
+                <div class="badge-row">
+                    <span class="badge badge-teal">1D CNN</span>
+                    <span class="badge badge-blue">Window = 24</span>
+                    <span class="badge badge-orange">Chronological Split</span>
+                </div>
+                <div class="metric-grid" style="margin-top: 1.6rem; max-width: 1100px;">
+                    <div class="metric-card">
+                        <div class="metric-number">420,533</div>
+                        <div class="metric-label">Rows</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">26</div>
+                        <div class="metric-label">CNN Features</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">9.42</div>
+                        <div class="metric-label">Median Threshold</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">0.9937</div>
+                        <div class="metric-label">CNN Test Accuracy</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>Task Framing</h2>
+                        <ul>
+                            <li>The assignment text specifies <code>Appliances</code>, but the provided processed dataset is the same weather dataset used in assignments 2 and 3.</li>
+                            <li>To keep the comparison valid, the binary label was created from <code>T (degC)</code>: class 1 means the target value is above the global median <code>9.42</code>.</li>
+                            <li>The resulting class balance is almost perfect: positive share is <code>49.97%</code>, so no class weights were needed.</li>
+                            <li>Sequence construction followed the previous time-series setup: 24 past steps predict the next-step class.</li>
+                        </ul>
+                        <p class="small" style="margin-top: 0.8rem;">This preserves consistency with assignment 2 (MLP regression) and assignment 3 (LSTM regression), while still satisfying the CNN classification requirement.</p>
+                    </div>
+                    <div class="image-frame">
+                        <img src="./figures/01_class_balance.png" alt="Class balance">
+                        <p class="caption">The median split produces a nearly balanced dataset, which makes accuracy, precision, recall, and F1 directly interpretable.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>Architecture & Search</h2>
+                        <ul>
+                            <li>Model pipeline: <code>Conv1D - MaxPooling1D - Flatten - Dense(64) - Dense(1, sigmoid)</code>.</li>
+                            <li>Loss: <code>binary_crossentropy</code>. Optimizer: <code>Adam</code>.</li>
+                            <li>Training metrics: <code>accuracy</code>, <code>precision</code>, <code>recall</code>.</li>
+                            <li>Early stopping monitored <code>val_loss</code> with patience 3.</li>
+                        </ul>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Filters</th>
+                                    <th>Kernel</th>
+                                    <th>Epochs</th>
+                                    <th>Val F1</th>
+                                    <th>Val Loss</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="highlight-row">
+                                    <td>64</td>
+                                    <td>3</td>
+                                    <td>15</td>
+                                    <td>0.9948</td>
+                                    <td>0.0149</td>
+                                </tr>
+                                <tr>
+                                    <td>64</td>
+                                    <td>5</td>
+                                    <td>12</td>
+                                    <td>0.9942</td>
+                                    <td>0.0161</td>
+                                </tr>
+                                <tr>
+                                    <td>128</td>
+                                    <td>3</td>
+                                    <td>14</td>
+                                    <td>0.9947</td>
+                                    <td>0.0153</td>
+                                </tr>
+                                <tr>
+                                    <td>128</td>
+                                    <td>5</td>
+                                    <td>12</td>
+                                    <td>0.9947</td>
+                                    <td>0.0154</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="image-frame">
+                        <img src="./figures/06_hyperparameter_search.png" alt="Hyperparameter search">
+                        <p class="caption">All four CNN configurations performed strongly, but <code>64 filters / kernel 3</code> produced the best validation F1 and was saved as <code>cnn_classifier.h5</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="content-box">
+                <div class="equal-col">
+                    <div class="image-frame">
+                        <img src="./figures/02_cnn_learning_curves.png" alt="CNN learning curves">
+                        <p class="caption">Training is stable, converges quickly, and does not show visible overfitting on the validation split.</p>
+                    </div>
+                    <div class="image-frame">
+                        <img src="./figures/03_confusion_matrix.png" alt="Confusion matrix">
+                        <p class="caption">The confusion matrix confirms that both classes are learned well, with very few false positives and false negatives.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="image-frame">
+                        <img src="./figures/04_probability_timeline.png" alt="Probability timeline">
+                        <p class="caption">Predicted probabilities track regime switches sharply, and most decisions are far from the 0.5 threshold.</p>
+                    </div>
+                    <div class="panel">
+                        <h2>Final CNN Test Metrics</h2>
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-number">0.9937</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-number">0.9935</div>
+                                <div class="metric-label">Precision</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-number">0.9930</div>
+                                <div class="metric-label">Recall</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-number">0.9933</div>
+                                <div class="metric-label">F1</div>
+                            </div>
+                        </div>
+                        <ul style="margin-top: 1rem;">
+                            <li>The CNN clearly exceeds the simple logistic baseline.</li>
+                            <li>Performance is consistent across all classification metrics, not only on accuracy.</li>
+                            <li>The model is strong enough for the assignment deliverable even before comparing it with earlier work.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h2>Comparison with Assignment 2 and 3</h2>
+                <p class="note" style="max-width: 1100px;">
+                    To make the comparison fair, the saved regression models from assignment 2 and assignment 3 were evaluated as binary decision models by thresholding their continuous predictions at the same median value.</p>
+                <div class="image-frame" style="width: 100%; margin-top: 0.7rem;">
+                    <img src="./figures/05_model_comparison.png" alt="Model comparison">
+                </div>
+                <table style="margin-top: 1rem; max-width: 1100px;">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Accuracy</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Logistic Regression</td>
+                            <td>0.9796</td>
+                            <td>0.9787</td>
+                            <td>0.9774</td>
+                            <td>0.9781</td>
+                        </tr>
+                        <tr>
+                            <td>Assignment 2 MLP</td>
+                            <td>0.9992</td>
+                            <td>0.9985</td>
+                            <td>0.9999</td>
+                            <td>0.9992</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Assignment 3 LSTM (window 24)</td>
+                            <td>0.9950</td>
+                            <td>0.9955</td>
+                            <td>0.9937</td>
+                            <td>0.9946</td>
+                        </tr>
+                        <tr>
+                            <td>Assignment 4 CNN</td>
+                            <td>0.9937</td>
+                            <td>0.9935</td>
+                            <td>0.9930</td>
+                            <td>0.9933</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>Regression Reference</h2>
+                        <p class="note">Stage 4 is a classification task, so regression metrics are not directly comparable to CNN accuracy/F1. Still, the saved regression models from previous stages provide useful context.</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Previous Model</th>
+                                    <th>RMSE</th>
+                                    <th>MAE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Assignment 2 MLP</td>
+                                    <td>0.0195</td>
+                                    <td>0.0132</td>
+                                </tr>
+                                <tr>
+                                    <td>Assignment 3 LSTM</td>
+                                    <td>0.1867</td>
+                                    <td>0.1233</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="small" style="margin-top: 0.8rem;">The thresholded MLP remains extremely strong because the feature set already contains informative lag and rolling statistics, making the binary boundary easy to reconstruct.</p>
+                    </div>
+                    <div class="panel">
+                        <h2>Main Conclusions</h2>
+                        <ul>
+                            <li>The assignment requirements were completed: binary label creation, 1D CNN, chronological splits, confusion matrix, and metric-based evaluation.</li>
+                            <li>The CNN clearly improves over the classical baseline and reaches <code>F1 = 0.9933</code> on the test set.</li>
+                            <li>Against previous assignments, the CNN is competitive with the LSTM in binary mode, but it does not surpass the saved MLP threshold transfer.</li>
+                            <li>For defense, the most important explanation is that feature-engineered lags from assignment 1 still strongly favor feed-forward models on this specific dataset.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()">Prev</button>
+        <button class="btn" onclick="nextSlide()">Next</button>
+    </div>
+    <div class="slide-counter" id="counter">1 / 7</div>
+    <div class="progress-bar" id="progress"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('counter');
+        const progress = document.getElementById('progress');
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            counter.textContent = `${currentSlide + 1} / ${slides.length}`;
+            progress.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide += 1;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide -= 1;
+                updateSlides();
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight' || event.key === ' ') nextSlide();
+            if (event.key === 'ArrowLeft') prevSlide();
+        });
+
+        updateSlides();
+    </script>
+</body>
+
+</html>
