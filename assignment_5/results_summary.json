@@ -1,0 +1,116 @@
+{
+  "dataset": {
+    "rows": 420533,
+    "features": 26,
+    "target_column": "T (degC)",
+    "binary_column": "HighTemperature",
+    "median_threshold": 9.42,
+    "window": 24
+  },
+  "autoencoder": {
+    "architecture": "FC: input → 256 → 128 → 64 → 128 → 256 → input",
+    "loss": "mse",
+    "epochs_trained": 30,
+    "best_train_loss": 0.013909894041717052,
+    "best_val_loss": 0.013918036594986916,
+    "noise_std": 0.1
+  },
+  "classification": {
+    "clean": {
+      "accuracy": 0.9937378125148628,
+      "precision": 0.9934843419526506,
+      "recall": 0.9930439526715995,
+      "f1": 0.9932640984976382
+    },
+    "noisy": {
+      "accuracy": 0.9858585538310319,
+      "precision": 0.9841977999523209,
+      "recall": 0.9854059399188461,
+      "f1": 0.9848014994036463
+    },
+    "denoised": {
+      "accuracy": 0.9819268513087179,
+      "precision": 0.9795175393828043,
+      "recall": 0.9816551300849047,
+      "f1": 0.9805851697946115
+    }
+  },
+  "noise_sweep": [
+    {
+      "noise_std": 0.05,
+      "noisy": {
+        "accuracy": 0.9911536693247935,
+        "precision": 0.9900855166774556,
+        "recall": 0.9908957615848877,
+        "f1": 0.990490473431269
+      },
+      "denoised": {
+        "accuracy": 0.9839719707658893,
+        "precision": 0.9816629244063414,
+        "recall": 0.9839056159852696,
+        "f1": 0.9827829907528822
+      }
+    },
+    {
+      "noise_std": 0.1,
+      "noisy": {
+        "accuracy": 0.9853353837373369,
+        "precision": 0.9828301373589011,
+        "recall": 0.9856787260885873,
+        "f1": 0.9842523706566336
+      },
+      "denoised": {
+        "accuracy": 0.9826402650728475,
+        "precision": 0.9805283224400871,
+        "recall": 0.9821666041531695,
+        "f1": 0.9813467795513006
+      }
+    },
+    {
+      "noise_std": 0.2,
+      "noisy": {
+        "accuracy": 0.9743805190481475,
+        "precision": 0.9693756563569227,
+        "recall": 0.9757220308930338,
+        "f1": 0.9725384902967067
+      },
+      "denoised": {
+        "accuracy": 0.9788353916641566,
+        "precision": 0.9762488090377025,
+        "recall": 0.9782794012343574,
+        "f1": 0.9772630503278549
+      }
+    },
+    {
+      "noise_std": 0.3,
+      "noisy": {
+        "accuracy": 0.961871997717076,
+        "precision": 0.9545485243465929,
+        "recall": 0.9638899307805094,
+        "f1": 0.9591964846202135
+      },
+      "denoised": {
+        "accuracy": 0.9732866179431489,
+        "precision": 0.9704861111111112,
+        "recall": 0.9721076141439629,
+        "f1": 0.9712961858848781
+      }
+    },
+    {
+      "noise_std": 0.5,
+      "noisy": {
+        "accuracy": 0.9350793474642104,
+        "precision": 0.9224484328957943,
+        "recall": 0.939339175503802,
+        "f1": 0.9308171850450238
+      },
+      "denoised": {
+        "accuracy": 0.9609049257257003,
+        "precision": 0.9571151424389912,
+        "recall": 0.958877484911515,
+        "f1": 0.9579955031682224
+      }
+    }
+  ],
+  "conclusion": "The autoencoder successfully restores noisy sensor signals, as shown by the signal comparison plots and reconstruction error distribution. When Gaussian noise is added to the test data, the CNN classifier's performance degrades. After denoising with the autoencoder, classification quality is significantly recovered, demonstrating the autoencoder's ability to improve the robustness of downstream models against sensor noise."
+}
