@@ -9,10 +9,13 @@ fontsize: 11pt
 header-includes:
   - \usepackage{booktabs}
   - \usepackage{float}
+  - \usepackage{graphicx}
+  - \usepackage{caption}
   - \usepackage{hyperref}
   - \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
   - \usepackage{amsmath}
   - \setlength{\parskip}{6pt}
+  - \usepackage[section]{placeins}
 ---
 
 # Abstract
@@ -95,11 +98,31 @@ The near-identical train and validation loss confirms that the autoencoder gener
 
 ## 4.1 Autoencoder Training
 
-The model converged within approximately 15 epochs. The learning curves (Figure 1) show closely tracking train and validation loss throughout, with no signs of overfitting. Early stopping triggered after the validation loss plateaued.
+The model converged within approximately 15 epochs. Figure 1 shows that the training and validation loss track closely throughout training with no signs of overfitting. Early stopping triggered after the validation loss plateaued.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/01_ae_learning_curves.png}
+\caption{Autoencoder training and validation MSE loss over epochs. Both curves converge tightly, indicating good generalisation.}
+\end{figure}
 
 ## 4.2 Signal Reconstruction
 
 Visual inspection of randomly selected test windows (Figure 2) confirms that the denoised signal closely tracks the ground-truth clean signal while the raw noisy signal deviates noticeably. Reconstruction MSE on the test set: **0.013918**.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/02_signal_comparison.png}
+\caption{Four sensor features over 200 timesteps. Black = clean ground truth, red = noisy input ($\sigma=0.1$), blue dashed = autoencoder reconstruction. The denoised signal closely follows the clean reference.}
+\end{figure}
+
+Figure 3 shows the distribution of per-sample reconstruction errors across the full test set. The tight, low-MSE distribution confirms consistent reconstruction quality.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/05_reconstruction_error.png}
+\caption{Histogram of per-sample MSE reconstruction error on the test set. The majority of samples have MSE below 0.025.}
+\end{figure}
 
 ## 4.3 Classification Comparison at noise = 0.1
 
@@ -116,6 +139,18 @@ Denoised ($\sigma=0.1$) & 0.9819 & 0.9795 & 0.9817 & 0.9806 \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/03_classification_comparison.png}
+\caption{Accuracy and F1 comparison across the three test-set variants at $\sigma=0.1$.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/04_detailed_metrics.png}
+\caption{All four classification metrics (accuracy, precision, recall, F1) for clean, noisy, and denoised test sets at $\sigma=0.1$.}
+\end{figure}
 
 At this low noise level the CNN is already highly robust (-0.78 pp accuracy from clean to noisy). The autoencoder's own reconstruction error slightly exceeds the noise damage, so denoised accuracy is marginally lower than noisy at this noise level. The crossover point is observed at approximately $\sigma \approx 0.15$.
 
@@ -135,7 +170,13 @@ $\sigma$ & Noisy Acc & Den. Acc & $\Delta$ Acc & Noisy F1 & Den. F1 & $\Delta$ F
 \end{tabular}
 \end{center}
 
-Bold rows indicate regimes where denoising provides a **net positive gain**. The benefit grows monotonically with noise intensity (Figure 3).
+Bold rows indicate regimes where denoising provides a **net positive gain**. The benefit grows monotonically with noise intensity.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/06_noise_levels.png}
+\caption{Accuracy and F1-score of the CNN classifier on noisy (solid) vs. denoised (dashed) test data across noise levels. The lines cross around $\sigma \approx 0.15$, after which denoising consistently improves performance.}
+\end{figure}
 
 ---
 
