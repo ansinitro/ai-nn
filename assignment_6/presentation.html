@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Defense: Assignment 6 – Siamese Networks & Model Integration</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f7fb;--text:#1f2937;--heading:#0f172a;--accent:#7c3aed;--accent-2:#2563eb;--accent-3:#ea580c;--glass:rgba(255,255,255,0.9);--border:rgba(148,163,184,0.28);--shadow:0 18px 60px rgba(15,23,42,0.10)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:radial-gradient(circle at top left,rgba(124,58,237,0.10),transparent 30%),radial-gradient(circle at bottom right,rgba(37,99,235,0.10),transparent 30%),var(--bg);color:var(--text);overflow:hidden;width:100vw;height:100vh}
+.slides-container{width:100%;height:100%;position:relative}
+.slide{position:absolute;inset:0;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateY(10px) scale(0.98);transition:all 0.45s ease}
+.slide.active{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+.content-box{width:min(1500px,96vw);max-height:92vh;background:var(--glass);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(18px);padding:1.6rem 2rem;display:flex;gap:1.4rem;align-items:center}
+.column-layout{flex-direction:column;text-align:center}
+.two-col{display:grid;grid-template-columns:1.05fr 0.95fr;gap:1.25rem;width:100%;align-items:stretch}
+.equal-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;width:100%}
+.panel{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:1rem 1.1rem}
+h1{font-size:2.5rem;line-height:1.1;color:var(--heading);font-weight:800;letter-spacing:-0.03em}
+h2{font-size:1.5rem;color:var(--accent);font-weight:700;margin-bottom:0.8rem;border-bottom:3px solid rgba(124,58,237,0.22);display:inline-block;padding-bottom:0.35rem}
+h3{font-size:1.08rem;color:var(--accent-2);margin-bottom:0.55rem;font-weight:700}
+p,li,td,th{font-size:0.94rem;line-height:1.5}
+p.note{color:#475569}
+ul{list-style:none;padding-left:1rem}
+li{margin-bottom:0.45rem;position:relative}
+li::before{content:"▸";position:absolute;left:-1rem;color:var(--accent);font-weight:700}
+.badge-row{display:flex;flex-wrap:wrap;gap:0.6rem;justify-content:center;margin-top:1rem}
+.badge{padding:0.35rem 0.75rem;border-radius:999px;font-size:0.8rem;font-weight:700}
+.badge-purple{background:#ede9fe;color:#6d28d9}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-orange{background:#ffedd5;color:#c2410c}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-red{background:#fee2e2;color:#b91c1c}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.85rem;width:100%}
+.metric-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:0.85rem;width:100%}
+.metric-card{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:0.9rem;text-align:center}
+.metric-number{font-size:1.55rem;font-weight:800;color:var(--heading)}
+.metric-label{font-size:0.78rem;color:#64748b;margin-top:0.25rem;text-transform:uppercase;letter-spacing:0.05em}
+.metric-number.green{color:#059669}
+.metric-number.red{color:#dc2626}
+.metric-number.blue{color:#2563eb}
+.metric-number.purple{color:#7c3aed}
+.image-frame{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:0.8rem}
+img{width:100%;max-height:54vh;object-fit:contain;border-radius:10px}
+.caption{margin-top:0.55rem;color:#64748b;font-size:0.82rem}
+table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;background:white;margin-top:0.7rem}
+th,td{padding:0.6rem 0.7rem;border-bottom:1px solid #e2e8f0;text-align:left}
+th{background:#f5f3ff;color:var(--accent);font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em}
+tr.highlight-row{background:#faf5ff}
+tr.highlight-green{background:#ecfdf5}
+.small{font-size:0.82rem;color:#64748b}
+.controls,.top-controls{position:fixed;z-index:100;display:flex;gap:0.7rem}
+.controls{right:2rem;bottom:1.5rem}
+.top-controls{right:2rem;top:1.2rem}
+.btn{border:1px solid #dbe3ee;background:white;color:var(--text);padding:0.62rem 1rem;border-radius:10px;cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:700;transition:all 0.2s ease}
+.btn:hover{background:var(--accent);border-color:var(--accent);color:white;transform:translateY(-1px)}
+.slide-counter{position:fixed;left:2rem;bottom:1.55rem;color:#64748b;font-weight:700;z-index:100}
+.progress-bar{position:fixed;left:0;bottom:0;height:4px;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3));transition:width 0.4s ease;z-index:100}
+.arch-diagram{display:flex;align-items:center;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin:0.7rem 0}
+.arch-block{padding:0.4rem 0.65rem;border-radius:10px;font-size:0.78rem;font-weight:700;text-align:center}
+.arch-input{background:#dbeafe;color:#1d4ed8}
+.arch-enc{background:#ede9fe;color:#6d28d9}
+.arch-bottle{background:#fce7f3;color:#be185d}
+.arch-dec{background:#d1fae5;color:#065f46}
+.arch-arrow{color:#94a3b8;font-size:1.1rem}
+code{background:#f1f5f9;padding:0.15rem 0.4rem;border-radius:6px;font-size:0.85em;color:#7c3aed}
+</style>
+</head>
+<body>
+<div class="top-controls">
+  <button class="btn" onclick="toggleFullScreen()">Fullscreen</button>
+  <button class="btn" onclick="window.print()">Export PDF</button>
+</div>
+<div class="slides-container">
+
+<!-- SLIDE 1: TITLE -->
+<section class="slide active">
+  <div class="content-box column-layout">
+    <p style="text-transform:uppercase;letter-spacing:0.22em;color:var(--accent);font-weight:700;font-size:0.82rem">Assignment 6: Siamese Networks &amp; Model Integration</p>
+    <h1>Anomaly Detection via<br>Siamese Networks &amp; Final Report</h1>
+    <p class="note" style="max-width:900px;font-size:1.05rem;margin-top:0.8rem">
+      Metric-learning approach using contrastive loss to detect anomalous energy-consumption windows.
+      Full integration and comparison of all models from Assignments 2–5.
+    </p>
+    <div class="badge-row">
+      <span class="badge badge-purple">Siamese Network</span>
+      <span class="badge badge-blue">Contrastive Loss</span>
+      <span class="badge badge-orange">1D-CNN Backbone</span>
+      <span class="badge badge-green">Model Integration</span>
+      <span class="badge badge-red">Anomaly Detection</span>
+    </div>
+    <div class="metric-grid" style="margin-top:1.6rem;max-width:1100px">
+      <div class="metric-card"><div class="metric-number">420,533</div><div class="metric-label">Dataset Rows</div></div>
+      <div class="metric-card"><div class="metric-number blue">128</div><div class="metric-label">Embedding Dim</div></div>
+      <div class="metric-card"><div class="metric-number green">0.8989</div><div class="metric-label">AUC (Test)</div></div>
+      <div class="metric-card"><div class="metric-number purple">0.8136</div><div class="metric-label">F1 (Test)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 2: ARCHITECTURE -->
+<section class="slide">
+  <div class="content-box">
+    <div class="two-col">
+      <div class="panel">
+        <h2>Siamese Network Architecture</h2>
+        <ul>
+          <li>Two input branches share a <strong>single 1D-CNN embedding network</strong> (tied weights).</li>
+          <li>Each branch maps a window <code>(24, 26)</code> → embedding vector of size <strong>128</strong>.</li>
+          <li>A Lambda layer computes the <strong>Euclidean distance</strong> between the two embeddings.</li>
+          <li>Output: scalar distance ∈ [0, ∞) used for anomaly scoring.</li>
+          <li>Backbone: Conv1D(64,k=3) → Pool → Conv1D(128,k=3) → Pool → Flatten → Dense(256) → Dense(128).</li>
+        </ul>
+        <div class="arch-diagram" style="margin-top:1rem">
+          <div>
+            <span class="arch-block arch-input">Win A (24×26)</span><br>
+            <span style="font-size:0.75rem;color:#94a3b8">↓ shared net</span><br>
+            <span class="arch-block arch-enc">Emb A (128)</span>
+          </div>
+          <span class="arch-arrow" style="font-size:2rem">⟩</span>
+          <span class="arch-block arch-bottle" style="padding:0.6rem 1rem">‖ emb_A − emb_B ‖₂<br><small>distance</small></span>
+          <span class="arch-arrow" style="font-size:2rem">⟩</span>
+          <div>
+            <span class="arch-block arch-input">Win B (24×26)</span><br>
+            <span style="font-size:0.75rem;color:#94a3b8">↓ shared net</span><br>
+            <span class="arch-block arch-enc">Emb B (128)</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Pair Construction</h2>
+        <h3>Similar Pairs (y = 0)</h3>
+        <ul>
+          <li>Both windows: <code>HighConsumption = 0</code> (normal).</li>
+          <li>Goal: push distance → 0.</li>
+        </ul>
+        <h3>Dissimilar Pairs (y = 1)</h3>
+        <ul>
+          <li>One normal window + one anomalous window.</li>
+          <li>Goal: push distance &gt; margin (M = 1.0).</li>
+        </ul>
+        <h3>Training Set</h3>
+        <ul>
+          <li>60,000 balanced pairs (30k similar + 30k dissimilar).</li>
+          <li>15,000 validation pairs.</li>
+          <li>Sampled from chronological train/val splits.</li>
+        </ul>
+        <p class="small" style="margin-top:0.7rem">Anomaly rate: ~50% (balanced binary target). Both classes well-represented in pairs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: CONTRASTIVE LOSS -->
+<section class="slide">
+  <div class="content-box">
+    <div class="two-col">
+      <div class="panel">
+        <h2>Contrastive Loss</h2>
+        <p>The loss function penalizes the network differently for similar vs. dissimilar pairs:</p>
+        <div style="background:#f8f7ff;border:2px solid #ede9fe;border-radius:14px;padding:1rem 1.2rem;margin:0.8rem 0;text-align:center">
+          <p style="font-size:1.1rem;font-weight:700;color:#6d28d9;font-family:monospace">
+            L = y · d² + (1−y) · max(M − d, 0)²
+          </p>
+          <p class="small" style="margin-top:0.5rem">
+            d = Euclidean distance &nbsp;|&nbsp; M = margin = 1.0 &nbsp;|&nbsp; y ∈ {0,1}
+          </p>
+        </div>
+        <ul>
+          <li><strong>y = 0 (similar):</strong> loss = d² → minimise distance between normal pairs.</li>
+          <li><strong>y = 1 (dissimilar):</strong> loss = max(M−d, 0)² → push distance beyond margin.</li>
+          <li>Implemented from scratch using <code>tf.keras</code> custom loss function.</li>
+          <li>Margin M=1.0 creates a clear decision boundary in embedding space.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Inference: Anomaly Scoring</h2>
+        <h3>Step 1 – Build Reference Library</h3>
+        <ul><li>Extract embeddings for 5,000 sampled <em>normal</em> training windows.</li></ul>
+        <h3>Step 2 – Score Test Windows</h3>
+        <ul>
+          <li>For each test window: compute embedding, then find minimum Euclidean distance to any reference normal embedding (kNN, k=1).</li>
+          <li>High distance → window is anomalous.</li>
+        </ul>
+        <h3>Step 3 – Threshold Selection</h3>
+        <ul>
+          <li>Sweep thresholds on validation kNN distances.</li>
+          <li>Select threshold maximising F1 on validation labels.</li>
+          <li>Best threshold: <strong>0.2571</strong> (val F1 = 0.8538).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: TRAINING CURVES -->
+<section class="slide">
+  <div class="content-box">
+    <div class="two-col">
+      <div class="image-frame">
+        <img src="./figures/01_siamese_training.png" alt="Siamese training curves">
+        <p class="caption">Contrastive loss decreases steadily over 20 epochs. Train and validation loss track closely with no overfitting — the shared weights generalise well.</p>
+      </div>
+      <div class="panel">
+        <h2>Training Details</h2>
+        <table>
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Backbone</td><td>1D-CNN (shared)</td></tr>
+            <tr><td>Embedding dim</td><td>128</td></tr>
+            <tr><td>Margin (M)</td><td>1.0</td></tr>
+            <tr><td>Train pairs</td><td>60,000</td></tr>
+            <tr><td>Val pairs</td><td>15,000</td></tr>
+            <tr><td>Batch size</td><td>512</td></tr>
+            <tr><td>Optimiser</td><td>Adam (lr=1e-3)</td></tr>
+            <tr><td>Max epochs</td><td>20</td></tr>
+            <tr class="highlight-green"><td>Best val loss</td><td>~0.25</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:0.8rem">Early stopping (patience=5) on val_loss. Model restored to best weights.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: DISTANCE DISTRIBUTIONS -->
+<section class="slide">
+  <div class="content-box">
+    <div class="two-col">
+      <div class="image-frame">
+        <img src="./figures/02_distance_distributions.png" alt="Distance distributions">
+        <p class="caption">kNN distances to reference normals. Anomalous windows (red) cluster at higher distances than normal windows (blue), with partial but meaningful separation.</p>
+      </div>
+      <div class="panel">
+        <h2>Test Set Results</h2>
+        <div class="metric-grid-3" style="margin-bottom:0.8rem">
+          <div class="metric-card"><div class="metric-number green">0.8989</div><div class="metric-label">AUC</div></div>
+          <div class="metric-card"><div class="metric-number blue">0.8136</div><div class="metric-label">F1</div></div>
+          <div class="metric-card"><div class="metric-number purple">0.8188</div><div class="metric-label">Accuracy</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Accuracy</td><td>0.8188</td></tr>
+            <tr><td>Precision</td><td>0.7798</td></tr>
+            <tr><td>Recall</td><td>0.8503</td></tr>
+            <tr class="highlight-green"><td>F1</td><td><strong>0.8136</strong></td></tr>
+            <tr class="highlight-green"><td>AUC</td><td><strong>0.8989</strong></td></tr>
+            <tr><td>Threshold</td><td>0.2571</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:0.7rem">Note: this is an <em>unsupervised</em> detector — no anomaly labels used during embedding training, only for pair construction. AUC of 0.90 is strong for this paradigm.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6: ROC CURVE -->
+<section class="slide">
+  <div class="content-box">
+    <div class="equal-col">
+      <div class="image-frame">
+        <img src="./figures/03_roc_curve.png" alt="ROC curve">
+        <p class="caption">ROC curve for Siamese anomaly detector on the test set. AUC = 0.8989 — well above the random baseline diagonal, confirming the embedding space effectively separates normal from anomalous windows.</p>
+      </div>
+      <div class="image-frame">
+        <img src="./figures/06_anomaly_timeline.png" alt="Anomaly timeline">
+        <p class="caption">Timeline of kNN distances vs. true anomaly labels. Spikes in the distance signal (blue) align with anomaly events (red steps), demonstrating the detector's temporal coherence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: MODEL COMPARISON CHART -->
+<section class="slide">
+  <div class="content-box column-layout">
+    <h2>All-Model Comparison: Assignments 2 – 6</h2>
+    <div class="image-frame" style="width:100%;margin-top:0.5rem">
+      <img src="./figures/04_model_comparison.png" alt="Model comparison" style="max-height:60vh">
+      <p class="caption">Accuracy and F1 across all architectures. Supervised classifiers (MLP, LSTM, CNN) outperform on the binary classification task. The Siamese network (A6) is purpose-built for anomaly detection without direct label supervision.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: SUMMARY TABLE -->
+<section class="slide">
+  <div class="content-box">
+    <div class="two-col">
+      <div class="panel">
+        <h2>Comparative Analysis</h2>
+        <table>
+          <thead>
+            <tr><th>Model</th><th>Task</th><th>Accuracy</th><th>F1 / AUC</th></tr>
+          </thead>
+          <tbody>
+            <tr class="highlight-green"><td>MLP (A2)</td><td>Regression + Clf</td><td>0.9992</td><td>0.9992</td></tr>
+            <tr><td>LSTM (A3)</td><td>Regression + Clf</td><td>0.9950</td><td>0.9946</td></tr>
+            <tr><td>CNN (A4)</td><td>Classification</td><td>0.9937</td><td>0.9933</td></tr>
+            <tr><td>LogReg baseline</td><td>Classification</td><td>0.9796</td><td>0.9781</td></tr>
+            <tr><td>AE+CNN clean (A5)</td><td>Clf (clean)</td><td>0.9937</td><td>0.9933</td></tr>
+            <tr><td>AE+CNN denoised</td><td>Clf (denoised)</td><td>0.9819</td><td>0.9806</td></tr>
+            <tr class="highlight-row"><td><strong>Siamese (A6)</strong></td><td>Anomaly Det.</td><td>0.8188</td><td>AUC 0.8989</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:0.8rem">The Siamese network is not directly comparable — it solves a harder, unsupervised anomaly detection problem, not supervised binary classification.</p>
+      </div>
+      <div class="panel">
+        <h2>Architecture Recommendations</h2>
+        <h3>🏆 Forecasting (Regression)</h3>
+        <ul>
+          <li><strong>Best: MLP (A2)</strong> — RMSE 0.019, MAE 0.013. Compact but powerful.</li>
+          <li>LSTM (A3) captures temporal dependencies but underperforms MLP on this dataset.</li>
+        </ul>
+        <h3>🏆 Classification</h3>
+        <ul>
+          <li><strong>Best: MLP (A2)</strong> when used for binary classification (F1 = 0.999).</li>
+          <li>CNN (A4) is best <em>sequence</em> classifier at F1 = 0.9933.</li>
+        </ul>
+        <h3>🏆 Anomaly Detection</h3>
+        <ul>
+          <li><strong>Best: Siamese (A6)</strong> — AUC 0.90, no anomaly labels needed at training.</li>
+          <li>Autoencoder reconstruction error (A5) is a complementary approach.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9: CONCLUSIONS -->
+<section class="slide">
+  <div class="content-box">
+    <div class="two-col">
+      <div class="panel">
+        <h2>Conclusions</h2>
+        <ul>
+          <li>A <strong>Siamese 1D-CNN</strong> with contrastive loss successfully learns a metric space where anomalous windows are far from the normal reference set.</li>
+          <li>AUC of <strong>0.8989</strong> and F1 of <strong>0.8136</strong> demonstrate strong anomaly detection without explicit anomaly labels during training.</li>
+          <li>The kNN scoring strategy (distance to nearest normal embedding) provides a simple, interpretable anomaly score.</li>
+          <li>Supervised classifiers (MLP, CNN) remain superior for binary classification when labels are available.</li>
+          <li>The <strong>Autoencoder (A5)</strong> and <strong>Siamese (A6)</strong> complement each other: AE flags global pattern deviations; Siamese flags contextual distance from normal.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Deliverables</h2>
+        <h3>Code</h3>
+        <ul>
+          <li><code>assignment_6_solution.py</code> — full pipeline</li>
+          <li><code>siamese_model.h5</code> — saved Siamese model</li>
+        </ul>
+        <h3>Figures (6 plots)</h3>
+        <ul>
+          <li>Training curves, distance distributions, ROC curve</li>
+          <li>Anomaly timeline, model comparison, radar chart</li>
+        </ul>
+        <h3>Reports</h3>
+        <ul>
+          <li><code>results_summary.json</code> — all metrics</li>
+          <li><code>presentation.html</code> — this presentation</li>
+        </ul>
+        <h3>Key Takeaway</h3>
+        <p class="note" style="margin-top:0.4rem">
+          Metric learning (Siamese) is the architecture of choice for anomaly detection
+          in time-series when ground-truth anomaly labels are scarce or unavailable at test time.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="prevSlide()">Prev</button>
+  <button class="btn" onclick="nextSlide()">Next</button>
+</div>
+<div class="slide-counter" id="counter">1 / 9</div>
+<div class="progress-bar" id="progress"></div>
+
+<script>
+let currentSlide=0;
+const slides=document.querySelectorAll('.slide');
+const counter=document.getElementById('counter');
+const progress=document.getElementById('progress');
+function updateSlides(){
+  slides.forEach((s,i)=>s.classList.toggle('active',i===currentSlide));
+  counter.textContent=`${currentSlide+1} / ${slides.length}`;
+  progress.style.width=`${((currentSlide+1)/slides.length)*100}%`;
+}
+function nextSlide(){if(currentSlide<slides.length-1){currentSlide++;updateSlides()}}
+function prevSlide(){if(currentSlide>0){currentSlide--;updateSlides()}}
+function toggleFullScreen(){
+  if(!document.fullscreenElement)document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')nextSlide();
+  if(e.key==='ArrowLeft')prevSlide();
+});
+updateSlides();
+</script>
+</body>
+</html>

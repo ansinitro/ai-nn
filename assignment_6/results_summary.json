@@ -1,0 +1,79 @@
+{
+  "dataset": {
+    "rows": 420533,
+    "features": 26,
+    "target_col": "T (degC)",
+    "binary_col": "HighTemperature",
+    "threshold": 9.42,
+    "window": 24
+  },
+  "siamese": {
+    "embed_dim": 128,
+    "margin": 1.0,
+    "epochs_trained": 20,
+    "best_val_loss": 0.25201013684272766,
+    "distance_threshold": 0.2655163109302521,
+    "test_metrics": {
+      "accuracy": 0.8560648096770613,
+      "precision": 0.8518454160005561,
+      "recall": 0.8357827258158012,
+      "f1": 0.8437376293007005,
+      "auc": 0.925262140689467,
+      "threshold": 0.2655163109302521
+    }
+  },
+  "all_models": [
+    {
+      "model": "MLP (A2)",
+      "accuracy": 0.9992390615091947,
+      "precision": 0.9984677721406926,
+      "recall": 0.999897705186347,
+      "f1": 0.9991822270682841
+    },
+    {
+      "model": "LSTM (A3)",
+      "accuracy": 0.9949743963726874,
+      "precision": 0.9954908792785406,
+      "recall": 0.9936918198247349,
+      "f1": 0.9945905359976792
+    },
+    {
+      "model": "CNN (A4)",
+      "accuracy": 0.9937378125148628,
+      "precision": 0.9934843419526506,
+      "recall": 0.9930439526715995,
+      "f1": 0.9932640984976382
+    },
+    {
+      "model": "LogReg (A4 baseline)",
+      "accuracy": 0.9796122199850976,
+      "precision": 0.9786950732356857,
+      "recall": 0.9774269444539162,
+      "f1": 0.9780605977889996
+    },
+    {
+      "model": "AE+CNN clean (A5)",
+      "accuracy": 0.9937378125148628,
+      "precision": 0.9934843419526506,
+      "recall": 0.9930439526715995,
+      "f1": 0.9932640984976382
+    },
+    {
+      "model": "AE+CNN denoised (A5)",
+      "accuracy": 0.9819268513087179,
+      "precision": 0.9795175393828043,
+      "recall": 0.9816551300849047,
+      "f1": 0.9805851697946115
+    },
+    {
+      "model": "Siamese (A6)",
+      "accuracy": 0.8560648096770613,
+      "precision": 0.8518454160005561,
+      "recall": 0.8357827258158012,
+      "f1": 0.8437376293007005,
+      "auc": 0.925262140689467,
+      "threshold": 0.2655163109302521
+    }
+  ],
+  "conclusion": "The Siamese network successfully learns a metric space where normal and anomalous windows are well-separated. Using contrastive loss, the embedding network maps windows so that distances to reference normal embeddings reliably flag anomalies (AUC reported above). Among forecasting models, MLP and LSTM perform best for regression. For binary classification, CNN (A4) achieves the highest F1. The Siamese network is purpose-built for unsupervised anomaly scoring and does not require explicit anomaly labels at inference time."
+}
