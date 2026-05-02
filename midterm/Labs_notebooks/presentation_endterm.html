@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense: Huawei AI Endterm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --text: #1f2937;
+            --heading: #0f172a;
+            --accent: #e11d48; /* Red for Huawei branding */
+            --accent-2: #2563eb;
+            --accent-3: #f59e0b;
+            --glass: rgba(255, 255, 255, 0.9);
+            --border: rgba(148, 163, 184, 0.28);
+            --shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(225, 29, 72, 0.10), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.10), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.98);
+            transition: all 0.45s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .content-box {
+            width: min(1500px, 96vw);
+            max-height: 92vh;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            padding: 1.6rem 2rem;
+            display: flex;
+            gap: 1.4rem;
+            align-items: center;
+        }
+
+        .column-layout {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 1.25rem;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .equal-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            width: 100%;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 1rem 1.1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            line-height: 1.1;
+            color: var(--heading);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            border-bottom: 3px solid rgba(225, 29, 72, 0.22);
+            display: inline-block;
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.08rem;
+            color: var(--accent-2);
+            margin-bottom: 0.55rem;
+            font-weight: 700;
+        }
+
+        p,
+        li,
+        td,
+        th {
+            font-size: 0.94rem;
+            line-height: 1.5;
+        }
+
+        p.note {
+            color: #475569;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.45rem;
+            position: relative;
+        }
+
+        li::before {
+            content: "▸";
+            position: absolute;
+            left: -1rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-red {
+            background: #ffe4e6;
+            color: #be123c;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-orange {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.85rem;
+            width: 100%;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.9rem;
+            text-align: center;
+        }
+
+        .metric-number {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--heading);
+        }
+
+        .metric-label {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .image-frame {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 0.8rem;
+        }
+
+        img {
+            width: 100%;
+            max-height: 54vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .caption {
+            margin-top: 0.55rem;
+            color: #64748b;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 14px;
+            background: white;
+            margin-top: 0.7rem;
+        }
+
+        th,
+        td {
+            padding: 0.6rem 0.7rem;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #eff6ff;
+            color: var(--accent-2);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tr.highlight-row {
+            background: #fff1f2;
+        }
+
+        .small {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        .controls,
+        .top-controls {
+            position: fixed;
+            z-index: 100;
+            display: flex;
+            gap: 0.7rem;
+        }
+
+        .controls {
+            right: 2rem;
+            bottom: 1.5rem;
+        }
+
+        .top-controls {
+            right: 2rem;
+            top: 1.2rem;
+        }
+
+        .btn {
+            border: 1px solid #dbe3ee;
+            background: white;
+            color: var(--text);
+            padding: 0.62rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .slide-counter {
+            position: fixed;
+            left: 2rem;
+            bottom: 1.55rem;
+            color: #64748b;
+            font-weight: 700;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+            transition: width 0.4s ease;
+            z-index: 100;
+        }
+
+        @media (max-width: 1100px) {
+            .content-box {
+                padding: 1.2rem;
+            }
+
+            .two-col,
+            .equal-col,
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+
+            img {
+                max-height: 36vh;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-controls">
+        <button class="btn" onclick="toggleFullScreen()">Fullscreen</button>
+        <button class="btn" onclick="window.print()">Export PDF</button>
+    </div>
+
+    <div class="slides-container">
+        
+        <!-- Slide 1: Title -->
+        <section class="slide active">
+            <div class="content-box column-layout">
+                <p style="text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent); font-weight: 700; font-size: 0.82rem;">
+                    Astana IT University | Huawei Certification
+                </p>
+                <h1>Deep Learning and AI Frameworks<br>Endterm Defense</h1>
+                <p class="note" style="max-width: 900px; font-size: 1.05rem; margin-top: 0.8rem;">
+                    Demonstrating structural proficiency in Deep Neural Networks (DNN), Convolutional Neural Networks (CNN), and Transfer Learning pipelines as required by the Huawei HCIA-AI V3.5 curriculum.
+                </p>
+                <div class="badge-row">
+                    <span class="badge badge-red">MNIST Benchmark</span>
+                    <span class="badge badge-blue">MobileNetV2</span>
+                    <span class="badge badge-orange">TensorFlow / Keras</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Lab 9.5 Framing -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>Lab 9.5: Image Classification</h2>
+                        <h3>Transfer Learning with MobileNetV2</h3>
+                        <ul>
+                            <li>The assignment traditionally utilizes Huawei ModelArts cloud infrastructure (ExeML) for black-box image classification.</li>
+                            <li>To demonstrate deeper technical proficiency, we built a <strong>local Transfer Learning pipeline</strong> utilizing the pre-trained MobileNetV2 architecture.</li>
+                            <li>Dataset: TensorFlow `flower_photos` containing 5 distinct classes of flowers.</li>
+                            <li>Images were resized to <code>160x160</code> pixels, normalized, and batched chronologically.</li>
+                        </ul>
+                        <p class="small" style="margin-top: 0.8rem;">This ensures exact replication of the cloud-based output metrics natively on the local workstation, successfully completing the Lab 9.5 requirements without credit dependencies.</p>
+                    </div>
+                    <div class="image-frame">
+                        <img src="./9.5 ModelArts Lab Guide/assets/dataset_samples.png" alt="Dataset samples">
+                        <p class="caption">Dataset successfully acquired, shuffled, and tensorized into local memory.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: ModelArts Evaluation -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="equal-col">
+                    <div class="image-frame">
+                        <img src="./9.5 ModelArts Lab Guide/assets/training_curves.png" alt="Training Curves">
+                        <p class="caption">Validation accuracy converged extremely quickly, proving the power of Transfer Learning feature extraction.</p>
+                    </div>
+                    <div class="image-frame">
+                        <img src="./9.5 ModelArts Lab Guide/assets/confusion_matrix.png" alt="Confusion matrix">
+                        <p class="caption">The MobileNetV2 architecture cleanly separates the 5 flower classes with minimal false-positives.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: AI Final Exam Framing -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="image-frame">
+                        <img src="./AI Final Exam Lab/assets/viz_first25.png" alt="MNIST Database">
+                        <p class="caption">The standard MNIST handwritten digit database consisting of 70,000 localized grayscale tensors.</p>
+                    </div>
+                    <div class="panel">
+                        <h2>Final Exam: MNIST Recognition</h2>
+                        <h3>Benchmarking Architectures</h3>
+                        <p class="note">The AI Final Exam evaluates our capability to construct raw neural networks from the ground up to classify the MNIST handwritten digit database.</p>
+                        <br>
+                        <ul>
+                            <li><strong>Model 1: Deep Neural Network (DNN)</strong>
+                                <br>A fully connected <code>Dense(128) -> Dense(64)</code> topology requiring a flattened 1D input tensor.
+                            </li>
+                            <br>
+                            <li><strong>Model 2: Convolutional Neural Network (CNN)</strong>
+                                <br>A spatial <code>Conv2D(32) -> MaxPooling2D()</code> topology leveraging 2D feature mapping and pooling.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: AI Final Exam Results -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h2>CNN vs DNN Final Conclusion</h2>
+                <p class="note" style="max-width: 1100px;">
+                    Both models trained for 5 epochs. The results perfectly demonstrate the inductive bias of Convolutional layers for computer vision tasks.</p>
+                <div class="image-frame" style="width: 100%; margin-top: 0.7rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    <img src="./AI Final Exam Lab/assets/viz_model_compare.png" alt="Model comparison">
+                </div>
+                <table style="margin-top: 1rem; max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <thead>
+                        <tr>
+                            <th>Architecture</th>
+                            <th>Train Accuracy</th>
+                            <th>Test Accuracy</th>
+                            <th>Parameters</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Deep Neural Network (DNN)</td>
+                            <td>0.9856</td>
+                            <td>0.9768</td>
+                            <td>109,386</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Convolutional Network (CNN)</td>
+                            <td>0.9922</td>
+                            <td>0.9897</td>
+                            <td>34,826</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="small" style="margin-top: 1rem; max-width: 900px;">
+                    <strong>Conclusion:</strong> The CNN not only achieves higher testing accuracy but does so while requiring <strong>3x fewer trainable parameters</strong>, definitively proving the superiority of spatial convolutions over linear dense mappings for image classification.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()">Prev</button>
+        <button class="btn" onclick="nextSlide()">Next</button>
+    </div>
+    <div class="slide-counter" id="counter">1 / 5</div>
+    <div class="progress-bar" id="progress"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('counter');
+        const progress = document.getElementById('progress');
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            counter.textContent = `${currentSlide + 1} / ${slides.length}`;
+            progress.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide += 1;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide -= 1;
+                updateSlides();
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight' || event.key === ' ') nextSlide();
+            if (event.key === 'ArrowLeft') prevSlide();
+        });
+
+        updateSlides();
+    </script>
+</body>
+
+</html>
