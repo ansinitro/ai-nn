@@ -56,9 +56,29 @@ This script is structured to follow your `presentation_endterm.html` slide by sl
 > 
 > Looking at the table, the baseline DNN achieved a testing accuracy of 97.68%. However, the CNN achieved nearly **99% accuracy**. But the most important metric is on the far right: The CNN achieved this higher accuracy while requiring **three times fewer trainable parameters** (34,000 compared to the DNN's 109,000). 
 > 
-> **To conclude:** This proves the concept of *inductive bias*. By using convolutions to scan local pixel patches, the CNN is vastly more efficient and robust at extracting image features than flattened Dense layers. 
+> **To conclude:** This proves the concept of *inductive bias*. By using convolutions to scan local pixel patches, the CNN is vastly more efficient and robust at extracting image features than flattened Dense layers."
+
+---
+
+## Slide 6: Theoretical Ecosystem
+**"Full-Stack AI Frameworks"**
+
+**What to say:**
+> "While my practical implementation focused on TensorFlow and Transfer Learning, this course also deeply covered Huawei's full-stack AI ecosystem.
+> 
+> We studied the hardware layer, specifically the Ascend Computing Platform and its Da Vinci architecture, which uses Cube units to perform massive matrix multiplications at high speed. We also explored the Cloud EI layer, specifically ModelArts and its ExeML engine, which enables one-stop AI training and deployment. Furthermore, we analyzed on-device processing through HiAI and MindSpore Lite, and touched on the future of computation with Quantum Machine Learning using MindSpore Quantum.
+> 
+> Bridging the gap from tiny edge inference devices to massive cloud data centers is the core of Huawei's AI strategy.
 > 
 > This concludes the technical breakdown of my Huawei Endterm implementation. All source code, executed notebooks, and PDF reports are successfully committed to my GitHub repository. Thank you, and I am ready for any questions."
+
+---
+
+## Slide 7: Course Completion
+**"Official HCIA-AI V3.5 Certification"**
+
+**What to say:**
+> "Finally, as a result of completing the curriculum modules and laboratory requirements, I have successfully secured the official Huawei HCIA-AI V3.5 Course Completion Certificate, which is attached to my formal PDF report. Thank you again!"
 
 ---
 

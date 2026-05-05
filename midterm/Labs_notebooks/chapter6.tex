@@ -1,0 +1,257 @@
+\hypertarget{huawei-ascend-computing-platform-6.1}{%
+\subsubsection{1. Huawei Ascend Computing Platform
+(6.1)}\label{huawei-ascend-computing-platform-6.1}}
+
+\textbf{What I learned:}
+
+\begin{itemize}
+\tightlist
+\item
+  The Ascend processor uses the \textbf{Da Vinci architecture} , which
+  is specifically designed for AI computing with \textbf{99.2\% of its
+  core dedicated to Cube units} for matrix multiplication. A single Cube
+  unit can perform 4096 FP16 operations per clock cycle (16x16 matrix
+  multiply).
+\item
+  The AI Core contains three execution units: \textbf{Cube} (matrix),
+  \textbf{Vector} (vector), and \textbf{Scalar} (scalar/program
+  control). The storage system includes input/output buffers and
+  registers to reduce bus traffic.
+\item
+  AI processors are classified into \textbf{training} (high throughput,
+  large memory, e.g., Atlas 900) and \textbf{inference} (low power, low
+  latency, e.g., Atlas 200/300 series).
+\item
+  The \textbf{Atlas computing platform} scales from edge (Atlas 200,
+  500) to data center (Atlas 800 training/inference, Atlas 900 cluster).
+  For instance, Atlas 900 can deliver \textbf{20.4 PFLOPS FP16} with
+  ultra‑high energy efficiency.
+\item
+  Huawei uses Ascend in real‑world projects, like the \textbf{Peng Cheng
+  Cloud Brain II} , reducing TCO by 9.3\% with the same computing power,
+  and the \textbf{Traffic Brain} , improving violation detection by 10×.
+\end{itemize}
+
+\textbf{Why it was interesting/useful:}
+
+\begin{itemize}
+\tightlist
+\item
+  I was impressed by the \textbf{Cube unit} 's massive parallelism (up
+  to 4096 operations per cycle) and how tightly the hardware is
+  optimized for tensor operations. The comparison with GPUs (only a
+  small fraction of Tensor Cores) clearly showed why dedicated NPUs
+  achieve higher efficiency.
+\item
+  The \textbf{hardware‑software co‑design} (CANN, DVPP, runtime manager)
+  demonstrates how a full stack enables high performance. The real‑world
+  case of reducing power and space by 60--80\% in data centers makes the
+  technology tangible.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{huawei-cloud-ei-platform-6.2}{%
+\subsubsection{2. Huawei Cloud EI Platform
+(6.2)}\label{huawei-cloud-ei-platform-6.2}}
+
+\textbf{What I learned:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{ModelArts} is a one‑stop AI development platform that covers
+  the entire ML lifecycle: data labeling, training (ExeML for
+  beginners), deployment, and MLOps. The \textbf{ExeML engine} allows
+  people without programming skills to build models in three steps.
+\item
+  Advanced services include \textbf{OptVerse AI Solver} for operations
+  optimization, \textbf{federated learning} to break data silos, and
+  \textbf{ModelBox} for device‑edge‑cloud joint inference, improving E2E
+  performance by up to 3×.
+\item
+  General AI capabilities: \textbf{vision services} (100+ table types,
+  face search \textgreater95.5\%), \textbf{NLP} (industry‑leading
+  accuracy in NER, sentiment analysis, summarization), \textbf{knowledge
+  graph} (full‑lifecycle management), and \textbf{Conversational Bot
+  Service} (handled workload of 179 human agents annually at Huawei).
+\item
+  The platform also offers third‑party integration and an \textbf{AI
+  Gallery} bridging supply and demand.
+\end{itemize}
+
+\textbf{Why it was interesting/useful:}
+
+\begin{itemize}
+\tightlist
+\item
+  I really liked \textbf{ExeML} because it shows how AI can be
+  democratised---users only need to upload and label data, train, then
+  publish a model. The \textbf{federated learning} capability is crucial
+  for industries like healthcare and finance that cannot share raw data.
+\item
+  The \textbf{CBS bot} case study (serving 350,000+ Huawei staff, 65\%
+  manual substitution rate) proved the immediate ROI of cloud AI
+  services. I can see myself using such cloud APIs for rapid
+  prototyping.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{huawei-device-ai-platforms-6.3}{%
+\subsubsection{3. Huawei Device AI Platforms
+(6.3)}\label{huawei-device-ai-platforms-6.3}}
+
+\textbf{What I learned:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{HarmonyOS} is a distributed OS enabling seamless collaboration
+  across devices.
+\item
+  \textbf{HMS Core} offers capabilities in seven domains to build an
+  intelligent app ecosystem.
+\item
+  \textbf{ML Kit} provides a wide range of AI APIs (text, language,
+  image, face/body) that work across Android, iOS, and HarmonyOS, with
+  on‑device processing for data security.
+\item
+  \textbf{HiAI} is a three‑layer open platform: \textbf{Foundation}
+  opens NPU acceleration (150+ operators), \textbf{Engine} delivers rich
+  AI capabilities out of the box, and \textbf{Service} connects users to
+  intelligent services.
+\item
+  \textbf{MindSpore Lite} is an ultra‑fast, lightweight AI engine that
+  supports CPU/GPU/NPU, model compression, and can run on everything
+  from phones to IoT devices. It is compatible with MindSpore,
+  TensorFlow Lite, Caffe, and ONNX.
+\end{itemize}
+
+\textbf{Why it was interesting/useful:}
+
+\begin{itemize}
+\tightlist
+\item
+  The concept of \textbf{on‑device AI} (ML Kit, HiAI) is fascinating
+  because it ensures privacy (data never leaves the device) and reduces
+  latency. As a developer, I can use the \textbf{HiAI Foundation} 's
+  operators to get NPU acceleration without deep hardware knowledge.
+\item
+  \textbf{MindSpore Lite} 's claim of ``all‑scenario support'' and fast
+  deployment for extreme environments makes it very practical for edge
+  AI projects. The fact that it can quantize and compress models for
+  tiny devices is something I want to explore further.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{cuttingedge-ai-applications-7}{%
+\subsubsection{4. Cutting‑edge AI Applications
+(7)}\label{cuttingedge-ai-applications-7}}
+
+\textbf{What I learned:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Reinforcement learning (RL):} agents learn optimal policies
+  through interaction with the environment. Algorithms can be direct
+  (policy optimization) or indirect (value‑based).
+\item
+  \textbf{GANs:} a generator and a discriminator compete, eventually
+  creating realistic fake data. Applications include image generation,
+  text‑to‑image, super‑resolution, and speech enhancement.
+\item
+  \textbf{Knowledge graphs:} structured semantic networks of entities,
+  properties, and relationships. Construction involves extraction,
+  fusion, and storage. Applications: search engines, Q\&A bots,
+  recommendation systems, and domain‑specific solutions (e.g., oil \&
+  gas).
+\item
+  \textbf{Intelligent driving:} history from Carnegie Mellon's Navlab
+  (1995, 98.1\% autonomous across the US) to DARPA challenges
+  (2004--2007) that fostered modern self‑driving cars. Today's
+  autonomous driving cloud service offers a one‑stop platform with data,
+  training, and simulation services.
+\end{itemize}
+
+\textbf{Why it was interesting/useful:}
+
+\begin{itemize}
+\tightlist
+\item
+  The \textbf{GAN explanation} made the adversarial concept very clear:
+  ``the generator creates fakes, the discriminator tries to spot them.''
+  I found the practical uses (resolution enhancement, text‑to‑image)
+  inspiring.
+\item
+  The \textbf{historical timeline of intelligent driving} was
+  eye‑opening---it highlighted that many foundational ideas date back to
+  the 1990s. The DARPA challenges were a brilliant catalyst for the
+  industry. The modular autonomous driving cloud platform
+  (data‑training‑simulation) gave me insight into how one might build
+  such a system today.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{quantum-computing-and-machine-learning-8}{%
+\subsubsection{5. Quantum Computing and Machine Learning
+(8)}\label{quantum-computing-and-machine-learning-8}}
+
+\textbf{What I learned:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Quantum mechanics basics:} superposition, entanglement, and
+  uncertainty. A \textbf{qubit} can be in a superposition of \textbar0⟩
+  and \textbar1⟩, enabling exponential state space.
+\item
+  \textbf{Key algorithms:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{Deutsch algorithm} solves a simple problem in one query
+    instead of two, demonstrating quantum advantage.
+  \item
+    \emph{Shor} factorizes integers in polynomial time, threatening RSA.
+  \item
+    \emph{Grover} searches unsorted databases with $\sqrt{N}$ complexity.
+  \item
+    \emph{HHL} solves linear systems exponentially faster than classical
+    methods.
+  \end{itemize}
+\item
+  \textbf{Quantum machine learning (QML)} combines classical
+  data/algorithms with quantum resources. Variational algorithms (e.g.,
+  VQE for chemistry) use a hybrid classical‑quantum loop to find ground
+  state energies. QML promises acceleration for tasks like PCA, SVM, and
+  reinforcement learning.
+\item
+  \textbf{MindSpore Quantum} is an open‑source framework that integrates
+  with MindSpore, offering high‑performance simulators (up to 30+
+  qubits), rich tutorials, and seamless cloud deployment. I got hands‑on
+  with a code snippet that builds a circuit, computes expectation
+  values, and gradients.
+\end{itemize}
+
+\textbf{Why it was interesting/useful:}
+
+\begin{itemize}
+\tightlist
+\item
+  The idea of \textbf{exponential parallelism} through superposition is
+  mind‑blowing---the Deutsch algorithm showing we can solve a problem
+  with one function call instead of two illustrated a tangible, though
+  small, quantum advantage.
+\item
+  \textbf{MindSpore Quantum} 's simplicity (PIP install, visualization,
+  built‑in libraries) makes it approachable even for an ML student like
+  me. The example of calculating expected values and gradients in just a
+  few lines of code makes me excited to try quantum machine learning
+  experiments. The VQE application to chemistry shows how quantum
+  computing can address real scientific challenges today.
+\end{itemize}
