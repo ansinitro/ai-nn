@@ -1,0 +1,52 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{listings}
+\title{Huawei HCIA-AI V3.5 Midterm Implementation Report}
+\author{Sundetkhan Bekzat \\ Instructor: Akhmetova Zhanar}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Repository and Course Coverage}
+This report summarizes the local midterm implementation in \texttt{midterm\_Bekzat/Labs\_notebooks}. The notebooks cover sections 9.2, 9.3, and 9.4 with independent code and deterministic local examples.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{assets/course_progress_bekzat.png}
+\caption{Completed midterm lab coverage}
+\end{figure}
+
+\section{Python Programming Foundations}
+\input{chapter1.tex}
+
+\section{Machine Learning Practice}
+\input{chapter2.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{assets/ml_linear_regression_bekzat.png}
+\caption{Linear regression result}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{assets/kmeans_segments_bekzat.png}
+\caption{K-Means segmentation result}
+\end{figure}
+
+\section{Deep Learning and AI Framework Concepts}
+\input{chapter3.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{assets/digits_predictions_bekzat.png}
+\caption{Digit classifier predictions}
+\end{figure}
+
+\end{document}

@@ -1,25 +1,23 @@
 #!/usr/bin/env zsh
 
-# Source folder (original PDFs)
-src="Labs"
-# Destination folder (OCR output)
-dest="Labs_ocr"
+set -euo pipefail
 
-# Create destination if it doesn't exist
-mkdir -p "$dest"
+source_dir="${1:-Labs}"
+output_dir="${2:-Labs_ocr}"
 
-# Find all PDF files under src and process them
-find "$src" -type f -name "*.pdf" | while IFS= read -r file; do
-    # Compute relative path from src
-    rel="${file#$src/}"
-    # Build output path
-    out="$dest/$rel"
-    # Create subdirectory in dest if needed
-    out_dir=$(dirname "$out")
-    mkdir -p "$out_dir"
+if [[ ! -d "$source_dir" ]]; then
+    print -u2 "Source directory not found: $source_dir"
+    exit 1
+fi
 
-    echo "Processing: $file -> $out"
-    ocrmypdf --force-ocr -l eng "$file" "$out"
+mkdir -p "$output_dir"
+
+find "$source_dir" -type f -name "*.pdf" -print0 | while IFS= read -r -d '' pdf_file; do
+    relative_path="${pdf_file#$source_dir/}"
+    target_file="$output_dir/$relative_path"
+    mkdir -p "${target_file:h}"
+    print "OCR: $pdf_file -> $target_file"
+    ocrmypdf --force-ocr -l eng "$pdf_file" "$target_file"
 done
 
-echo "All PDFs processed. Results are in $dest"
+print "OCR output written to $output_dir"
