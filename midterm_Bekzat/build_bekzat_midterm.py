@@ -1296,6 +1296,267 @@ def build_94_notebooks() -> None:
     )
 
 
+def build_95_notebook() -> None:
+    write_notebook(
+        "9.5 ModelArts Lab Guide",
+        "9.5 ModelArts Lab Guide.ipynb",
+        intro_cells("1 ModelArts ExeML Local Image Classification", "ModelArts Lab Guide - Student Version")
+        + [
+            md_cell("## 1.1 Local ModelArts Workspace\nA compact image dataset is generated locally to represent the same classification workflow without cloud storage or large downloads."),
+            code_cell(
+                """
+                import numpy as np
+                import matplotlib.pyplot as plt
+                from sklearn.model_selection import train_test_split
+
+                rng = np.random.default_rng(95)
+                canvas_size = 24
+                cultivar_names = np.array(["aster", "iris", "lotus", "orchid", "violet"])
+                palette_bank = np.array([
+                    [0.95, 0.72, 0.22],
+                    [0.28, 0.49, 0.92],
+                    [0.93, 0.55, 0.72],
+                    [0.61, 0.30, 0.82],
+                    [0.35, 0.74, 0.50],
+                ])
+
+                def synthesize_tile(label_id, sample_id):
+                    base = np.ones((canvas_size, canvas_size, 3), dtype=float) * palette_bank[label_id]
+                    row_axis = np.linspace(0, 1, canvas_size)[:, None]
+                    col_axis = np.linspace(0, 1, canvas_size)[None, :]
+                    wave = np.sin((label_id + 2) * np.pi * col_axis + sample_id * 0.13)
+                    ring = np.cos((label_id + 1) * np.pi * row_axis)
+                    base[:, :, 0] += 0.10 * wave
+                    base[:, :, 1] += 0.08 * ring
+                    base[:, :, 2] += 0.05 * (row_axis - col_axis)
+                    return np.clip(base + rng.normal(0, 0.055, base.shape), 0, 1)
+
+                picture_stack = []
+                target_codes = []
+                for class_id in range(len(cultivar_names)):
+                    for sample_id in range(36):
+                        picture_stack.append(synthesize_tile(class_id, sample_id))
+                        target_codes.append(class_id)
+
+                picture_stack = np.array(picture_stack)
+                target_codes = np.array(target_codes)
+                train_tiles, valid_tiles, train_codes, valid_codes = train_test_split(
+                    picture_stack, target_codes, test_size=0.25, stratify=target_codes, random_state=95
+                )
+                print("workspace tensor:", picture_stack.shape)
+                print("training split:", train_tiles.shape, "validation split:", valid_tiles.shape)
+                """
+            ),
+            md_cell("## 1.2 Dataset Preview\nThe image classes are visualized before feature extraction, similar to checking a ModelArts dataset version."),
+            code_cell(
+                """
+                fig, axes = plt.subplots(2, 5, figsize=(8, 3.5))
+                for ax, image, label in zip(axes.ravel(), picture_stack[::18][:10], target_codes[::18][:10]):
+                    ax.imshow(image)
+                    ax.set_title(cultivar_names[label], fontsize=8)
+                    ax.axis("off")
+                fig.suptitle("Local image dataset preview")
+                plt.tight_layout()
+                plt.show()
+                """
+            ),
+            md_cell("## 1.3 Feature Engineering Service\nA frozen feature block extracts color, texture, and quadrant statistics instead of reusing the friend's MobileNet code."),
+            code_cell(
+                """
+                def prepare_image_profile(tile_batch):
+                    channel_mean = tile_batch.mean(axis=(1, 2))
+                    channel_std = tile_batch.std(axis=(1, 2))
+                    horizontal_edge = np.abs(np.diff(tile_batch, axis=1)).mean(axis=(1, 2))
+                    vertical_edge = np.abs(np.diff(tile_batch, axis=2)).mean(axis=(1, 2))
+                    upper_left = tile_batch[:, :12, :12, :].mean(axis=(1, 2))
+                    lower_right = tile_batch[:, 12:, 12:, :].mean(axis=(1, 2))
+                    return np.concatenate([channel_mean, channel_std, horizontal_edge, vertical_edge, upper_left - lower_right], axis=1)
+
+                modelarts_train_matrix = prepare_image_profile(train_tiles)
+                modelarts_valid_matrix = prepare_image_profile(valid_tiles)
+                print("feature table:", modelarts_train_matrix.shape)
+                """
+            ),
+            md_cell("## 1.4 ExeML-Style Training Job\nA small classifier is trained and evaluated as if it were the local equivalent of an ExeML image classification job."),
+            code_cell(
+                """
+                from sklearn.ensemble import RandomForestClassifier
+                from sklearn.metrics import accuracy_score
+
+                image_service_model = RandomForestClassifier(n_estimators=90, max_depth=7, random_state=95)
+                image_service_model.fit(modelarts_train_matrix, train_codes)
+                validation_guess = image_service_model.predict(modelarts_valid_matrix)
+                print("validation accuracy:", round(accuracy_score(valid_codes, validation_guess), 3))
+                print(list(zip(cultivar_names[valid_codes[:8]], cultivar_names[validation_guess[:8]])))
+                """
+            ),
+            md_cell("## 1.5 Confusion Matrix\nThe validation matrix shows where the deployed image classifier confuses similar classes."),
+            code_cell(
+                """
+                from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+
+                cm = confusion_matrix(valid_codes, validation_guess, labels=np.arange(len(cultivar_names)))
+                fig, ax = plt.subplots(figsize=(6, 5))
+                ConfusionMatrixDisplay(cm, display_labels=cultivar_names).plot(ax=ax, cmap="Purples", colorbar=False)
+                ax.set_title("ModelArts-style validation matrix")
+                plt.xticks(rotation=35, ha="right")
+                plt.tight_layout()
+                plt.show()
+                """
+            ),
+            md_cell("## 1.6 Endpoint Prediction Simulation\nA final batch is passed through the trained model to imitate an online prediction endpoint."),
+            code_cell(
+                """
+                def classify_endpoint_batch(images):
+                    profile = prepare_image_profile(images)
+                    predicted_codes = image_service_model.predict(profile)
+                    probabilities = image_service_model.predict_proba(profile).max(axis=1)
+                    return predicted_codes, probabilities
+
+                endpoint_codes, endpoint_scores = classify_endpoint_batch(valid_tiles[:10])
+                fig, axes = plt.subplots(2, 5, figsize=(9, 4))
+                for ax, image, truth, pred, score in zip(axes.ravel(), valid_tiles[:10], valid_codes[:10], endpoint_codes, endpoint_scores):
+                    ax.imshow(image)
+                    color = "#16883a" if truth == pred else "#b22222"
+                    ax.set_title(f"{cultivar_names[pred]} {score:.2f}\\ntrue {cultivar_names[truth]}", fontsize=8, color=color)
+                    ax.axis("off")
+                plt.tight_layout()
+                plt.show()
+                """
+            ),
+        ],
+    )
+
+
+def build_final_exam_notebook() -> None:
+    write_notebook(
+        "AI Final Exam Lab",
+        "AI Final Exam Lab.ipynb",
+        intro_cells("1 Handwritten Digit Recognition Final Lab", "AI Final Exam Lab - Student Version")
+        + [
+            md_cell("## 1.1 Dataset Acquisition\nThe final lab uses the built-in handwritten digits dataset so the notebook remains local and repeatable."),
+            code_cell(
+                """
+                import numpy as np
+                import matplotlib.pyplot as plt
+                from sklearn.datasets import load_digits
+                from sklearn.model_selection import train_test_split
+                from sklearn.preprocessing import StandardScaler
+
+                digits_bundle = load_digits()
+                digit_images = digits_bundle.images.astype("float32")
+                digit_labels = digits_bundle.target
+                flat_pixels = digit_images.reshape(len(digit_images), -1)
+                train_pixels, test_pixels, train_digits, test_digits = train_test_split(
+                    flat_pixels, digit_labels, test_size=0.25, stratify=digit_labels, random_state=120
+                )
+                pixel_scaler = StandardScaler().fit(train_pixels)
+                train_scaled = pixel_scaler.transform(train_pixels)
+                test_scaled = pixel_scaler.transform(test_pixels)
+                print("digit image tensor:", digit_images.shape)
+                print("train/test rows:", train_scaled.shape, test_scaled.shape)
+                """
+            ),
+            md_cell("## 1.2 Image Grid\nA sample grid confirms how each handwritten digit is encoded as an 8x8 numeric image."),
+            code_cell(
+                """
+                fig, axes = plt.subplots(3, 6, figsize=(7, 3.8))
+                for ax, image, label in zip(axes.ravel(), digit_images[:18], digit_labels[:18]):
+                    ax.imshow(image, cmap="gray_r")
+                    ax.set_title(str(label), fontsize=8)
+                    ax.axis("off")
+                fig.suptitle("Handwritten digit samples")
+                plt.tight_layout()
+                plt.show()
+                """
+            ),
+            md_cell("## 1.3 Dense Neural Network\nThe dense model flattens the image and learns class boundaries with hidden layers."),
+            code_cell(
+                """
+                from sklearn.metrics import accuracy_score
+                from sklearn.neural_network import MLPClassifier
+
+                dense_digit_net = MLPClassifier(
+                    hidden_layer_sizes=(96, 48), activation="relu", max_iter=140, early_stopping=True, random_state=120
+                )
+                dense_digit_net.fit(train_scaled, train_digits)
+                dense_predictions = dense_digit_net.predict(test_scaled)
+                dense_accuracy = accuracy_score(test_digits, dense_predictions)
+                print("DNN-style accuracy:", round(dense_accuracy, 3))
+                print("training iterations:", dense_digit_net.n_iter_)
+                """
+            ),
+            md_cell("## 1.4 CNN-Style Spatial Feature Model\nInstead of copying the TensorFlow CNN, this version extracts local patch and edge features before classification."),
+            code_cell(
+                """
+                from sklearn.linear_model import LogisticRegression
+
+                def spatial_digit_descriptor(flat_batch):
+                    image_batch = flat_batch.reshape(-1, 8, 8)
+                    row_edges = np.abs(np.diff(image_batch, axis=1)).mean(axis=2)
+                    col_edges = np.abs(np.diff(image_batch, axis=2)).mean(axis=1)
+                    quadrants = np.stack([
+                        image_batch[:, :4, :4].mean(axis=(1, 2)),
+                        image_batch[:, :4, 4:].mean(axis=(1, 2)),
+                        image_batch[:, 4:, :4].mean(axis=(1, 2)),
+                        image_batch[:, 4:, 4:].mean(axis=(1, 2)),
+                    ], axis=1)
+                    center_mass = image_batch[:, 2:6, 2:6].mean(axis=(1, 2), keepdims=False).reshape(-1, 1)
+                    return np.concatenate([flat_batch, row_edges, col_edges, quadrants, center_mass], axis=1)
+
+                train_spatial = spatial_digit_descriptor(train_pixels / 16.0)
+                test_spatial = spatial_digit_descriptor(test_pixels / 16.0)
+                spatial_digit_net = LogisticRegression(max_iter=700, solver="lbfgs")
+                spatial_digit_net.fit(train_spatial, train_digits)
+                spatial_predictions = spatial_digit_net.predict(test_spatial)
+                spatial_accuracy = accuracy_score(test_digits, spatial_predictions)
+                print("CNN-style spatial accuracy:", round(spatial_accuracy, 3))
+                """
+            ),
+            md_cell("## 1.5 Model Comparison\nBoth approaches are compared with the same test split."),
+            code_cell(
+                """
+                comparison_names = ["DNN-style", "CNN-style"]
+                comparison_scores = [dense_accuracy, spatial_accuracy]
+                fig, ax = plt.subplots(figsize=(6, 4))
+                bars = ax.bar(comparison_names, comparison_scores, color=["#315b96", "#2a9d8f"])
+                ax.set_ylim(0.85, 1.01)
+                ax.set_ylabel("test accuracy")
+                ax.set_title("Final lab model comparison")
+                for bar in bars:
+                    ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005, f"{bar.get_height():.3f}", ha="center")
+                plt.tight_layout()
+                plt.show()
+                """
+            ),
+            md_cell("## 1.6 Confusion Matrix and Deployment Check\nThe better model is inspected through a confusion matrix and a small prediction grid."),
+            code_cell(
+                """
+                from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+
+                final_predictions = spatial_predictions if spatial_accuracy >= dense_accuracy else dense_predictions
+                final_title = "CNN-style spatial" if spatial_accuracy >= dense_accuracy else "DNN-style dense"
+                matrix = confusion_matrix(test_digits, final_predictions, labels=np.arange(10))
+                fig, ax = plt.subplots(figsize=(6, 5))
+                ConfusionMatrixDisplay(matrix, display_labels=np.arange(10)).plot(ax=ax, cmap="Blues", colorbar=False)
+                ax.set_title(f"Confusion matrix - {final_title}")
+                plt.tight_layout()
+                plt.show()
+
+                fig, axes = plt.subplots(2, 5, figsize=(8, 3.7))
+                test_images = test_pixels.reshape(-1, 8, 8)
+                for ax, image, truth, pred in zip(axes.ravel(), test_images[:10], test_digits[:10], final_predictions[:10]):
+                    ax.imshow(image, cmap="gray_r")
+                    ax.set_title(f"pred {pred} / true {truth}", fontsize=8, color="#16883a" if pred == truth else "#b22222")
+                    ax.axis("off")
+                plt.tight_layout()
+                plt.show()
+                """
+            ),
+        ],
+    )
+
+
 def build_assets() -> None:
     import matplotlib
 
@@ -1304,9 +1565,10 @@ def build_assets() -> None:
     import numpy as np
     import pandas as pd
     from sklearn.cluster import KMeans
+    from sklearn.ensemble import RandomForestClassifier
     from sklearn.datasets import load_digits, make_blobs
-    from sklearn.linear_model import LinearRegression
-    from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+    from sklearn.linear_model import LinearRegression, LogisticRegression
+    from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score, confusion_matrix
     from sklearn.model_selection import train_test_split
     from sklearn.neural_network import MLPClassifier
     from sklearn.preprocessing import StandardScaler
@@ -1316,11 +1578,12 @@ def build_assets() -> None:
     plt.style.use("seaborn-v0_8-whitegrid")
 
     fig, ax = plt.subplots(figsize=(8, 3.8))
-    sections = ["9.2 Python", "9.3 ML", "9.4 DL"]
-    completion = [4, 9, 5]
-    ax.bar(sections, completion, color=["#335C67", "#E09F3E", "#9E2A2B"])
+    sections = ["9.2 Python", "9.3 ML", "9.4 DL", "9.5 ModelArts", "Final Exam"]
+    completion = [4, 9, 5, 1, 1]
+    ax.bar(sections, completion, color=["#335C67", "#E09F3E", "#9E2A2B", "#5E548E", "#2A9D8F"])
     ax.set_ylabel("completed labs")
     ax.set_title("Sundetkhan Bekzat midterm lab coverage")
+    ax.tick_params(axis="x", rotation=18)
     for idx, value in enumerate(completion):
         ax.text(idx, value + 0.15, str(value), ha="center")
     fig.tight_layout()
@@ -1406,6 +1669,122 @@ def build_assets() -> None:
     fig.savefig(ASSET_DIR / "transfer_flow_bekzat.png", dpi=150)
     plt.close(fig)
 
+    rng = np.random.default_rng(95)
+    canvas_size = 24
+    cultivar_names = np.array(["aster", "iris", "lotus", "orchid", "violet"])
+    palette_bank = np.array([
+        [0.95, 0.72, 0.22],
+        [0.28, 0.49, 0.92],
+        [0.93, 0.55, 0.72],
+        [0.61, 0.30, 0.82],
+        [0.35, 0.74, 0.50],
+    ])
+
+    def synthesize_tile(label_id, sample_id):
+        base = np.ones((canvas_size, canvas_size, 3), dtype=float) * palette_bank[label_id]
+        row_axis = np.linspace(0, 1, canvas_size)[:, None]
+        col_axis = np.linspace(0, 1, canvas_size)[None, :]
+        base[:, :, 0] += 0.10 * np.sin((label_id + 2) * np.pi * col_axis + sample_id * 0.13)
+        base[:, :, 1] += 0.08 * np.cos((label_id + 1) * np.pi * row_axis)
+        base[:, :, 2] += 0.05 * (row_axis - col_axis)
+        return np.clip(base + rng.normal(0, 0.055, base.shape), 0, 1)
+
+    modelarts_images = []
+    modelarts_labels = []
+    for class_id in range(len(cultivar_names)):
+        for sample_id in range(36):
+            modelarts_images.append(synthesize_tile(class_id, sample_id))
+            modelarts_labels.append(class_id)
+    modelarts_images = np.array(modelarts_images)
+    modelarts_labels = np.array(modelarts_labels)
+
+    fig, axes = plt.subplots(2, 5, figsize=(8, 3.5))
+    for ax, image, label in zip(axes.ravel(), modelarts_images[::18][:10], modelarts_labels[::18][:10]):
+        ax.imshow(image)
+        ax.set_title(cultivar_names[label], fontsize=8)
+        ax.axis("off")
+    fig.suptitle("ModelArts local image samples")
+    fig.tight_layout()
+    fig.savefig(ASSET_DIR / "modelarts_gallery_bekzat.png", dpi=150)
+    plt.close(fig)
+
+    def prepare_image_profile(tile_batch):
+        channel_mean = tile_batch.mean(axis=(1, 2))
+        channel_std = tile_batch.std(axis=(1, 2))
+        horizontal_edge = np.abs(np.diff(tile_batch, axis=1)).mean(axis=(1, 2))
+        vertical_edge = np.abs(np.diff(tile_batch, axis=2)).mean(axis=(1, 2))
+        upper_left = tile_batch[:, :12, :12, :].mean(axis=(1, 2))
+        lower_right = tile_batch[:, 12:, 12:, :].mean(axis=(1, 2))
+        return np.concatenate([channel_mean, channel_std, horizontal_edge, vertical_edge, upper_left - lower_right], axis=1)
+
+    train_tiles, valid_tiles, train_codes, valid_codes = train_test_split(
+        modelarts_images, modelarts_labels, test_size=0.25, stratify=modelarts_labels, random_state=95
+    )
+    modelarts_head = RandomForestClassifier(n_estimators=90, max_depth=7, random_state=95)
+    modelarts_head.fit(prepare_image_profile(train_tiles), train_codes)
+    modelarts_pred = modelarts_head.predict(prepare_image_profile(valid_tiles))
+    modelarts_cm = confusion_matrix(valid_codes, modelarts_pred, labels=np.arange(len(cultivar_names)))
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ConfusionMatrixDisplay(modelarts_cm, display_labels=cultivar_names).plot(ax=ax, cmap="Purples", colorbar=False)
+    ax.set_title(f"ModelArts validation accuracy {accuracy_score(valid_codes, modelarts_pred):.3f}")
+    plt.xticks(rotation=35, ha="right")
+    fig.tight_layout()
+    fig.savefig(ASSET_DIR / "modelarts_confusion_bekzat.png", dpi=150)
+    plt.close(fig)
+
+    digit_subset = load_digits()
+    digit_flat = digit_subset.data
+    digit_targets = digit_subset.target
+    train_flat, test_flat, train_digit, test_digit = train_test_split(
+        digit_flat, digit_targets, stratify=digit_targets, test_size=0.25, random_state=120
+    )
+    digit_scaler = StandardScaler().fit(train_flat)
+    dense_digit_net = MLPClassifier(hidden_layer_sizes=(96, 48), max_iter=140, early_stopping=True, random_state=120)
+    dense_digit_net.fit(digit_scaler.transform(train_flat), train_digit)
+    dense_digit_pred = dense_digit_net.predict(digit_scaler.transform(test_flat))
+
+    def spatial_digit_descriptor(flat_batch):
+        image_batch = flat_batch.reshape(-1, 8, 8)
+        row_edges = np.abs(np.diff(image_batch, axis=1)).mean(axis=2)
+        col_edges = np.abs(np.diff(image_batch, axis=2)).mean(axis=1)
+        quadrants = np.stack([
+            image_batch[:, :4, :4].mean(axis=(1, 2)),
+            image_batch[:, :4, 4:].mean(axis=(1, 2)),
+            image_batch[:, 4:, :4].mean(axis=(1, 2)),
+            image_batch[:, 4:, 4:].mean(axis=(1, 2)),
+        ], axis=1)
+        center_mass = image_batch[:, 2:6, 2:6].mean(axis=(1, 2), keepdims=False).reshape(-1, 1)
+        return np.concatenate([flat_batch, row_edges, col_edges, quadrants, center_mass], axis=1)
+
+    train_spatial = spatial_digit_descriptor(train_flat / 16.0)
+    test_spatial = spatial_digit_descriptor(test_flat / 16.0)
+    spatial_digit_net = LogisticRegression(max_iter=700, solver="lbfgs")
+    spatial_digit_net.fit(train_spatial, train_digit)
+    spatial_digit_pred = spatial_digit_net.predict(test_spatial)
+    dense_acc = accuracy_score(test_digit, dense_digit_pred)
+    spatial_acc = accuracy_score(test_digit, spatial_digit_pred)
+
+    fig, axes = plt.subplots(3, 6, figsize=(7, 3.8))
+    for ax, image, label in zip(axes.ravel(), digit_subset.images[:18], digit_subset.target[:18]):
+        ax.imshow(image, cmap="gray_r")
+        ax.set_title(str(label), fontsize=8)
+        ax.axis("off")
+    fig.suptitle("Final exam digit samples")
+    fig.tight_layout()
+    fig.savefig(ASSET_DIR / "final_digits_grid_bekzat.png", dpi=150)
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    bars = ax.bar(["DNN-style", "CNN-style"], [dense_acc, spatial_acc], color=["#315B96", "#2A9D8F"])
+    ax.set_ylim(0.85, 1.01)
+    ax.set_ylabel("test accuracy")
+    ax.set_title("AI Final Exam model comparison")
+    for bar in bars:
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005, f"{bar.get_height():.3f}", ha="center")
+    fig.tight_layout()
+    fig.savefig(ASSET_DIR / "final_model_compare_bekzat.png", dpi=150)
+    plt.close(fig)
+
     matrix = np.array([[4, 0], [1, 3]])
     fig, ax = plt.subplots(figsize=(4, 4))
     ConfusionMatrixDisplay(confusion_matrix=matrix, display_labels=["negative", "positive"]).plot(ax=ax, colorbar=False, cmap="Blues")
@@ -1428,13 +1807,15 @@ def write_reports() -> None:
 
 ## Overview
 
-This folder contains an independent implementation of the midterm lab set for Huawei HCIA-AI V3.5 sections 9.2, 9.3, and 9.4. The notebooks are written to run locally with synthetic or built-in datasets so the work can be checked without downloading large archives.
+This folder contains an independent implementation of the Huawei HCIA-AI V3.5 midterm lab set: sections 9.2, 9.3, 9.4, the 9.5 ModelArts lab, and the AI Final Exam lab. The notebooks are written to run locally with synthetic or built-in datasets so the work can be checked without downloading large archives.
 
 ## Contents
 
 - `9.2 Python`: four notebooks covering data types, control flow, file I/O, regex, decorators, and a small treasury ledger.
 - `9.3 Machine Learning`: nine notebooks covering regression, feature engineering, recommendation, credit scoring, survival prediction, clustering, flower classification, user segmentation, and sentiment analysis.
 - `9.4 Deep Learning`: five notebooks covering tensor basics, dense digit classification, transfer-learning workflow, residual connections, and TextCNN-style sentiment features.
+- `9.5 ModelArts Lab Guide`: one notebook reproducing a ModelArts-style image classification pipeline locally with independent synthetic images and a separate feature extractor.
+- `AI Final Exam Lab`: one notebook comparing dense and CNN-style handwritten digit recognition workflows on a local dataset.
 - `assets`: generated figures used by the reports.
 - `huawei_midterm.tex` and `huawei_midterm.pdf`: written report files for review.
 
@@ -1446,7 +1827,7 @@ From the repository root:
 uv run --with jupyter --with numpy --with pandas --with scikit-learn --with matplotlib jupyter nbconvert --to notebook --execute --inplace "midterm_Bekzat/Labs_notebooks/9.3 Machine Learning/9.3.1 Machine Learning Basic Lab Guide/9.3.1 Machine Learning Basic Lab Guide.ipynb"
 ```
 
-The notebooks avoid interactive input and use deterministic random seeds. MindSpore is optional in section 9.4; when it is unavailable, the notebooks use NumPy or scikit-learn fallbacks while preserving the same workflow idea.
+The notebooks avoid interactive input and use deterministic random seeds. MindSpore is optional in section 9.4; the ModelArts and final exam notebooks use local equivalents so they can be reviewed without Huawei cloud credentials or external MNIST downloads.
 
 ![Course progress](assets/course_progress_bekzat.png)
 """,
@@ -1546,6 +1927,65 @@ The notebooks are runnable without network downloads and still show the key engi
         encoding="utf-8",
     )
 
+    (NOTEBOOK_ROOT / "Report_9.5_ModelArts.md").write_text(
+        f"""# Section 9.5: ModelArts Local Image Classification
+
+**Student:** {AUTHOR}
+
+## Purpose
+
+Section 9.5 reproduces the idea of Huawei ModelArts ExeML image classification without requiring cloud access. The notebook creates an independent synthetic image dataset, validates class balance, extracts local image descriptors, trains a classifier, and checks endpoint-style predictions.
+
+## Main Work
+
+- Built a local image workspace with five flower-like categories using generated color and texture patterns.
+- Implemented a feature extraction service based on channel statistics, edge strength, and quadrant differences.
+- Trained a Random Forest classifier as a compact ExeML-style image classification job.
+- Evaluated the model with a confusion matrix and a simulated endpoint prediction batch.
+
+## Visual Evidence
+
+![ModelArts image samples](assets/modelarts_gallery_bekzat.png)
+
+![ModelArts confusion matrix](assets/modelarts_confusion_bekzat.png)
+
+## Result
+
+The notebook follows the same ModelArts workflow idea while using different variable names, helper functions, synthetic data, and local execution logic. It is not a direct copy of the reference folder.
+""",
+        encoding="utf-8",
+    )
+
+    (NOTEBOOK_ROOT / "Report_AI_Final_Exam.md").write_text(
+        f"""# AI Final Exam Lab: Handwritten Digit Recognition
+
+**Student:** {AUTHOR}
+
+## Purpose
+
+The final exam notebook demonstrates handwritten digit recognition with two model styles. Instead of copying the TensorFlow/MNIST implementation from the other folder, this version uses the built-in digits dataset and compares a dense neural network with a CNN-style spatial feature model.
+
+## Main Work
+
+- Loaded a local handwritten digit dataset and prepared a stratified train/test split.
+- Visualized digit samples to confirm the input image structure.
+- Trained a dense MLP classifier on scaled flattened pixels.
+- Built a CNN-style spatial descriptor from local edges, quadrants, and center mass before classification.
+- Compared test accuracy and inspected prediction behavior through a confusion matrix and deployment-style grid.
+
+## Visual Evidence
+
+![Final exam digit grid](assets/final_digits_grid_bekzat.png)
+
+![Final exam model comparison](assets/final_model_compare_bekzat.png)
+
+## Result
+
+The notebook covers the final exam objective with independent preprocessing names, model variables, feature functions, and plotting logic. It remains fast and reproducible on a local machine.
+""",
+        encoding="utf-8",
+    )
+
     (NOTEBOOK_ROOT / "chapter1.tex").write_text(
         f"""Section 9.2 was completed as four executable Python notebooks. The work covers core data structures, branch and loop logic, reusable functions, object-oriented records, file I/O, regular expressions, decorators, and a small treasury ledger. The implementation by {AUTHOR} uses deterministic examples so every notebook can be re-run during review.\n""",
         encoding="utf-8",
@@ -1556,6 +1996,14 @@ The notebooks are runnable without network downloads and still show the key engi
     )
     (NOTEBOOK_ROOT / "chapter3.tex").write_text(
         """Section 9.4 contains five deep learning concept notebooks. The implementation checks optional MindSpore availability and otherwise uses local NumPy or scikit-learn fallbacks. The notebooks cover tensor operations, dense digit classification, transfer-learning flow, residual shape safety, and TextCNN-style sentiment pooling.\n""",
+        encoding="utf-8",
+    )
+    (NOTEBOOK_ROOT / "chapter4.tex").write_text(
+        """Section 9.5 adds a ModelArts-style image classification notebook. The work avoids cloud credentials by building a local synthetic image workspace, extracting independent image profiles, training a Random Forest classifier, and validating predictions with a confusion matrix plus endpoint-style batch inference.\n""",
+        encoding="utf-8",
+    )
+    (NOTEBOOK_ROOT / "chapter5.tex").write_text(
+        """The AI Final Exam lab adds a handwritten digit recognition workflow. It compares a dense neural model against a CNN-style spatial feature pipeline using the same local train/test split, then reports model accuracy and prediction behavior with visual evidence.\n""",
         encoding="utf-8",
     )
 
@@ -1576,7 +2024,7 @@ The notebooks are runnable without network downloads and still show the key engi
 \\newpage
 
 \\section{{Repository and Course Coverage}}
-This report summarizes the local midterm implementation in \\texttt{{midterm\\_Bekzat/Labs\\_notebooks}}. The notebooks cover sections 9.2, 9.3, and 9.4 with independent code and deterministic local examples.
+This report summarizes the local midterm implementation in \\texttt{{midterm\\_Bekzat/Labs\\_notebooks}}. The notebooks cover sections 9.2, 9.3, 9.4, the 9.5 ModelArts lab, and the AI Final Exam lab with independent code and deterministic local examples.
 
 \\begin{{figure}}[H]
 \\centering
@@ -1609,6 +2057,36 @@ This report summarizes the local midterm implementation in \\texttt{{midterm\\_B
 \\centering
 \\includegraphics[width=0.75\\linewidth]{{assets/digits_predictions_bekzat.png}}
 \\caption{{Digit classifier predictions}}
+\\end{{figure}}
+
+\\section{{ModelArts Local Image Classification}}
+\\input{{chapter4.tex}}
+
+\\begin{{figure}}[H]
+\\centering
+\\includegraphics[width=0.75\\linewidth]{{assets/modelarts_gallery_bekzat.png}}
+\\caption{{ModelArts-style generated image samples}}
+\\end{{figure}}
+
+\\begin{{figure}}[H]
+\\centering
+\\includegraphics[width=0.75\\linewidth]{{assets/modelarts_confusion_bekzat.png}}
+\\caption{{ModelArts-style validation confusion matrix}}
+\\end{{figure}}
+
+\\section{{AI Final Exam Lab}}
+\\input{{chapter5.tex}}
+
+\\begin{{figure}}[H]
+\\centering
+\\includegraphics[width=0.75\\linewidth]{{assets/final_digits_grid_bekzat.png}}
+\\caption{{Final exam handwritten digit samples}}
+\\end{{figure}}
+
+\\begin{{figure}}[H]
+\\centering
+\\includegraphics[width=0.75\\linewidth]{{assets/final_model_compare_bekzat.png}}
+\\caption{{Final exam model comparison}}
 \\end{{figure}}
 
 \\end{{document}}
@@ -1646,6 +2124,16 @@ def write_pdf_summary() -> None:
             "Five notebooks cover tensor basics, digit classification, transfer learning, residual blocks, and TextCNN-style sentiment features with local fallbacks.",
             ASSET_DIR / "digits_predictions_bekzat.png",
         ),
+        (
+            "Section 9.5 ModelArts",
+            "One notebook reproduces a ModelArts-style image classification workflow locally with synthetic image classes, independent feature profiles, a Random Forest classifier, and endpoint-style predictions.",
+            ASSET_DIR / "modelarts_confusion_bekzat.png",
+        ),
+        (
+            "AI Final Exam Lab",
+            "One notebook compares a dense neural classifier with a CNN-style spatial feature model for handwritten digit recognition using a reproducible local dataset.",
+            ASSET_DIR / "final_model_compare_bekzat.png",
+        ),
     ]
 
     with PdfPages(pdf_path) as pdf:
@@ -1665,7 +2153,7 @@ def write_pdf_summary() -> None:
 
 
 def validate_notebooks() -> None:
-    expected = list(NOTEBOOK_ROOT.glob("9.*/*/*.ipynb"))
+    expected = list(NOTEBOOK_ROOT.rglob("*.ipynb"))
     for path in expected:
         json.loads(path.read_text(encoding="utf-8"))
     print(f"Validated {len(expected)} notebooks")
@@ -1677,6 +2165,8 @@ def main() -> None:
     build_92_notebooks()
     build_93_notebooks()
     build_94_notebooks()
+    build_95_notebook()
+    build_final_exam_notebook()
     build_assets()
     write_reports()
     try:

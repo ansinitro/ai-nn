@@ -10,7 +10,9 @@ reports = [
     "README.md",
     "Report_9.2_Python.md",
     "Report_9.3_Machine_Learning.md",
-    "Report_9.4_Deep_Learning.md"
+    "Report_9.4_Deep_Learning.md",
+    "Report_9.5_ModelArts.md",
+    "Report_AI_Final_Exam.md",
 ]
 
 typst_content = f"""#set page(paper: "a4", margin: 2.5cm)

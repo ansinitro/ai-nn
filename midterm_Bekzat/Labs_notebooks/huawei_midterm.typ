@@ -25,13 +25,15 @@
 
 == Overview
 
-This folder contains an independent implementation of the midterm lab set for Huawei HCIA-AI V3.5 sections 9.2, 9.3, and 9.4. The notebooks are written to run locally with synthetic or built-in datasets so the work can be checked without downloading large archives.
+This folder contains an independent implementation of the Huawei HCIA-AI V3.5 midterm lab set: sections 9.2, 9.3, 9.4, the 9.5 ModelArts lab, and the AI Final Exam lab. The notebooks are written to run locally with synthetic or built-in datasets so the work can be checked without downloading large archives.
 
 == Contents
 
 - `9.2 Python`: four notebooks covering data types, control flow, file I/O, regex, decorators, and a small treasury ledger.
 - `9.3 Machine Learning`: nine notebooks covering regression, feature engineering, recommendation, credit scoring, survival prediction, clustering, flower classification, user segmentation, and sentiment analysis.
 - `9.4 Deep Learning`: five notebooks covering tensor basics, dense digit classification, transfer-learning workflow, residual connections, and TextCNN-style sentiment features.
+- `9.5 ModelArts Lab Guide`: one notebook reproducing a ModelArts-style image classification pipeline locally with independent synthetic images and a separate feature extractor.
+- `AI Final Exam Lab`: one notebook comparing dense and CNN-style handwritten digit recognition workflows on a local dataset.
 - `assets`: generated figures used by the reports.
 - `huawei_midterm.tex` and `huawei_midterm.pdf`: written report files for review.
 
@@ -43,7 +45,7 @@ From the repository root:
 uv run --with jupyter --with numpy --with pandas --with scikit-learn --with matplotlib jupyter nbconvert --to notebook --execute --inplace "midterm_Bekzat/Labs_notebooks/9.3 Machine Learning/9.3.1 Machine Learning Basic Lab Guide/9.3.1 Machine Learning Basic Lab Guide.ipynb"
 ```
 
-The notebooks avoid interactive input and use deterministic random seeds. MindSpore is optional in section 9.4; when it is unavailable, the notebooks use NumPy or scikit-learn fallbacks while preserving the same workflow idea.
+The notebooks avoid interactive input and use deterministic random seeds. MindSpore is optional in section 9.4; the ModelArts and final exam notebooks use local equivalents so they can be reviewed without Huawei cloud credentials or external MNIST downloads.
 
 #figure(image("assets/course_progress_bekzat.png", width: 85%), caption: [Course progress])
 
@@ -130,5 +132,58 @@ Section 9.4 covers the deep learning part of the midterm. Because large MindSpor
 == Result
 
 The notebooks are runnable without network downloads and still show the key engineering concerns of deep learning labs: tensor shapes, feature extraction, classification heads, residual paths, and text feature pooling.
+
+#pagebreak()
+= Section 9.5: ModelArts Local Image Classification
+
+*Student:* Sundetkhan Bekzat
+
+== Purpose
+
+Section 9.5 reproduces the idea of Huawei ModelArts ExeML image classification without requiring cloud access. The notebook creates an independent synthetic image dataset, validates class balance, extracts local image descriptors, trains a classifier, and checks endpoint-style predictions.
+
+== Main Work
+
+- Built a local image workspace with five flower-like categories using generated color and texture patterns.
+- Implemented a feature extraction service based on channel statistics, edge strength, and quadrant differences.
+- Trained a Random Forest classifier as a compact ExeML-style image classification job.
+- Evaluated the model with a confusion matrix and a simulated endpoint prediction batch.
+
+== Visual Evidence
+
+#figure(image("assets/modelarts_gallery_bekzat.png", width: 85%), caption: [ModelArts image samples])
+
+#figure(image("assets/modelarts_confusion_bekzat.png", width: 85%), caption: [ModelArts confusion matrix])
+
+== Result
+
+The notebook follows the same ModelArts workflow idea while using different variable names, helper functions, synthetic data, and local execution logic. It is not a direct copy of the reference folder.
+
+#pagebreak()
+= AI Final Exam Lab: Handwritten Digit Recognition
+
+*Student:* Sundetkhan Bekzat
+
+== Purpose
+
+The final exam notebook demonstrates handwritten digit recognition with two model styles. Instead of copying the TensorFlow/MNIST implementation from the other folder, this version uses the built-in digits dataset and compares a dense neural network with a CNN-style spatial feature model.
+
+== Main Work
+
+- Loaded a local handwritten digit dataset and prepared a stratified train/test split.
+- Visualized digit samples to confirm the input image structure.
+- Trained a dense MLP classifier on scaled flattened pixels.
+- Built a CNN-style spatial descriptor from local edges, quadrants, and center mass before classification.
+- Compared test accuracy and inspected prediction behavior through a confusion matrix and deployment-style grid.
+
+== Visual Evidence
+
+#figure(image("assets/final_digits_grid_bekzat.png", width: 85%), caption: [Final exam digit grid])
+
+#figure(image("assets/final_model_compare_bekzat.png", width: 85%), caption: [Final exam model comparison])
+
+== Result
+
+The notebook covers the final exam objective with independent preprocessing names, model variables, feature functions, and plotting logic. It remains fast and reproducible on a local machine.
 
 #pagebreak()

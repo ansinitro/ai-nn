@@ -12,6 +12,8 @@ REQUIRED_FILES = [
     "Report_9.2_Python.md",
     "Report_9.3_Machine_Learning.md",
     "Report_9.4_Deep_Learning.md",
+    "Report_9.5_ModelArts.md",
+    "Report_AI_Final_Exam.md",
     "huawei_midterm.tex",
     "huawei_midterm.pdf",
 ]
@@ -19,7 +21,7 @@ REQUIRED_FILES = [
 
 def main() -> None:
     missing = [name for name in REQUIRED_FILES if not (NOTEBOOK_ROOT / name).exists()]
-    notebooks = sorted(NOTEBOOK_ROOT.glob("9.*/*/*.ipynb"))
+    notebooks = sorted(NOTEBOOK_ROOT.rglob("*.ipynb"))
     assets = sorted((NOTEBOOK_ROOT / "assets").glob("*.png"))
 
     for notebook in notebooks:
@@ -27,8 +29,8 @@ def main() -> None:
 
     if missing:
         raise SystemExit(f"Missing required files: {missing}")
-    if len(notebooks) != 18:
-        raise SystemExit(f"Expected 18 notebooks, found {len(notebooks)}")
+    if len(notebooks) != 20:
+        raise SystemExit(f"Expected 20 notebooks, found {len(notebooks)}")
     if len(assets) < 8:
         raise SystemExit(f"Expected at least 8 assets, found {len(assets)}")
 

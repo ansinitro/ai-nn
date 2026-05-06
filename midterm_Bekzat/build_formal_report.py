@@ -248,6 +248,9 @@ def build_pdf() -> None:
         [paragraph("2.1 Section 9.3: Machine Learning Engineering &amp; Statistical Validation", contents_style), paragraph("5", contents_style)],
         [paragraph("3 Deep Learning &amp; AI Framework Architecture", contents_style), paragraph("13", contents_style)],
         [paragraph("3.1 Section 9.4: Deep Learning &amp; AI Framework Architecture", contents_style), paragraph("13", contents_style)],
+        [paragraph("4 ModelArts &amp; Final Exam Implementation", contents_style), paragraph("17", contents_style)],
+        [paragraph("4.1 Section 9.5: ModelArts Local Image Classification", contents_style), paragraph("17", contents_style)],
+        [paragraph("4.2 AI Final Exam Lab: Handwritten Digit Recognition", contents_style), paragraph("19", contents_style)],
     ]
     table = Table(contents_rows, colWidths=[14.2 * cm, 1.2 * cm])
     table.setStyle(TableStyle([
@@ -497,6 +500,67 @@ def build_pdf() -> None:
         "The deep learning section shows that the project understands the workflow behind larger Huawei labs: verify "
         "the runtime, prepare data, keep tensor shapes safe, isolate the trainable head, inspect named parameters, and "
         "evaluate predictions with visual evidence.",
+        normal,
+    ))
+    story.append(PageBreak())
+
+    story.append(paragraph("Chapter 4", chapter))
+    story.append(paragraph("ModelArts &amp; Final Exam Implementation", chapter))
+    story.append(paragraph("4.1 Section 9.5: ModelArts Local Image Classification", section))
+    story.append(paragraph("1. Introduction", subhead))
+    story.append(paragraph(
+        "The 9.5 notebook adds the missing ModelArts lab as a local ExeML-style image classification workflow. "
+        "Instead of copying the reference MobileNet notebook, it builds generated image classes, extracts independent "
+        "color and texture descriptors, trains a Random Forest classifier, and simulates endpoint inference.",
+        normal,
+    ))
+    story.append(paragraph("2. Local Image Workspace", subhead))
+    story.append(code_block(
+        """
+        def synthesize_tile(label_id, sample_id):
+            base = np.ones((canvas_size, canvas_size, 3)) * palette_bank[label_id]
+            return np.clip(base + rng.normal(0, 0.055, base.shape), 0, 1)
+        """,
+        code,
+    ))
+    story.append(image_block(ASSET_DIR / "modelarts_gallery_bekzat.png", "Figure 4.1: ModelArts Local Image Samples", 14.7 * cm, 8.4 * cm, caption))
+    story.append(PageBreak())
+    story.append(paragraph("3. ModelArts-Style Validation", subhead))
+    story.append(paragraph(
+        "The feature service uses channel means, channel standard deviations, edge responses, and quadrant differences. "
+        "This produces a compact table suitable for a local classifier while preserving the ModelArts workflow idea: "
+        "dataset preparation, training job, validation matrix, and endpoint prediction.",
+        normal,
+    ))
+    story.append(image_block(ASSET_DIR / "modelarts_confusion_bekzat.png", "Figure 4.2: ModelArts Validation Confusion Matrix", 14.5 * cm, 8.5 * cm, caption))
+    story.append(PageBreak())
+
+    story.append(paragraph("4.2 AI Final Exam Lab: Handwritten Digit Recognition", section))
+    story.append(paragraph("1. Introduction", subhead))
+    story.append(paragraph(
+        "The AI Final Exam notebook adds a handwritten digit recognition workflow. The implementation uses the local "
+        "digits dataset so the notebook can run without downloading MNIST. A dense neural classifier is compared with "
+        "a CNN-style spatial descriptor model using the same test split.",
+        normal,
+    ))
+    story.append(image_block(ASSET_DIR / "final_digits_grid_bekzat.png", "Figure 4.3: AI Final Exam Digit Samples", 14.7 * cm, 8.4 * cm, caption))
+    story.append(paragraph("2. Model Comparison", subhead))
+    story.append(code_block(
+        """
+        def spatial_digit_descriptor(flat_batch):
+            image_batch = flat_batch.reshape(-1, 8, 8)
+            row_edges = np.abs(np.diff(image_batch, axis=1)).mean(axis=2)
+            col_edges = np.abs(np.diff(image_batch, axis=2)).mean(axis=1)
+            return np.concatenate([flat_batch, row_edges, col_edges], axis=1)
+        """,
+        code,
+    ))
+    story.append(image_block(ASSET_DIR / "final_model_compare_bekzat.png", "Figure 4.4: AI Final Exam Model Comparison", 14.5 * cm, 8.5 * cm, caption))
+    story.append(paragraph("3. Completion Summary", subhead))
+    story.append(paragraph(
+        "With these two additions, the Bekzat midterm folder now includes 20 notebooks: 18 from sections 9.2-9.4, "
+        "one ModelArts lab, and one AI Final Exam lab. The new notebooks use different variable names, helper functions, "
+        "datasets, and plots from the reference folder while covering the same assignment goals.",
         normal,
     ))
 
