@@ -27,3 +27,7 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Private Deploy Bot (Do not commit)
+deploy_bot.py
+deploy_bot.log
