@@ -1,0 +1,14 @@
+torch
+sentence-transformers
+faiss-cpu
+PyMuPDF
+langchain
+langchain-text-splitters
+llama-cpp-python
+gradio
+rouge-score
+bert-score
+openai
+arxiv
+tqdm
+numpy
