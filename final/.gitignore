@@ -4,16 +4,6 @@ rag_env/
 # Model files (too large for git)
 models/*.gguf
 
-# Processed data (regeneratable)
-processed/
-
-# Downloaded papers (too large)
-data/papers/*.pdf
-
-# Evaluation results (regeneratable)
-eval/eval_results.csv
-eval/eval_report.json
-
 # Python
 __pycache__/
 *.pyc
