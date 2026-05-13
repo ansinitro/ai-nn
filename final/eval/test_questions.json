@@ -1,0 +1,77 @@
+[
+  {
+    "question": "What is the transformer architecture and how does self-attention work?",
+    "reference_answer": "The transformer architecture uses self-attention mechanisms to process sequences in parallel, computing attention weights between all positions simultaneously.",
+    "topic": "transformers"
+  },
+  {
+    "question": "What is batch normalization and why is it useful in deep learning?",
+    "reference_answer": "Batch normalization normalizes layer inputs by adjusting and scaling activations, which helps stabilize training, allows higher learning rates, and acts as a regularizer.",
+    "topic": "optimization"
+  },
+  {
+    "question": "How do convolutional neural networks process images?",
+    "reference_answer": "CNNs use convolutional layers with learnable filters to extract spatial features from images, using pooling to reduce dimensions and building hierarchical feature representations.",
+    "topic": "computer_vision"
+  },
+  {
+    "question": "What is transfer learning and how is it applied in NLP?",
+    "reference_answer": "Transfer learning involves pretraining a model on a large dataset then fine-tuning it on a smaller task-specific dataset. In NLP, models like BERT are pretrained on large text corpora then fine-tuned for downstream tasks.",
+    "topic": "nlp"
+  },
+  {
+    "question": "What are generative adversarial networks?",
+    "reference_answer": "GANs consist of a generator and discriminator network trained adversarially. The generator creates synthetic data while the discriminator tries to distinguish real from fake data.",
+    "topic": "generative_models"
+  },
+  {
+    "question": "How does reinforcement learning differ from supervised learning?",
+    "reference_answer": "Reinforcement learning learns through trial and error by maximizing cumulative reward from environment interactions, while supervised learning learns from labeled input-output pairs.",
+    "topic": "reinforcement_learning"
+  },
+  {
+    "question": "What is the purpose of dropout regularization?",
+    "reference_answer": "Dropout randomly deactivates neurons during training to prevent co-adaptation and overfitting, effectively training an ensemble of sub-networks.",
+    "topic": "regularization"
+  },
+  {
+    "question": "What are graph neural networks used for?",
+    "reference_answer": "Graph neural networks process graph-structured data by propagating information between connected nodes, used for social networks, molecular analysis, and recommendation systems.",
+    "topic": "graph_networks"
+  },
+  {
+    "question": "How do attention mechanisms improve sequence models?",
+    "reference_answer": "Attention mechanisms allow models to focus on relevant parts of the input when generating each output, solving the information bottleneck problem in encoder-decoder architectures.",
+    "topic": "attention"
+  },
+  {
+    "question": "What is few-shot learning?",
+    "reference_answer": "Few-shot learning aims to learn new concepts from very few labeled examples, often using meta-learning approaches that learn to learn across many tasks.",
+    "topic": "meta_learning"
+  },
+  {
+    "question": "What is the role of the learning rate in neural network training?",
+    "reference_answer": "The learning rate controls the step size during gradient descent optimization. Too high causes divergence, too low causes slow convergence. Schedulers and adaptive methods like Adam help manage it.",
+    "topic": "optimization"
+  },
+  {
+    "question": "How do diffusion models generate images?",
+    "reference_answer": "Diffusion models learn to gradually denoise data by reversing a forward diffusion process that adds Gaussian noise. They generate high-quality images by iteratively refining noise into structured outputs.",
+    "topic": "generative_models"
+  },
+  {
+    "question": "What is knowledge distillation?",
+    "reference_answer": "Knowledge distillation transfers knowledge from a large teacher model to a smaller student model by training the student to match the teacher's soft probability outputs.",
+    "topic": "model_compression"
+  },
+  {
+    "question": "What are the main challenges in federated learning?",
+    "reference_answer": "Federated learning faces challenges including non-IID data across clients, communication efficiency, privacy guarantees, and handling heterogeneous devices.",
+    "topic": "federated_learning"
+  },
+  {
+    "question": "What is self-supervised learning?",
+    "reference_answer": "Self-supervised learning creates supervised signals from unlabeled data using pretext tasks like masked language modeling or contrastive learning to learn useful representations.",
+    "topic": "self_supervised"
+  }
+]

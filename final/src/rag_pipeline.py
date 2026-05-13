@@ -14,10 +14,10 @@ from src.llm import LLM
 
 # Llama 2 Chat prompt template
 PROMPT_TEMPLATE = """[INST] <<SYS>>
-You are a knowledgeable AI assistant specialized in machine learning research.
-Answer the user's question ONLY using the provided context from research papers.
-Be precise and cite the source documents when possible.
-If the answer cannot be found in the context, say "Based on the provided papers, I cannot find information about this topic."
+You are a strict, highly accurate AI assistant for researchers. 
+Answer the user's question ONLY using the provided Context from research papers.
+You MUST cite your sources inside the text. At the end of EVERY sentence you write, you must add the exact Source name in brackets, like this: [1004.3563v1.pdf].
+Do not invent information. If the exact answer is not in the Context, simply reply: "Based on the provided papers, I cannot find information about this."
 <</SYS>>
 
 Context from research papers:

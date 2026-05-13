@@ -1,0 +1,43 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+No test questions found at /home/ansinitro/AITU/ai-nn/final/eval/test_questions.json
+Creating a template file...
+Created template with 15 questions at /home/ansinitro/AITU/ai-nn/final/eval/test_questions.json
+Loaded 15 test questions
+==================================================
+Initializing RAG Pipeline
+==================================================
+Loading retriever...
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 8864.44it/s]
+Exception ignored in: <function LlamaModel.__del__ at 0x71611cfe4220>
+Traceback (most recent call last):
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 87, in __del__
+    self.close()
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 79, in close
+    if self.sampler is not None:
+       ^^^^^^^^^^^^
+AttributeError: 'LlamaModel' object has no attribute 'sampler'
+Exception ignored in: <function LlamaModel.__del__ at 0x71611cfe4220>
+Traceback (most recent call last):
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 87, in __del__
+    self.close()
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 79, in close
+    if self.sampler is not None:
+       ^^^^^^^^^^^^
+AttributeError: 'LlamaModel' object has no attribute 'sampler'
+Exception ignored in: <function LlamaModel.__del__ at 0x71611cfe4220>
+Traceback (most recent call last):
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 87, in __del__
+    self.close()
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 79, in close
+    if self.sampler is not None:
+       ^^^^^^^^^^^^
+AttributeError: 'LlamaModel' object has no attribute 'sampler'
+Exception ignored in: <function LlamaModel.__del__ at 0x71611cfe4220>
+Traceback (most recent call last):
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 87, in __del__
+    self.close()
+  File "/home/ansinitro/AITU/ai-nn/final/rag_env/lib/python3.12/site-packages/llama_cpp/_internals.py", line 79, in close
+    if self.sampler is not None:
+       ^^^^^^^^^^^^
+AttributeError: 'LlamaModel' object has no attribute 'sampler'
+llama_context: n_ctx_seq (2048) < n_ctx_train (4096) -- the full capacity of the model will not be utilized

@@ -1,0 +1,15 @@
+{
+  "summary": {
+    "total_questions": 15,
+    "evaluated": 15,
+    "avg_rouge1_f1": 0.7523,
+    "avg_rougeL_f1": 0.6981,
+    "avg_bert_f1": 0.9612,
+    "avg_retrieval_time": 0.015,
+    "avg_generation_time": 5.12
+  },
+  "failure_analysis": {
+    "high_score": 12,
+    "low_score": 3
+  }
+}
