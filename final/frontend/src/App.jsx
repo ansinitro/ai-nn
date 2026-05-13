@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 const EXAMPLES = [
   'How does transformer self-attention work?',
@@ -36,55 +36,109 @@ function StatusPill({ status }) {
   )
 }
 
-function UserBubble({ text }) {
-  return <div className="user-bubble">{text}</div>
-}
-
 function Thinking() {
   return (
     <div className="thinking">
-      <span>Thinking</span>
-      <span className="dots">
-        <span /><span /><span />
-      </span>
+      <span>Generating answer</span>
+      <span className="dots"><span /><span /><span /></span>
+    </div>
+  )
+}
+
+// Modal for full chunk text
+function ChunkModal({ source, onClose }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <div>
+            <div className="modal-title">{source.doc_name}</div>
+            <div className="modal-meta">
+              Relevance: {(source.score * 100).toFixed(1)}%
+              {source.used_in_context && <span className="badge-used">Used in prompt</span>}
+            </div>
+          </div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">{source.full_text}</div>
+      </div>
+    </div>
+  )
+}
+
+function SourceCard({ source, rank, onClick }) {
+  return (
+    <div className={`source-card ${source.used_in_context ? 'used' : ''}`} onClick={onClick} title="Click to read full passage">
+      <div className="source-rank">{rank}</div>
+      <div className="source-info">
+        <div className="source-name">
+          {source.doc_name}
+          {source.used_in_context && <span className="badge-used">in prompt</span>}
+        </div>
+        <div className="source-preview">{source.text_preview}</div>
+      </div>
+      <div className="source-right">
+        <div className="source-score">{(source.score * 100).toFixed(1)}%</div>
+        <div className="source-expand">read ↗</div>
+      </div>
     </div>
   )
 }
 
 function AnswerCard({ result }) {
+  const [activeSource, setActiveSource] = useState(null)
+  const usedCount = result.sources.filter(s => s.used_in_context).length
+
   return (
-    <div className="answer-card">
-      <div className="answer-header">🤖 Answer</div>
-      <div className="answer-body">{result.answer}</div>
-      <div className="metrics-row">
-        <span className="metric">⏱ Retrieval: <strong>{result.retrieval_time_ms.toFixed(0)} ms</strong></span>
-        <span className="metric">⚡ Generation: <strong>{result.generation_time_s.toFixed(1)} s</strong></span>
-        <span className="metric">📄 Chunks used: <strong>{result.num_chunks}</strong></span>
-      </div>
-      {result.sources.length > 0 && (
-        <div className="sources-section">
-          <div className="sources-title">📚 Sources Retrieved</div>
-          <div className="source-cards">
-            {result.sources.map((s, i) => (
-              <div className="source-card" key={i}>
-                <div className="source-rank">{i + 1}</div>
-                <div className="source-info">
-                  <div className="source-name">{s.doc_name}</div>
-                  <div className="source-preview">{s.text_preview}</div>
-                </div>
-                <div className="source-score">{(s.score * 100).toFixed(1)}%</div>
-              </div>
-            ))}
-          </div>
+    <>
+      <div className="answer-card">
+        <div className="answer-header">
+          <span>🤖 Answer</span>
         </div>
+        <div className="answer-body">{result.answer}</div>
+        <div className="metrics-row">
+          <span className="metric">⏱ Retrieval: <strong>{result.retrieval_time_ms.toFixed(0)} ms</strong></span>
+          <span className="metric">⚡ Generation: <strong>{result.generation_time_s.toFixed(1)} s</strong></span>
+          <span className="metric">📄 Used in prompt: <strong>{usedCount}</strong></span>
+          <span className="metric">🔍 Retrieved: <strong>{result.sources.length}</strong></span>
+        </div>
+
+        {result.sources.length > 0 && (
+          <div className="sources-section">
+            <div className="sources-title">
+              📚 Sources Retrieved
+              <span className="sources-hint">Click any to read full text</span>
+            </div>
+            <div className="source-cards">
+              {result.sources.map((s, i) => (
+                <SourceCard
+                  key={i}
+                  source={s}
+                  rank={i + 1}
+                  onClick={() => setActiveSource(s)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {activeSource && (
+        <ChunkModal source={activeSource} onClose={() => setActiveSource(null)} />
       )}
-    </div>
+    </>
   )
 }
 
 export default function App() {
   const status = useStatus()
-  const [messages, setMessages] = useState([]) // [{q, result, loading}]
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [topK, setTopK] = useState(5)
   const [busy, setBusy] = useState(false)
@@ -93,7 +147,7 @@ export default function App() {
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
-  const submit = async (question) => {
+  const submit = useCallback(async (question) => {
     const q = (question || input).trim()
     if (!q || busy || status.status !== 'ready') return
     setInput('')
@@ -107,17 +161,20 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: q, top_k: topK }),
       })
-      if (!res.ok) throw new Error(await res.text())
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.detail || 'Server error')
+      }
       const result = await res.json()
       setMessages(prev => prev.map((m, i) => i === idx ? { ...m, result, loading: false } : m))
     } catch (e) {
       setMessages(prev => prev.map((m, i) => i === idx
-        ? { ...m, result: { answer: `Error: ${e.message}`, sources: [], retrieval_time_ms: 0, generation_time_s: 0, num_chunks: 0 }, loading: false }
+        ? { ...m, result: { answer: `⚠️ Error: ${e.message}`, sources: [], retrieval_time_ms: 0, generation_time_s: 0, num_chunks: 0 }, loading: false }
         : m))
     } finally {
       setBusy(false)
     }
-  }
+  }, [input, busy, status, topK, messages.length])
 
   const onKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() }
@@ -125,19 +182,17 @@ export default function App() {
 
   return (
     <div className="app">
-      {/* Header */}
       <header className="header">
         <div className="header-left">
           <div className="logo">🔬</div>
           <div>
             <h1>RAG QA System</h1>
-            <p>ML Research Paper Q&A · Variant 5 · AAI-2501</p>
+            <p>ML Research Paper Q&amp;A · Variant 5 · AAI-2501</p>
           </div>
         </div>
         <StatusPill status={status} />
       </header>
 
-      {/* Chat */}
       <main className="chat-area">
         {messages.length === 0 ? (
           <div className="empty-state">
@@ -153,7 +208,7 @@ export default function App() {
         ) : (
           messages.map((m, i) => (
             <div key={i} className="message">
-              <UserBubble text={m.q} />
+              <div className="user-bubble">{m.q}</div>
               {m.loading ? <Thinking /> : <AnswerCard result={m.result} />}
             </div>
           ))
@@ -161,11 +216,11 @@ export default function App() {
         <div ref={bottomRef} />
       </main>
 
-      {/* Input bar */}
       <div className="input-bar">
         <div className="topk-row">
-          <span>Sources: <strong>{topK}</strong></span>
+          <span>Sources to retrieve: <strong>{topK}</strong></span>
           <input type="range" min={1} max={10} value={topK} onChange={e => setTopK(+e.target.value)} />
+          <span className="small">(all shown, top {topK > 2 ? 2 : topK} used in prompt)</span>
         </div>
         <div className="input-wrap">
           <textarea
@@ -173,15 +228,23 @@ export default function App() {
             rows={1}
             placeholder="Ask a question about ML papers… (Enter to send)"
             value={input}
-            onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
+            onChange={e => {
+              setInput(e.target.value)
+              e.target.style.height = 'auto'
+              e.target.style.height = e.target.scrollHeight + 'px'
+            }}
             onKeyDown={onKey}
             disabled={busy || status.status !== 'ready'}
           />
-          <button className="send-btn" onClick={() => submit()} disabled={busy || !input.trim() || status.status !== 'ready'}>
+          <button
+            className="send-btn"
+            onClick={() => submit()}
+            disabled={busy || !input.trim() || status.status !== 'ready'}
+          >
             {busy ? '⏳' : '➤'}
           </button>
         </div>
-        <div className="input-hint">Press Enter to send · Shift+Enter for new line</div>
+        <div className="input-hint">Enter to send · Shift+Enter for new line</div>
       </div>
     </div>
   )

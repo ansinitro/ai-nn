@@ -101,13 +101,16 @@ class RAGPipeline:
         generation_time = time.time() - t1
 
         # Step 5: Format sources
+        # Return ALL retrieved results for UI display, mark which were used in LLM context
         sources = []
-        for r in included_results:
+        for r in results:
             sources.append({
                 "doc_name": r["doc_name"],
                 "score": r["score"],
-                "text_preview": r["text"][:200] + "...",
+                "text_preview": r["text"][:400] + ("..." if len(r["text"]) > 400 else ""),
+                "full_text": r["text"],
                 "chunk_id": r["chunk_id"],
+                "used_in_context": r in included_results,
             })
 
         return {

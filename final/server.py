@@ -41,6 +41,8 @@ class SourceItem(BaseModel):
     doc_name: str
     score: float
     text_preview: str
+    full_text: str
+    used_in_context: bool
 
 
 class AskResponse(BaseModel):
