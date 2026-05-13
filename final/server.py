@@ -85,6 +85,21 @@ def ask(req: AskRequest):
 
 # ─── Serve React SPA ──────────────────────────────────────────
 DIST = Path(__file__).parent / "frontend" / "dist"
+PAPERS = Path(__file__).parent / "data" / "papers"
+
+
+@app.get("/papers/{filename}")
+def serve_paper(filename: str):
+    """Serve a PDF paper file directly in the browser."""
+    paper_path = PAPERS / filename
+    if not paper_path.exists() or not paper_path.suffix.lower() == ".pdf":
+        raise HTTPException(status_code=404, detail="Paper not found")
+    return FileResponse(
+        path=paper_path,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"inline; filename={filename}"},
+    )
+
 
 if DIST.exists():
     app.mount("/assets", StaticFiles(directory=DIST / "assets"), name="assets")

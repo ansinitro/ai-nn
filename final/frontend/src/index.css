@@ -168,6 +168,8 @@ body { overflow-x: hidden; }
 }
 .modal-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); border-color: rgba(255,255,255,0.15); }
 .modal-btn.close:hover { background: rgba(239,68,68,0.12); color: var(--red); border-color: rgba(239,68,68,0.3); }
+.modal-btn.pdf-btn { text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+.modal-btn.pdf-btn:hover { background: rgba(124,58,237,0.15); color: var(--purple2); border-color: rgba(124,58,237,0.4); }
 
 /* Divider */
 .modal-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(168,85,247,0.3), transparent); margin: 0 24px; flex-shrink: 0; }

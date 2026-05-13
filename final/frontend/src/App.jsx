@@ -92,6 +92,15 @@ function ChunkModal({ source, onClose }) {
             </div>
           </div>
           <div className="modal-actions">
+            <a
+              className="modal-btn pdf-btn"
+              href={`/papers/${source.doc_name}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open full PDF in new tab"
+            >
+              📄 Open PDF
+            </a>
             <button className="modal-btn" onClick={handleCopy}>
               {copied ? '✓ Copied' : '⎘ Copy'}
             </button>
