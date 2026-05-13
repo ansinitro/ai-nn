@@ -1,400 +1,839 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAG QA System — Final Exam Defense</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root { --r-main-font: 'Inter', sans-serif; --r-heading-font: 'Inter', sans-serif; }
-.reveal { font-family: 'Inter', sans-serif; }
-.reveal h1, .reveal h2, .reveal h3 { font-family: 'Inter', sans-serif; font-weight: 700; text-transform: none; }
-.reveal h1 { font-size: 2.2em; }
-.reveal h2 { font-size: 1.6em; color: #a78bfa; }
-.reveal h3 { font-size: 1.2em; color: #c4b5fd; }
-.reveal { background: #0f0a1a; color: #e2e8f0; font-size: 28px; }
-.reveal .slides section { text-align: left; }
-.slide-title { text-align: center !important; }
-.gradient-text { background: linear-gradient(135deg, #667eea, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.badge { display: inline-block; background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3); padding: 4px 16px; border-radius: 20px; font-size: 0.6em; color: #c4b5fd; margin: 4px; }
-.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin: 10px 0; }
-.card-highlight { border-left: 4px solid #a78bfa; }
-.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center; }
-.metric-box { background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(167,139,250,0.1)); border: 1px solid rgba(167,139,250,0.2); border-radius: 12px; padding: 20px; }
-.metric-value { font-size: 2em; font-weight: 800; color: #a78bfa; }
-.metric-label { font-size: 0.6em; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-.pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.7em; }
-.pipeline-step { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3); padding: 8px 16px; border-radius: 8px; text-align: center; }
-.pipeline-arrow { color: #a78bfa; font-size: 1.2em; }
-table { width: 100%; border-collapse: collapse; font-size: 0.75em; }
-th { background: rgba(167,139,250,0.2); color: #c4b5fd; padding: 10px; text-align: left; }
-td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-tr:hover td { background: rgba(167,139,250,0.05); }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.check { color: #4ade80; } .cross { color: #f87171; }
-ul { list-style: none; padding-left: 0; }
-ul li::before { content: "→ "; color: #a78bfa; font-weight: bold; }
-ul li { margin: 8px 0; }
-.small { font-size: 0.7em; color: #94a3b8; }
-.fragment.highlight-current-blue.visible { color: #a78bfa !important; }
-code { background: rgba(167,139,250,0.15); padding: 2px 8px; border-radius: 4px; font-size: 0.85em; }
-.reveal .slide-number { font-size: 14px; color: #a78bfa; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense: RAG QA System Final Exam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --text: #1f2937;
+            --heading: #0f172a;
+            --accent: #8b5cf6; /* Purple for AI */
+            --accent-2: #3b82f6; /* Blue */
+            --accent-3: #ec4899; /* Pink */
+            --glass: rgba(255, 255, 255, 0.9);
+            --border: rgba(148, 163, 184, 0.28);
+            --shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(139, 92, 246, 0.10), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.10), transparent 30%),
+                var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slides-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px) scale(0.98);
+            transition: all 0.45s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .content-box {
+            width: min(1500px, 96vw);
+            max-height: 92vh;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            padding: 1.6rem 2rem;
+            display: flex;
+            gap: 1.4rem;
+            align-items: center;
+        }
+
+        .column-layout {
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .equal-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            width: 100%;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 1rem 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            line-height: 1.1;
+            color: var(--heading);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            border-bottom: 3px solid rgba(139, 92, 246, 0.22);
+            display: inline-block;
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.08rem;
+            color: var(--accent-2);
+            margin-bottom: 0.55rem;
+            font-weight: 700;
+        }
+
+        p,
+        li,
+        td,
+        th {
+            font-size: 0.94rem;
+            line-height: 1.5;
+        }
+
+        p.note {
+            color: #475569;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.45rem;
+            position: relative;
+        }
+
+        li::before {
+            content: "▸";
+            position: absolute;
+            left: -1rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-red {
+            background: #f3e8ff;
+            color: #7e22ce;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-orange {
+            background: #fce7f3;
+            color: #be185d;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.85rem;
+            width: 100%;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.9rem;
+            text-align: center;
+        }
+
+        .metric-number {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--heading);
+        }
+
+        .metric-label {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 14px;
+            background: white;
+            margin-top: 0.7rem;
+        }
+
+        th,
+        td {
+            padding: 0.6rem 0.7rem;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #eff6ff;
+            color: var(--accent-2);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tr.highlight-row {
+            background: #f5f3ff;
+        }
+
+        .small {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        .controls,
+        .top-controls {
+            position: fixed;
+            z-index: 100;
+            display: flex;
+            gap: 0.7rem;
+        }
+
+        .controls {
+            right: 2rem;
+            bottom: 1.5rem;
+        }
+
+        .top-controls {
+            right: 2rem;
+            top: 1.2rem;
+        }
+
+        .btn {
+            border: 1px solid #dbe3ee;
+            background: white;
+            color: var(--text);
+            padding: 0.62rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .slide-counter {
+            position: fixed;
+            left: 2rem;
+            bottom: 1.55rem;
+            color: #64748b;
+            font-weight: 700;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+            transition: width 0.4s ease;
+            z-index: 100;
+        }
+
+        @media (max-width: 1100px) {
+            .content-box {
+                padding: 1.2rem;
+            }
+
+            .two-col,
+            .equal-col,
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media print {
+            body {
+                overflow: visible !important;
+                height: auto !important;
+                background: var(--bg) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .slides-container {
+                display: block !important;
+                height: auto !important;
+                position: static !important;
+            }
+            .slide {
+                position: relative !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: none !important;
+                page-break-after: always !important;
+                height: 100vh !important;
+                padding: 2rem !important;
+            }
+            .slide:last-child {
+                page-break-after: avoid !important;
+            }
+            .content-box {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-height: none !important;
+            }
+            .controls, .top-controls, .slide-counter, .progress-bar {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="reveal">
-<div class="slides">
+    <div class="top-controls">
+        <button class="btn" onclick="toggleFullScreen()">Fullscreen</button>
+        <button class="btn" onclick="window.print()">Export PDF</button>
+    </div>
 
-<!-- SLIDE 1: TITLE -->
-<section class="slide-title">
-<h1 class="gradient-text" style="font-size:2.5em;">RAG QA System</h1>
-<h3 style="color:#94a3b8;font-weight:400;">Retrieval-Augmented Generation for ML Research Papers</h3>
-<p style="margin-top:40px;font-size:0.7em;color:#94a3b8;">
-Artificial Intelligence and Neural Networks — Final Exam<br>
-Instructor: <strong style="color:#e2e8f0;">Akhmetova Zhanar</strong>
-</p>
-<p style="font-size:0.7em;color:#c4b5fd;">
-Angsar Shaumen &nbsp;•&nbsp; Bekzat Sundetkhan<br>
-<span style="color:#94a3b8;">Group AAI-2501</span>
-</p>
-</section>
+    <div class="slides-container">
+        
+        <!-- Slide 1: Title -->
+        <section class="slide active">
+            <div class="content-box column-layout">
+                <p style="text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent); font-weight: 700; font-size: 0.82rem;">
+                    Astana IT University | Artificial Intelligence and Neural Networks
+                </p>
+                <h1>RAG QA System<br>Final Exam Defense</h1>
+                <p class="note" style="max-width: 900px; font-size: 1.05rem; margin-top: 0.8rem;">
+                    Retrieval-Augmented Generation for ML Research Papers.
+                    <br><span style="font-size: 0.9rem; margin-top: 0.5rem; display: block;"><strong>Group:</strong> AAI-2501 &nbsp;|&nbsp; <strong>Instructor:</strong> Akhmetova Zhanar</span>
+                </p>
+                <div class="badge-row">
+                    <span class="badge badge-red">Angsar Shaumen</span>
+                    <span class="badge badge-blue">Bekzat Sundetkhan</span>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 2: TASK -->
-<section>
-<h2>📋 Task Description</h2>
-<div class="card card-highlight">
-<strong>Variant 5:</strong> Build a RAG-based Question-Answering system over 50–100 ML research papers
-</div>
-<div class="two-col" style="margin-top:20px;">
-<div>
-<h3>Requirements</h3>
-<ul>
-<li>50–100 PDF articles on ML</li>
-<li>Embeddings (SBERT / Instructor)</li>
-<li>Vector DB (FAISS / Chroma)</li>
-<li>LLM (local or API)</li>
-</ul>
-</div>
-<div>
-<h3>Deliverables</h3>
-<ul>
-<li>Web demo (Gradio / Streamlit)</li>
-<li>Quality metrics (ROUGE, BERTScore)</li>
-<li>Success / failure analysis</li>
-</ul>
-</div>
-</div>
-</section>
+        <!-- Slide 2: Task -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>📋 Task Description</h2>
+                        <h3>Variant 5</h3>
+                        <p>Build a RAG-based Question-Answering system over 50–100 ML research papers.</p>
+                        <br>
+                        <h4>Requirements</h4>
+                        <ul>
+                            <li>50–100 PDF articles on ML</li>
+                            <li>Embeddings (SBERT / Instructor)</li>
+                            <li>Vector DB (FAISS / Chroma)</li>
+                            <li>LLM (local or API)</li>
+                        </ul>
+                    </div>
+                    <div class="panel">
+                        <h2>Deliverables</h2>
+                        <br>
+                        <ul>
+                            <li>Web demo (Gradio / Streamlit)</li>
+                            <li>Quality metrics (ROUGE, BERTScore)</li>
+                            <li>Success / failure analysis</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 3: ARCHITECTURE -->
-<section>
-<h2>🏗️ System Architecture</h2>
-<div class="pipeline-flow" style="margin: 30px 0;">
-<div class="pipeline-step">📄 85 PDFs</div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">📝 Text Extraction<br><span class="small">PyMuPDF</span></div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">✂️ Chunking<br><span class="small">LangChain</span></div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">🧠 SBERT<br><span class="small">768-dim</span></div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">📊 FAISS<br><span class="small">Index</span></div>
-</div>
-<div class="pipeline-flow">
-<div class="pipeline-step">❓ User Query</div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">🔍 Retrieval<br><span class="small">Top-K</span></div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">📋 Prompt<br><span class="small">Assembly</span></div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">🤖 Llama 2 7B<br><span class="small">4-bit GPU</span></div><span class="pipeline-arrow">→</span>
-<div class="pipeline-step">💬 Answer<br><span class="small">+ Sources</span></div>
-</div>
-</section>
+        <!-- Slide 3: Architecture -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h2>🏗️ System Architecture</h2>
+                <div class="metric-grid" style="margin-top: 1rem; max-width: 1000px; margin-left: auto; margin-right: auto;">
+                    <div class="metric-card">
+                        <div class="metric-number">📄</div>
+                        <div class="metric-label">85 PDFs</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">✂️</div>
+                        <div class="metric-label">Chunking (LangChain)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">🧠</div>
+                        <div class="metric-label">SBERT 768-dim</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">📊</div>
+                        <div class="metric-label">FAISS Index</div>
+                    </div>
+                </div>
+                <div class="metric-grid" style="margin-top: 1rem; max-width: 1000px; margin-left: auto; margin-right: auto;">
+                    <div class="metric-card">
+                        <div class="metric-number">❓</div>
+                        <div class="metric-label">User Query</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">🔍</div>
+                        <div class="metric-label">Top-K Retrieval</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">🤖</div>
+                        <div class="metric-label">Llama 2 7B 4-bit</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">💬</div>
+                        <div class="metric-label">Answer + Sources</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 4: DATA -->
-<section>
-<h2>📄 Data Collection & Processing</h2>
-<div class="metric-grid">
-<div class="metric-box"><div class="metric-value">85</div><div class="metric-label">PDF Papers</div></div>
-<div class="metric-box"><div class="metric-value">74</div><div class="metric-label">Successfully Parsed</div></div>
-<div class="metric-box"><div class="metric-value">~1M</div><div class="metric-label">Tokens Extracted</div></div>
-</div>
-<div class="two-col" style="margin-top:20px;">
-<div class="card">
-<h3>Sources</h3>
-<ul>
-<li>arXiv — 15 ML topic categories</li>
-<li>Deep learning, Transformers, CNNs</li>
-<li>GANs, RL, NLP, GNNs, Diffusion</li>
-<li>Meta-learning, NAS, Federated, KD</li>
-</ul>
-</div>
-<div class="card">
-<h3>Processing Pipeline</h3>
-<ul>
-<li>Text extraction via <code>PyMuPDF</code></li>
-<li>Regex cleaning (headers, footers)</li>
-<li>Chunking: 3000 chars, 400 overlap</li>
-<li><strong>1700 chunks</strong> (~647 tokens avg)</li>
-</ul>
-</div>
-</div>
-</section>
+        <!-- Slide 4: Data -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>📄 Data Collection</h2>
+                        <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1rem;">
+                            <div class="metric-card" style="padding: 0.5rem;"><div class="metric-number" style="font-size: 1.2rem;">85</div><div class="metric-label" style="font-size: 0.6rem;">PDF Papers</div></div>
+                            <div class="metric-card" style="padding: 0.5rem;"><div class="metric-number" style="font-size: 1.2rem;">74</div><div class="metric-label" style="font-size: 0.6rem;">Parsed</div></div>
+                            <div class="metric-card" style="padding: 0.5rem;"><div class="metric-number" style="font-size: 1.2rem;">~1M</div><div class="metric-label" style="font-size: 0.6rem;">Tokens</div></div>
+                        </div>
+                        <h3>Sources</h3>
+                        <ul>
+                            <li>arXiv — 15 ML topic categories</li>
+                            <li>Deep learning, Transformers, CNNs</li>
+                            <li>GANs, RL, NLP, GNNs, Diffusion</li>
+                            <li>Meta-learning, NAS, Federated, KD</li>
+                        </ul>
+                    </div>
+                    <div class="panel">
+                        <h2>Processing Pipeline</h2>
+                        <br>
+                        <ul>
+                            <li>Text extraction via <code>PyMuPDF</code></li>
+                            <li>Regex cleaning (headers, footers)</li>
+                            <li>Chunking: 800 chars, 150 overlap</li>
+                            <li><strong>6261 chunks</strong> (~180 tokens avg)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 5: EMBEDDINGS -->
-<section>
-<h2>🧠 Embedding Model</h2>
-<div class="card card-highlight">
-<strong>Model:</strong> Sentence-BERT <code>all-mpnet-base-v2</code>
-</div>
-<table style="margin-top:20px;">
-<tr><th>Property</th><th>Value</th></tr>
-<tr><td>Dimensions</td><td><strong>768</strong></td></tr>
-<tr><td>Model Size</td><td>420 MB</td></tr>
-<tr><td>Encoding Speed</td><td>49 chunks/sec</td></tr>
-<tr><td>Normalization</td><td>L2-normalized (cosine similarity)</td></tr>
-<tr><td>Total Encoding Time</td><td>34.7 seconds for 1700 chunks</td></tr>
-<tr><td>Embeddings File Size</td><td>5.0 MB</td></tr>
-</table>
-<p class="small" style="margin-top:15px;">Chosen over MiniLM (384-dim) for higher semantic accuracy, and over Instructor for faster encoding speed.</p>
-</section>
+        <!-- Slide 5: Embeddings -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h2>🧠 Embedding Model</h2>
+                <p class="note" style="margin-bottom: 1rem;"><strong>Model:</strong> Sentence-BERT <code>all-mpnet-base-v2</code></p>
+                <table style="max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Dimensions</td><td><strong>768</strong></td></tr>
+                        <tr><td>Model Size</td><td>420 MB</td></tr>
+                        <tr><td>Encoding Speed</td><td>49 chunks/sec</td></tr>
+                        <tr><td>Normalization</td><td>L2-normalized (cosine similarity)</td></tr>
+                        <tr><td>Total Encoding Time</td><td>34.7 seconds for 1700 chunks</td></tr>
+                        <tr><td>Embeddings File Size</td><td>5.0 MB</td></tr>
+                    </tbody>
+                </table>
+                <p class="small" style="margin-top: 1rem; max-width: 900px; margin-left: auto; margin-right: auto;">Chosen over MiniLM (384-dim) for higher semantic accuracy, and over Instructor for faster encoding speed.</p>
+            </div>
+        </section>
 
-<!-- SLIDE 6: VECTOR DB -->
-<section>
-<h2>📊 Vector Database — FAISS</h2>
-<div class="two-col">
-<div class="card">
-<h3>Index Configuration</h3>
-<ul>
-<li>Type: <code>IndexFlatIP</code></li>
-<li>Metric: Inner Product (= cosine for normalized vectors)</li>
-<li>Vectors: <strong>1700</strong></li>
-<li>Dimensions: 768</li>
-<li>Size: 5.0 MB</li>
-</ul>
-</div>
-<div class="card">
-<h3>Why FAISS Flat?</h3>
-<ul>
-<li>Exact search (no approximation loss)</li>
-<li>Fast for &lt;10K vectors</li>
-<li>CPU-based (saves GPU for LLM)</li>
-<li>Sub-millisecond query time</li>
-</ul>
-</div>
-</div>
-<div class="card" style="margin-top:15px;">
-<strong>Sanity Check:</strong> Query chunk[0] → returns itself with score <strong>1.000</strong> ✅
-</div>
-</section>
+        <!-- Slide 6: FAISS -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>📊 Vector Database</h2>
+                        <h3>FAISS Index Configuration</h3>
+                        <ul>
+                            <li>Type: <code>IndexFlatIP</code></li>
+                            <li>Metric: Inner Product (= cosine for normalized vectors)</li>
+                            <li>Vectors: <strong>1700</strong></li>
+                            <li>Dimensions: 768</li>
+                            <li>Size: 5.0 MB</li>
+                        </ul>
+                    </div>
+                    <div class="panel">
+                        <h2>Why FAISS Flat?</h2>
+                        <br>
+                        <ul>
+                            <li>Exact search (no approximation loss)</li>
+                            <li>Fast for &lt;10K vectors</li>
+                            <li>CPU-based (saves GPU for LLM)</li>
+                            <li>Sub-millisecond query time</li>
+                        </ul>
+                        <div class="badge-row" style="margin-top: 1.5rem;">
+                            <span class="badge badge-blue">Sanity Check: Query chunk[0] → score 1.000 ✅</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 7: LLM -->
-<section>
-<h2>🤖 LLM — Llama 2 7B Chat</h2>
-<table>
-<tr><th>Property</th><th>Value</th></tr>
-<tr><td>Model</td><td>Llama 2 7B Chat (GGUF Q4_K_M)</td></tr>
-<tr><td>Quantization</td><td>4-bit (3.8 GB model file)</td></tr>
-<tr><td>Inference Engine</td><td><code>llama-cpp-python</code> with CUDA</td></tr>
-<tr><td>GPU Layers</td><td>20 of 33 on RTX 2060 (6 GB VRAM)</td></tr>
-<tr><td>Speed</td><td>~11.7 tokens/sec</td></tr>
-<tr><td>Context Window</td><td>2048 tokens</td></tr>
-<tr><td>Fallback</td><td>OpenAI API (GPT-3.5-turbo)</td></tr>
-</table>
-<div class="card" style="margin-top:15px;">
-<strong>Smart GPU Management:</strong> Auto-retry with fewer GPU layers if VRAM is insufficient — tries 25 → 20 → 15 → 10 → CPU
-</div>
-</section>
+        <!-- Slide 7: LLM -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h2>🤖 Large Language Model</h2>
+                <p class="note" style="margin-bottom: 1rem;">Llama 2 7B Chat</p>
+                <table style="max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Quantization</td><td>4-bit (3.8 GB model file GGUF)</td></tr>
+                        <tr><td>Inference Engine</td><td><code>llama-cpp-python</code> with CUDA</td></tr>
+                        <tr><td>GPU Layers</td><td>20 of 33 on RTX 2060 (6 GB VRAM)</td></tr>
+                        <tr><td>Speed</td><td>~11.7 tokens/sec</td></tr>
+                        <tr><td>Context Window</td><td>2048 tokens</td></tr>
+                        <tr><td>Fallback</td><td>OpenAI API (GPT-3.5-turbo)</td></tr>
+                    </tbody>
+                </table>
+                <p class="small" style="margin-top: 1rem; max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <strong>Smart GPU Management:</strong> Auto-retry with fewer GPU layers if VRAM is insufficient (25 → 20 → 15 → 10 → CPU).
+                </p>
+            </div>
+        </section>
 
-<!-- SLIDE 8: RAG PIPELINE -->
-<section>
-<h2>🔗 RAG Pipeline</h2>
-<div class="card card-highlight">
-<h3>Prompt Template (Llama 2 Chat Format)</h3>
-<pre style="font-size:0.6em;color:#c4b5fd;background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;overflow-x:auto;">[INST] &lt;&lt;SYS&gt;&gt;
-You are a knowledgeable AI assistant specialized in ML research.
-Answer ONLY using the provided context. Cite sources when possible.
+        <!-- Slide 8: RAG -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>🔗 RAG Pipeline</h2>
+                        <h3>Prompt Template</h3>
+                        <pre style="background: #f8fafc; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; border: 1px solid #e2e8f0; color: #334155; text-align: left; line-height: 1.4;">
+[INST] &lt;&lt;SYS&gt;&gt;
+You are a knowledgeable AI assistant specialized 
+in ML research. Answer ONLY using the provided 
+context. Cite sources when possible.
 &lt;&lt;/SYS&gt;&gt;
 
 Context from research papers:
 [1] (Source: paper.pdf) {chunk_text}
-[2] (Source: paper2.pdf) {chunk_text}
 
-Question: {user_question} [/INST]</pre>
-</div>
-<div class="metric-grid" style="margin-top:15px;">
-<div class="metric-box"><div class="metric-value">Top-5</div><div class="metric-label">Chunks Retrieved</div></div>
-<div class="metric-box"><div class="metric-value">~15ms</div><div class="metric-label">Retrieval Time</div></div>
-<div class="metric-box"><div class="metric-value">~5s</div><div class="metric-label">Answer Generation</div></div>
-</div>
-</section>
+Question: {user_question} [/INST]
+                        </pre>
+                    </div>
+                    <div class="panel">
+                        <h2>Performance</h2>
+                        <div class="metric-grid" style="grid-template-columns: 1fr; margin-top: 1rem; gap: 0.5rem;">
+                            <div class="metric-card"><div class="metric-number" style="font-size: 1.3rem;">Top-5</div><div class="metric-label">Chunks Retrieved</div></div>
+                            <div class="metric-card"><div class="metric-number" style="font-size: 1.3rem;">~15ms</div><div class="metric-label">Retrieval Time</div></div>
+                            <div class="metric-card"><div class="metric-number" style="font-size: 1.3rem;">~5s</div><div class="metric-label">Answer Generation</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 9: WEB DEMO -->
-<section>
-<h2>🖥️ Web Demo — Gradio</h2>
-<div class="card">
-<h3>Interface Features</h3>
-<ul>
-<li>Question input with example queries</li>
-<li>Adjustable Top-K retrieval slider (1–10)</li>
-<li>Real-time answer generation with source attribution</li>
-<li>Performance metrics display (retrieval time, generation time)</li>
-<li>Custom CSS with gradient theme</li>
-</ul>
-</div>
-<div class="metric-grid" style="margin-top:15px;">
-<div class="metric-box"><div class="metric-value">Gradio</div><div class="metric-label">Framework v6.14</div></div>
-<div class="metric-box"><div class="metric-value">:7860</div><div class="metric-label">Local Port</div></div>
-<div class="metric-box"><div class="metric-value">8</div><div class="metric-label">Example Questions</div></div>
-</div>
-<p class="small" style="margin-top:10px;">Live demo available at localhost:7860 — accessible via Cloudflare tunnel for remote access</p>
-</section>
+        <!-- Slide 9: Web Demo -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>🖥️ Web Demo</h2>
+                        <h3>Gradio Interface</h3>
+                        <ul>
+                            <li>Question input with example queries</li>
+                            <li>Adjustable Top-K retrieval slider (1–10)</li>
+                            <li>Real-time answer generation with source attribution</li>
+                            <li>Performance metrics display</li>
+                            <li>Custom CSS with gradient theme</li>
+                        </ul>
+                    </div>
+                    <div class="panel">
+                        <h2>Demo Details</h2>
+                        <div class="metric-grid" style="grid-template-columns: 1fr; margin-top: 1rem; gap: 0.5rem;">
+                            <div class="metric-card"><div class="metric-number" style="font-size: 1.3rem;">Gradio v6.14</div><div class="metric-label">Framework</div></div>
+                            <div class="metric-card"><div class="metric-number" style="font-size: 1.3rem;">:7860</div><div class="metric-label">Local Port</div></div>
+                            <div class="metric-card"><div class="metric-number" style="font-size: 1.3rem;">8</div><div class="metric-label">Example Questions</div></div>
+                        </div>
+                        <p class="small" style="margin-top: 1rem; text-align: center;">Live demo available at localhost:7860 — accessible via Cloudflare tunnel</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 10: EVALUATION -->
-<section>
-<h2>📏 Evaluation Methodology</h2>
-<div class="two-col">
-<div class="card">
-<h3>Metrics</h3>
-<ul>
-<li><strong>ROUGE-1</strong> — unigram overlap</li>
-<li><strong>ROUGE-L</strong> — longest common subsequence</li>
-<li><strong>BERTScore F1</strong> — semantic similarity using RoBERTa</li>
-</ul>
-</div>
-<div class="card">
-<h3>Test Set</h3>
-<ul>
-<li><strong>15 question-answer pairs</strong></li>
-<li>10 diverse ML topics</li>
-<li>Manually crafted reference answers</li>
-<li>Stored in <code>eval/test_questions.json</code></li>
-</ul>
-</div>
-</div>
-<div class="card" style="margin-top:15px;">
-<h3>Evaluation Process</h3>
-<p style="font-size:0.8em;">Each question → RAG pipeline → predicted answer → compare with reference using ROUGE + BERTScore → log to CSV with sources and timing data</p>
-</div>
-</section>
+        <!-- Slide 10: Eval -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>📏 Evaluation</h2>
+                        <h3>Metrics</h3>
+                        <ul>
+                            <li><strong>ROUGE-1</strong> — unigram overlap</li>
+                            <li><strong>ROUGE-L</strong> — longest common subsequence</li>
+                            <li><strong>BERTScore F1</strong> — semantic similarity using RoBERTa</li>
+                        </ul>
+                    </div>
+                    <div class="panel">
+                        <h2>Test Set</h2>
+                        <ul>
+                            <li><strong>15 question-answer pairs</strong></li>
+                            <li>10 diverse ML topics</li>
+                            <li>Manually crafted reference answers</li>
+                            <li>Stored in <code>eval/test_questions.json</code></li>
+                        </ul>
+                        <p class="small" style="margin-top: 1rem; padding: 0.5rem; background: #f8fafc; border-radius: 6px;">Each question → RAG pipeline → predicted answer → compare with reference → log to CSV.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 11: RESULTS -->
-<section>
-<h2>📊 Results & Analysis</h2>
-<div class="metric-grid">
-<div class="metric-box"><div class="metric-value" style="color:#4ade80;">0.75</div><div class="metric-label">ROUGE-1 F1</div></div>
-<div class="metric-box"><div class="metric-value" style="color:#4ade80;">0.96</div><div class="metric-label">BERTScore F1</div></div>
-<div class="metric-box"><div class="metric-value" style="color:#4ade80;">~5s</div><div class="metric-label">Avg Response Time</div></div>
-</div>
-<div class="two-col" style="margin-top:20px;">
-<div class="card" style="border-left:4px solid #4ade80;">
-<h3 class="check">✓ Successful Cases</h3>
-<ul>
-<li>Questions matching paper topics directly</li>
-<li>Well-defined ML concepts (CNNs, Transformers)</li>
-<li>Topics covered by multiple papers</li>
-</ul>
-</div>
-<div class="card" style="border-left:4px solid #f87171;">
-<h3 class="cross">✗ Failure Cases</h3>
-<ul>
-<li>Niche topics with few matching papers</li>
-<li>Questions requiring cross-paper synthesis</li>
-<li>Overly broad questions exceeding context</li>
-</ul>
-</div>
-</div>
-</section>
+        <!-- Slide 11: Results -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h2>📊 Results & Analysis</h2>
+                <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr); max-width: 900px; margin: 0 auto 1rem auto;">
+                    <div class="metric-card"><div class="metric-number" style="color: #10b981;">0.75</div><div class="metric-label">ROUGE-1 F1</div></div>
+                    <div class="metric-card"><div class="metric-number" style="color: #10b981;">0.96</div><div class="metric-label">BERTScore F1</div></div>
+                    <div class="metric-card"><div class="metric-number" style="color: #10b981;">~5s</div><div class="metric-label">Avg Response Time</div></div>
+                </div>
+                <div class="two-col" style="max-width: 1000px; margin: 0 auto;">
+                    <div class="panel" style="border-top: 4px solid #10b981;">
+                        <h3 style="color: #10b981;">✓ Successful Cases</h3>
+                        <ul>
+                            <li>Questions matching paper topics directly</li>
+                            <li>Well-defined ML concepts (CNNs, Transformers)</li>
+                            <li>Topics covered by multiple papers</li>
+                        </ul>
+                    </div>
+                    <div class="panel" style="border-top: 4px solid #ef4444;">
+                        <h3 style="color: #ef4444;">✗ Failure Cases</h3>
+                        <ul>
+                            <li>Niche topics with few matching papers</li>
+                            <li>Questions requiring cross-paper synthesis</li>
+                            <li>Overly broad questions exceeding context</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 12: CHALLENGES -->
-<section>
-<h2>⚡ Technical Challenges & Solutions</h2>
-<table>
-<tr><th>Challenge</th><th>Solution</th></tr>
-<tr><td>6 GB VRAM limit</td><td>4-bit quantization + auto GPU layer retry</td></tr>
-<tr><td>Context window overflow (2048 tokens)</td><td>Smart context truncation with token budget</td></tr>
-<tr><td>CUDA toolkit compatibility</td><td>Built llama-cpp-python from source with system CUDA 12.0</td></tr>
-<tr><td>BERTScore GPU OOM during eval</td><td>Force BERTScore to CPU, keep LLM on GPU</td></tr>
-<tr><td>arXiv rate limiting</td><td>Retry logic with 1s delays between downloads</td></tr>
-<tr><td>PDF parsing errors</td><td>Graceful skip with minimum text length filter</td></tr>
-</table>
-</section>
+        <!-- Slide 12: Challenges -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h2>⚡ Technical Challenges & Solutions</h2>
+                <table style="max-width: 1000px; margin-left: auto; margin-right: auto; margin-top: 1rem;">
+                    <thead><tr><th>Challenge</th><th>Solution</th></tr></thead>
+                    <tbody>
+                        <tr><td>6 GB VRAM limit</td><td>4-bit quantization + auto GPU layer retry</td></tr>
+                        <tr><td>Context window overflow</td><td>Decreased chunk size to 800 chars to fit 5+ chunks into 2048 token limit</td></tr>
+                        <tr><td>CUDA toolkit compatibility</td><td>Built llama-cpp-python from source with system CUDA</td></tr>
+                        <tr><td>BERTScore GPU OOM</td><td>Force BERTScore to CPU, keep LLM on GPU</td></tr>
+                        <tr><td>arXiv rate limiting</td><td>Retry logic with 1s delays between downloads</td></tr>
+                        <tr><td>PDF parsing errors</td><td>Graceful skip with minimum text length filter</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-<!-- SLIDE 13: TECH STACK -->
-<section>
-<h2>🛠️ Technology Stack</h2>
-<div class="two-col">
-<div>
-<table>
-<tr><th>Component</th><th>Technology</th></tr>
-<tr><td>PDF Parsing</td><td>PyMuPDF (fitz)</td></tr>
-<tr><td>Chunking</td><td>LangChain TextSplitter</td></tr>
-<tr><td>Embeddings</td><td>Sentence-BERT (mpnet)</td></tr>
-<tr><td>Vector DB</td><td>FAISS (FlatIP)</td></tr>
-<tr><td>LLM</td><td>Llama 2 7B (GGUF)</td></tr>
-<tr><td>Web UI</td><td>Gradio 6.14</td></tr>
-<tr><td>Evaluation</td><td>ROUGE + BERTScore</td></tr>
-</table>
-</div>
-<div>
-<div class="card">
-<h3>Hardware</h3>
-<ul>
-<li>GPU: RTX 2060 (6 GB)</li>
-<li>CPU: i5-9400 (6 cores)</li>
-<li>RAM: 16 GB</li>
-<li>OS: Ubuntu Linux</li>
-</ul>
-</div>
-<div class="card" style="margin-top:10px;">
-<h3>Code</h3>
-<ul>
-<li>Python 3.12</li>
-<li>16 source files</li>
-<li>~1500 lines of code</li>
-</ul>
-</div>
-</div>
-</div>
-</section>
+        <!-- Slide 13: Tech Stack -->
+        <section class="slide">
+            <div class="content-box">
+                <div class="two-col">
+                    <div class="panel">
+                        <h2>🛠️ Technology Stack</h2>
+                        <table>
+                            <tbody>
+                                <tr><td><strong>PDF Parsing</strong></td><td>PyMuPDF (fitz)</td></tr>
+                                <tr><td><strong>Chunking</strong></td><td>LangChain TextSplitter</td></tr>
+                                <tr><td><strong>Embeddings</strong></td><td>Sentence-BERT (mpnet)</td></tr>
+                                <tr><td><strong>Vector DB</strong></td><td>FAISS (FlatIP)</td></tr>
+                                <tr><td><strong>LLM</strong></td><td>Llama 2 7B (GGUF)</td></tr>
+                                <tr><td><strong>Web UI</strong></td><td>Gradio 6.14</td></tr>
+                                <tr><td><strong>Evaluation</strong></td><td>ROUGE + BERTScore</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel">
+                        <h2>Environment</h2>
+                        <h3>Hardware</h3>
+                        <ul>
+                            <li>GPU: RTX 2060 (6 GB)</li>
+                            <li>CPU: i5-9400 (6 cores)</li>
+                            <li>RAM: 16 GB</li>
+                            <li>OS: Ubuntu Linux</li>
+                        </ul>
+                        <br>
+                        <h3>Codebase</h3>
+                        <ul>
+                            <li>Python 3.12</li>
+                            <li>16 source files</li>
+                            <li>~1500 lines of code</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 14: CONCLUSION -->
-<section class="slide-title">
-<h2 class="gradient-text" style="font-size:2em;">Conclusion</h2>
-<div class="card" style="text-align:left;max-width:700px;margin:20px auto;">
-<ul>
-<li>Built a complete RAG system over <strong>85 ML papers</strong></li>
-<li>Local LLM inference with <strong>4-bit quantized Llama 2</strong></li>
-<li>Semantic retrieval via <strong>SBERT + FAISS</strong></li>
-<li>Interactive <strong>Gradio web demo</strong> with source attribution</li>
-<li>Evaluated with <strong>ROUGE and BERTScore</strong> on 15 test questions</li>
-<li>Analyzed <strong>success and failure cases</strong> with actionable insights</li>
-</ul>
-</div>
-<p style="color:#94a3b8;font-size:0.8em;margin-top:20px;">All task requirements fulfilled ✅</p>
-</section>
+        <!-- Slide 14: Conclusion -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <p style="text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent); font-weight: 700; font-size: 0.82rem;">
+                    Final Summary
+                </p>
+                <h2>Conclusion</h2>
+                <div class="panel" style="text-align: left; max-width: 800px; margin: 1rem auto;">
+                    <ul>
+                        <li>Built a complete RAG system over <strong>85 ML papers</strong></li>
+                        <li>Local LLM inference with <strong>4-bit quantized Llama 2</strong></li>
+                        <li>Semantic retrieval via <strong>SBERT + FAISS</strong></li>
+                        <li>Interactive <strong>Gradio web demo</strong> with source attribution</li>
+                        <li>Evaluated with <strong>ROUGE and BERTScore</strong> on 15 test questions</li>
+                        <li>Analyzed <strong>success and failure cases</strong> with actionable insights</li>
+                    </ul>
+                </div>
+                <div class="badge-row" style="margin-top: 1rem;">
+                    <span class="badge badge-blue" style="font-size: 0.9rem;">All task requirements fulfilled ✅</span>
+                </div>
+            </div>
+        </section>
 
-<!-- SLIDE 15: THANK YOU -->
-<section class="slide-title">
-<h1 class="gradient-text">Thank You</h1>
-<p style="font-size:1.2em;color:#94a3b8;margin-top:20px;">Questions?</p>
-<p style="margin-top:40px;font-size:0.7em;color:#64748b;">
-Angsar Shaumen &nbsp;•&nbsp; Bekzat Sundetkhan<br>
-AAI-2501 &nbsp;|&nbsp; AI & Neural Networks &nbsp;|&nbsp; 2026
-</p>
-</section>
+        <!-- Slide 15: Thank You -->
+        <section class="slide">
+            <div class="content-box column-layout">
+                <h1>Thank You</h1>
+                <p class="note" style="font-size: 1.2rem; margin-top: 1rem;">Questions?</p>
+                <div style="margin-top: 2rem;">
+                    <p style="font-size: 0.9rem; color: #64748b;">
+                        Angsar Shaumen &nbsp;•&nbsp; Bekzat Sundetkhan<br>
+                        AAI-2501 &nbsp;|&nbsp; AI & Neural Networks &nbsp;|&nbsp; 2026
+                    </p>
+                </div>
+            </div>
+        </section>
 
-</div>
-</div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
-<script>
-Reveal.initialize({
-  hash: true,
-  slideNumber: 'c/t',
-  transition: 'slide',
-  backgroundTransition: 'fade',
-  center: false,
-  width: 1200,
-  height: 700,
-  margin: 0.08,
-});
-</script>
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()">Prev</button>
+        <button class="btn" onclick="nextSlide()">Next</button>
+    </div>
+    <div class="slide-counter" id="counter">1 / 15</div>
+    <div class="progress-bar" id="progress"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('counter');
+        const progress = document.getElementById('progress');
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            counter.textContent = `${currentSlide + 1} / ${slides.length}`;
+            progress.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide += 1;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide -= 1;
+                updateSlides();
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight' || event.key === ' ') nextSlide();
+            if (event.key === 'ArrowLeft') prevSlide();
+        });
+
+        updateSlides();
+    </script>
 </body>
+
 </html>
