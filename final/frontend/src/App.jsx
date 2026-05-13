@@ -45,32 +45,80 @@ function Thinking() {
   )
 }
 
+// Format raw chunk text into readable paragraphs
+function formatText(text) {
+  // Split on double newlines or sentence-ending patterns that look like paragraph breaks
+  return text
+    .replace(/\r\n/g, '\n')
+    .split(/\n{2,}/)
+    .map(p => p.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter(p => p.length > 0)
+}
+
 // Modal for full chunk text
 function ChunkModal({ source, onClose }) {
+  const [copied, setCopied] = useState(false)
+  const paragraphs = formatText(source.full_text)
+  const wordCount = source.full_text.split(/\s+/).length
+
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(source.full_text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={e => e.stopPropagation()}>
+        {/* Header */}
         <div className="modal-header">
-          <div>
+          <div className="modal-header-left">
+            <div className="modal-source-tag">📄 Source Document</div>
             <div className="modal-title">{source.doc_name}</div>
-            <div className="modal-meta">
-              Relevance: {(source.score * 100).toFixed(1)}%
-              {source.used_in_context && <span className="badge-used">Used in prompt</span>}
+            <div className="modal-meta-row">
+              <span className="modal-badge score">
+                {(source.score * 100).toFixed(1)}% relevance
+              </span>
+              {source.used_in_context && (
+                <span className="modal-badge used">✓ Used in prompt</span>
+              )}
+              <span className="modal-badge neutral">~{wordCount} words</span>
             </div>
           </div>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <div className="modal-actions">
+            <button className="modal-btn" onClick={handleCopy}>
+              {copied ? '✓ Copied' : '⎘ Copy'}
+            </button>
+            <button className="modal-btn close" onClick={onClose}>✕</button>
+          </div>
         </div>
-        <div className="modal-body">{source.full_text}</div>
+
+        {/* Divider */}
+        <div className="modal-divider" />
+
+        {/* Body — formatted paragraphs */}
+        <div className="modal-body">
+          {paragraphs.map((para, i) => (
+            <p key={i} className="modal-para">{para}</p>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="modal-footer">
+          <span>Chunk #{source.chunk_id}</span>
+          <span>Press <kbd>Esc</kbd> to close</span>
+        </div>
       </div>
     </div>
   )
 }
+
 
 function SourceCard({ source, rank, onClick }) {
   return (
