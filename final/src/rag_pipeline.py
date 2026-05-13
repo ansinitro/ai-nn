@@ -63,9 +63,11 @@ class RAGPipeline:
         retrieval_time = time.time() - t0
 
         # Step 2: Build context, respecting token budget
-        # Rough estimate: 1 token ≈ 4 chars
-        # Reserve tokens for: system prompt (~200 tokens), question (~50), answer (max_tokens)
-        max_context_chars = (LLM_CONTEXT_LENGTH - LLM_MAX_TOKENS - 250) * 4
+        # Technical ML text averages ~3 chars/token (not 4)
+        # Reserve: system prompt ~300 tokens, question ~80 tokens, answer max_tokens
+        reserved_tokens = LLM_MAX_TOKENS + 380
+        max_context_tokens = LLM_CONTEXT_LENGTH - reserved_tokens  # ~1368 tokens
+        max_context_chars = max_context_tokens * 3  # ~4104 chars
         
         context_parts = []
         used_chars = 0

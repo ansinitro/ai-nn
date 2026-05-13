@@ -19,8 +19,8 @@ class Retriever:
     def __init__(self):
         print("Loading retriever...")
 
-        # Load SBERT model for query encoding
-        self.model = SentenceTransformer(EMBEDDING_MODEL)
+        # Load SBERT model for query encoding — force CPU so LLM can keep the GPU
+        self.model = SentenceTransformer(EMBEDDING_MODEL, device='cpu')
 
         # Load FAISS index
         index_path = PROCESSED_DIR / "index.faiss"
@@ -41,9 +41,9 @@ class Retriever:
         Returns:
             List of dicts with keys: text, doc_name, doc_id, chunk_id, score, chunk_index
         """
-        # Encode query
+        # Encode query on CPU
         q_emb = self.model.encode(
-            [query], normalize_embeddings=True
+            [query], normalize_embeddings=True, device='cpu'
         ).astype("float32")
 
         # Search
