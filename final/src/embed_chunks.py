@@ -33,8 +33,8 @@ def embed_chunks():
     print("-" * 50)
 
     # Load model
-    print("Loading SBERT model...")
-    model = SentenceTransformer(EMBEDDING_MODEL)
+    print("Loading SBERT model on CPU to avoid VRAM collision...")
+    model = SentenceTransformer(EMBEDDING_MODEL, device="cpu")
 
     # Encode
     print(f"Encoding {len(texts)} chunks (batch_size={EMBEDDING_BATCH_SIZE})...")

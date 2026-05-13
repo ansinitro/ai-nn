@@ -16,8 +16,8 @@ EVAL_DIR = BASE_DIR / "eval"
 MIN_TEXT_LENGTH = 500  # Skip PDFs shorter than this (chars)
 
 # ─── Chunking ──────────────────────────────────────────────────
-CHUNK_SIZE = 3000        # characters (~750 tokens)
-CHUNK_OVERLAP = 400      # characters (~100 tokens)
+CHUNK_SIZE = 800         # characters (~200 tokens)
+CHUNK_OVERLAP = 150      # characters (~35 tokens)
 
 # ─── Embedding ─────────────────────────────────────────────────
 EMBEDDING_MODEL = "all-mpnet-base-v2"   # 768-dim, best quality
